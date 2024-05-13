@@ -6,6 +6,7 @@ import connectPgSimple from 'connect-pg-simple';  // Import connect-pg-simple
 
 import corsOptions from './config/cors-options';
 import authRoutes from '../features/auth/auth-routes';
+import faceRoutes from '../features/auth/python-face-integration/face-routes';
 import errorHandlers from './middlewares/error-handlers';
 
 const app: Application = express();
@@ -31,6 +32,7 @@ app.use(session({
 }));
 
 app.use('/auth', authRoutes);
+app.use('/face', faceRoutes);
 app.use(errorHandlers);
 
 export default app;
