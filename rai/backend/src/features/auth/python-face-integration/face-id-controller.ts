@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { UserModel } from '../../auth/user-model';
 const axios = require('axios').create({
     timeout: 5000,  // 5000 milliseconds timeout
   });
@@ -39,18 +40,21 @@ interface MulterRequest extends Request {
 
 export const faceRegister = async (req: MulterRequest, res: Response) =>{
     if (!req.file) {
-        return res.status(400).json({ message: 'No video uploaded!' });
+        return res.status(400).send("Video file is required.");
     }
 
     try {
-        const response = await axios.post('http://localhost:5000/register-face', req.file.buffer, {
-            headers: {
-                'Content-Type': 'application/octet-stream'
-            }
+        // Send video to the Python service for processing
+        const response = await axios.post('http://localhost:5000/process-video', req.file.buffer, {
+            headers: { 'Content-Type': 'application/octet-stream' }
         });
-        res.json({ success: true, data: response.data });
+
+        // You might want to update a database record here to indicate the video has been processed
+        await UserModel.updateVideoStatus(req.body.username, response.data.success);
+
+        res.json({ success: true, message: "Video processing initiated." });
     } catch (error) {
-        console.error('Error sending video to Flask:', error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        console.error('Error uploading video:', error);
+        res.status(500).send("Error processing video.");
     }
 };
