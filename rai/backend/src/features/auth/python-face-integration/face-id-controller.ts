@@ -1,58 +1,57 @@
 import { Request, Response } from 'express';
 import { UserModel } from '../../auth/user-model';
-const axios = require('axios').create({
-    timeout: 5000,  // 5000 milliseconds timeout
-  });
-
-const FLASK_SERVER_URL = process.env.FLASK_SERVER_URL || 'http://localhost:5000';
+import axiosInstance from '../../../infrastructure/config/axios-config';
 
 // Define custom request type to include file from multer
 interface MulterRequest extends Request {
     file?: Express.Multer.File;
   }
 
-  export const faceLogin = async (req: MulterRequest, res: Response) => {
-    if (!req.file) {  // Check if the file is undefined
-        return res.status(400).json({ error: 'Video file is required' });
+  export const faceLogin = async (req: MulterRequest, res: Response): Promise<void> => {
+    if (!req.file) {
+        res.status(400).send("Face data is required.");
+        return;
     }
-    
-    try {
-        // Convert the file buffer to a suitable format, e.g., base64, for transmission
-        const videoData = req.file.buffer.toString('base64'); // Adjust if necessary based on your needs
-        const response = await axios.post(`${FLASK_SERVER_URL}/face-login`, {
-            video: videoData
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
 
-        if (response.data.authenticated) {
-            return res.json({ success: true });
+    try {
+        const { userId } = req.body as { userId: number };
+        const response = await axiosInstance.post(`/login-face?userId=${userId}`, req.file.buffer);
+
+        if (response.data.recognized) {
+            res.status(200).send("Face recognized. Login successful.");
         } else {
-            return res.status(401).json({ success: false, message: "Authentication failed" });
+            res.status(401).send("Face not recognized. Access denied.");
         }
     } catch (error) {
-        console.error('Error during facial recognition login:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        console.error('Face recognition error:', error);
+        res.status(500).send("Error during face recognition.");
     }
 };
 
-export const faceRegister = async (req: MulterRequest, res: Response) =>{
+export const faceRegister = async (req: MulterRequest, res: Response): Promise<void> => {
     if (!req.file) {
-        return res.status(400).send("Video file is required.");
+        res.status(400).send("Video file is required for facial recognition registration.");
+        return;
     }
 
+    const { username } = req.body as { username: string };
+
     try {
-        // Send video to the Python service for processing
-        const response = await axios.post('http://localhost:5000/process-video', req.file.buffer, {
-            headers: { 'Content-Type': 'application/octet-stream' }
+        // Sending the video to the Python service for processing
+        const response = await axiosInstance.post('/register-face', req.file.buffer, {
+            params: { username }
         });
 
-        // You might want to update a database record here to indicate the video has been processed
-        await UserModel.updateVideoStatus(req.body.username, response.data.success);
+        // Update the database record to indicate the video has been processed
+        const videoProcessedSuccess = response.data.success;
 
-        res.json({ success: true, message: "Video processing initiated." });
+        if (videoProcessedSuccess) {
+            await UserModel.updateVideoStatus(username, true);
+            res.status(200).json({ success: true, message: "Video processing initiated and user status updated." });
+        } else {
+            await UserModel.updateVideoStatus(username, false);
+            res.status(500).send("Failed to process video.");
+        }
     } catch (error) {
         console.error('Error uploading video:', error);
         res.status(500).send("Error processing video.");

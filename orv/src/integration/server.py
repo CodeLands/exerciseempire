@@ -4,15 +4,33 @@ import numpy as np
 
 app = Flask(__name__)
 
-@app.route('/verify-face', methods=['POST'])
+def extract_frames(video_data):
+    # Assuming video data is a byte stream of video file
+    video_array = np.frombuffer(video_data, np.uint8)
+    video = cv2.imdecode(video_array, cv2.IMREAD_COLOR)
+    # Here you'd typically have logic to convert a video file to frames
+    # This is a placeholder for the actual video processing logic
+    return [video]  # Dummy list of frames
+
+def process_frames_for_verification(frames):
+    # This would involve face detection and possibly checking against a known dataset
+    # Placeholder for actual face verification logic
+    return True
+
+def process_frames_for_registration(frames):
+    # Here you would extract features and train a model
+    # Placeholder for model training
+    return True
+
+@app.route('/login-face', methods=['POST'])
 def verify_face():
     video_file = request.data
     if not video_file:
         return jsonify({'message': 'No video received'}), 400
     
-    # Extract the image from request
-    # Process it with OpenCV
-    return jsonify({"status": "success", "verified": True})
+    frames = extract_frames(video_file)
+    verification_result = process_frames_for_verification(frames)
+    return jsonify({"status": "success", "verified": verification_result})
 
 @app.route('/register-face', methods=['POST'])
 def register_face():
@@ -20,11 +38,9 @@ def register_face():
     if not video_file:
         return jsonify({'message': 'No video received'}), 400
 
-    # Process video file for face recognition training here
-    # This is where you would extract frames, train your model, etc.
-    # Dummy response for now
-    return jsonify({'message': 'Video received and model training started'}), 200
-
+    frames = extract_frames(video_file)
+    training_result = process_frames_for_registration(frames)
+    return jsonify({'message': 'Video received and model training started', 'success': training_result}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
