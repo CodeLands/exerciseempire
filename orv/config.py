@@ -3,7 +3,7 @@
 class Config:
     """Base config variables."""
     SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
-    FLASK_APP = 'wsgi.py'
+    FLASK_APP = '/app/integration/server.py'
     FLASK_ENV = 'production'
 
 class DevelopmentConfig(Config):
