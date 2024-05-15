@@ -15,51 +15,68 @@ jest.mock('../../features/auth/user-model', () => ({
  
 describe('Auth Routes', () => {
   describe('POST /register', () => {
-    it('should register a new user correctly', async () => {
-      const response = await request(app)
-        .post('/auth/register')
-        .send({
-          username: 'newuser',
-          email: 'new@example.com',
-          password: 'password123'
-        });
-  
-      expect(response.statusCode).toBe(201);
-      expect(UserModel.create).toHaveBeenCalled();
-      // Ensure that query is called with expected parameters
-      expect(query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO users'),  // Check if the query string contains expected SQL command
-        expect.arrayContaining(['newuser', 'new@example.com', expect.any(String)])
-      );
+    describe('SUCCESS:', () => {
+      it('NEW USER with VALID DATA should BE ABLE to register', async () => {
+        const response = await request(app)
+          .post('/auth/register')
+          .send({
+            email: 'user@mail.com', 
+            password: 'password123',
+            repeatPassword: 'password123'
+          })
+
+          // TODO
+          // Should validate the email and password (INPUTS)
+          // Should hash the password
+          // Should save the email and hashed password to the database
+          // Should respond with JSON object containing the user's id
+          expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+          expect(response.body).toHaveProperty('id'); // todo use token
+      }); 
+    });
+    describe('FAILURE:', () => {
+      it('NEW USER with INVALID DATA should NOT BE ABLE to register', async () => {
+        const response = await request(app)
+          .post('/auth/register')
+          .send({
+            email: undefined,
+            password: 'password123',
+            repeatPassword: 'password123'
+          })
+
+          expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+          expect(response.body).toHaveProperty('error');
+          expect(response.body.error).toEqual('Invalid input data.');
+      });
     });
   });
 
   describe('POST /login', () => {
-    it('should log in an existing user', async () => {
-      const res = await request(app)
-        .post('/auth/login')
-        .send({ username: 'testuser', password: 'password123' })
-        .expect(200);
-
-      expect(res.body).toHaveProperty('username', 'testuser');
-    });
-
-    it('should reject a login attempt with the wrong password', async () => {
-      // Setup a mock to simulate a failed login attempt
-      (UserModel.findByUsername as jest.Mock).mockResolvedValueOnce({
-        id: 1,
-        username: 'testuser',
-        pass_hash: 'incorrect_hashedpassword'
+    describe('SUCCESS:', () => {
+      it('EXISTING USER with VALID DATA should BE ABLE to login', async () => {
+        const response = await request(app)
+          .post('/auth/login')
+          .send({
+            email: 'testuser',
+            password: 'password123'
+          })
+  
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+        expect(response.body).toHaveProperty('id'); // TODO use token
       });
-
-      const res = await request(app)
-        .post('/auth/login')
-        .send({ username: 'testuser', password: 'wrongpassword' })
-        .expect(401);
-
-      expect(res.body).toHaveProperty('error', 'Invalid credentials provided.');
+  
+      it('EXISTING USER with INVALID DATA should NOT BE ABLE to login', async () => {
+        const response = await request(app)
+          .post('/auth/login')
+          .send({
+            email: 'testuser',
+          })
+  
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'));
+        expect(response.body).toHaveProperty('error');
+        expect(response.body.error).toEqual('Invalid input data.');
+      });
     });
   });
 
-  // Additional test cases can be added here
 });
