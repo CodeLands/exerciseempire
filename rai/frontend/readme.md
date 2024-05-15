@@ -1,2 +1,0 @@
-# TODO
-## Make react project
