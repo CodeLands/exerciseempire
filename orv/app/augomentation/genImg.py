@@ -1,9 +1,20 @@
 import cv2
 import numpy as np
 import random
+import os
 import time
 
-st = 1;
+st = 1
+num_augmented_copies = 20  # Number of augmented copies per frame
+resize_width = 224  # Set desired width to 112
+resize_height = 224  # Set desired height to 112
+skip_frames = 3  # Process every 10th frame
+
+# Create output directory if it doesn't exist
+output_dir = "../model/images/me"
+os.makedirs(output_dir, exist_ok=True)
+
+
 # Definicija funkcij za algoritme
 
 # Algoritem za dodajanje Gaussian blura
@@ -11,14 +22,6 @@ def apply_gaussian_blur(image):
     kernel_size = (5, 5)  # Velikost jedra za Gaussian blur
     blurred_image = cv2.GaussianBlur(image, kernel_size, 0)
     return blurred_image
-
-
-# Algoritem za izbiro naključne barvne sheme
-# def apply_random_color_scheme(image):
-#     color_spaces = [cv2.COLOR_BGR2HSV, cv2.COLOR_BGR2HLS]
-#     random_color_space = random.choice(color_spaces)
-#     converted_image = cv2.cvtColor(image, random_color_space)
-#     return converted_image
 
 
 # Algoritem za naključno obračanje slike
@@ -33,45 +36,57 @@ def apply_random_rotation(image):
 # Algoritem za spreminjanje svetlosti slike
 def apply_brightness(image):
     brightness_offset = random.randint(-50, 50)
-    modified_image = cv2.convertScaleAbs(image, beta=brightness_offset)
+    modified_image = np.clip(image.astype(np.int32) + brightness_offset, 0, 255).astype(np.uint8)
     return modified_image
 
 
-# Zanka za zajem slike iz kamere vsako sekundo
-while True:
-    # Zajem slike iz kamere
-    camera = cv2.VideoCapture(0)
+# Video file path
+video_file = 'video.mp4'
+
+# Open the video file
+camera = cv2.VideoCapture(video_file)
+
+frame_count = 0
+
+while camera.isOpened():
     ret, original_image = camera.read()
-    camera.release()
 
     # Preveri, ali je bila slika uspešno prebrana
     if not ret:
-        print("Napaka pri branju slike iz kamere")
-        exit()
+        print("Napaka pri branju slike iz videoposnetka ali konec videoposnetka")
+        break
 
-    # Izvedba algoritmov na 1000 kopijah slike
-    for i in range(1000):
-        image_copy = original_image.copy()
+    frame_count += 1
+
+    # Skip frames to process every skip_frames-th frame
+    if frame_count % skip_frames != 0:
+        continue
+
+    # Resize the frame
+    resized_image = cv2.resize(original_image, (resize_width, resize_height))
+
+    #print(f"Processing frame {frame_count}")
+
+    # Izvedba algoritmov na num_augmented_copies kopijah slike
+    for i in range(num_augmented_copies):
+        image_copy = resized_image.copy()
 
         # Uporaba algoritmov
         image_copy = apply_gaussian_blur(image_copy)
-        #image_copy = apply_random_color_scheme(image_copy)
         image_copy = apply_random_rotation(image_copy)
         image_copy = apply_brightness(image_copy)
 
         # Oblikovanje imena datoteke glede na vrednost i
-        if i < 10:
-            filename = f"gen/0000{st}_0000{i}.jpg"
-        elif 10 <= i < 100:
-            filename = f"gen/0000{st}_000{i}.jpg"
-        elif 100 <= i < 1000:
-            filename = f"gen/0000{st}_00{i}.jpg"
-        elif 1000 <= i < 10000:
-            filename = f"gen/0000{st}_0{i}.jpg"
-        else:
-            filename = f"gen/0000{st}_{i}.jpg"
-        cv2.imwrite(filename, image_copy)
+        filename = f"{output_dir}/"
+        filename += f"{st:04d}_" if st < 10000 else f"{st:05d}_"
+        filename += f"{i:04d}.jpg" if i < 10000 else f"{i:05d}.jpg"
 
-    st = st + 1;
-    # Počakaj eno sekundo pred zajemom naslednje slike
-    time.sleep(5)
+        cv2.imwrite(filename, image_copy)
+        #print(f"Saved: {filename}")
+
+    st += 1
+    # Počakaj eno sekundo pred zajemom naslednjega okvirja
+    # time.sleep(5)
+
+camera.release()
+print("Processing completed")
