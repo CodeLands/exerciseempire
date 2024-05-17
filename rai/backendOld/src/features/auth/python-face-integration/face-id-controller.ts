@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserModel } from '../../auth/user-model';
+import { UserModel } from '../user-model';
 import axiosInstance from '../../../infrastructure/config/axios-config';
 
 // Define custom request type to include file from multer

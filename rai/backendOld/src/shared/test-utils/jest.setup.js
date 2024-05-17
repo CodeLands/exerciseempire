@@ -1,4 +1,4 @@
-// Mock bcrypt globally
+/* // Mock bcrypt globally
 jest.mock('bcrypt', () => ({
   hash: jest.fn().mockResolvedValue('fake_hashed_password'),
   compare: jest.fn().mockResolvedValue(true)  // Assuming 'true' simulates successful password comparison
@@ -17,4 +17,4 @@ jest.mock('axios', () => {
   mockedAxios.create.mockReturnThis();
 
   return mockedAxios;
-});
+}); */
