@@ -1,7 +1,0 @@
-{
-    "watch": ["src/**/*.ts"],
-    "ext": "ts",
-    "exec": "ts-node src/infrastructure/server.ts",
-    "ignore": ["src/**/*.spec.ts", "src/**/*.test.ts", "*.md", "node_modules/"]
-  }
-  

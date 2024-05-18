@@ -2,9 +2,9 @@
   "name": "project4",
   "version": "1.0.0",
   "description": "",
-  "main": "server.ts",
+  "main": "src/App/Server.ts",
   "scripts": {
-    "start": "node -r dotenv/config server.js",
+    "start": "node -r dotenv/config src/App/Server.js",
     "dev": "nodemon",
     "test": "jest --watchAll --verbose"
   },
@@ -18,7 +18,9 @@
     "inversify": "^6.0.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.11.5",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -36,19 +38,5 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "testMatch": [
-      "**/tests/**/*.test.ts"
-    ],
-    "setupFilesAfterEnv": [
-      "./tests/jest.setup.ts"
-    ]
   }
 }

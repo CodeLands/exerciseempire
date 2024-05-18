@@ -1,7 +1,7 @@
 {
-    "watch": ["src"],
-    "ext": "js,json",
+    "watch": ["src/App", "src/Shared"],
+    "ext": "js,ts,json",
     "ignore": ["node_modules"],
-    "exec": "ts-node -r dotenv/config src/server.ts"
-  }
+    "exec": "ts-node -r tsconfig-paths/register -r dotenv/config src/App/Server.ts"
+}
   
