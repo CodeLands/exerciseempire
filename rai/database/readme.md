@@ -5,4 +5,5 @@ docker-compose up
 if you change generateDatabase.sql to update database schema rerun "docker-compose up" to update db automatically
 
 # If you change docker image in compose force rebuild
-docker-compose up --build
+sudo docker-compose down -v
+sudo docker-compose up --build
