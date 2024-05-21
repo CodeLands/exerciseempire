@@ -64,7 +64,7 @@ describe('Auth Routes:', () => {
     jest.clearAllMocks();
   })
 
-  describe('/login Route:', () => {
+  describe('POST /login Route:', () => {
     describe('Successfull cases:', () => {
       it('should ALLOW EXISTING User, with VALID Payload to Successfully Login', async () => {
         // Setup mocks
@@ -92,7 +92,7 @@ describe('Auth Routes:', () => {
 
           // Repository check for user existance
         expect(dbGateway.query).toHaveBeenCalledTimes(1);
-        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM users WHERE email = $1', [payload.email]);
+        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM UsersAuth WHERE email = $1', [payload.email]);
 
           // Password gets compared
         expect(comparePasswordSpy).toHaveBeenCalledTimes(1);
@@ -143,7 +143,7 @@ describe('Auth Routes:', () => {
 
           // Repository check for user existance
         expect(dbGateway.query).toHaveBeenCalledTimes(1);
-        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM users WHERE email = $1', [payload.email]);
+        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM UsersAuth WHERE email = $1', [payload.email]);
 
           // Password gets compared
         expect(comparePasswordSpy).toHaveBeenCalledTimes(0);
@@ -158,7 +158,7 @@ describe('Auth Routes:', () => {
     })
   })
 
-  describe('/register Route:', () => {
+  describe('POST /register Route:', () => {
     describe('Successfull cases:', () => {
       it('should allow NEW User, with VALID Payload to Successfully Register', async () => {
         // Setup mocks
@@ -192,8 +192,8 @@ describe('Auth Routes:', () => {
 
           // Repository check for user existance
         expect(dbGateway.query).toHaveBeenCalledTimes(2);
-        expect(dbGateway.query).toHaveBeenNthCalledWith(1, 'SELECT * FROM users WHERE email = $1', [payload.email]);
-        expect(dbGateway.query).toHaveBeenNthCalledWith(2, 'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *', [payload.email, expect.any(String)]);
+        expect(dbGateway.query).toHaveBeenNthCalledWith(1, 'SELECT * FROM UsersAuth WHERE email = $1', [payload.email]);
+        expect(dbGateway.query).toHaveBeenNthCalledWith(2, 'INSERT INTO UsersAuth (email, pass_hash, hasset2fa) VALUES ($1, $2, false) RETURNING *', [payload.email, expect.any(String)]);
 
           // Password gets hashed
         expect(hashPasswordSpy).toHaveBeenCalledTimes(1);
