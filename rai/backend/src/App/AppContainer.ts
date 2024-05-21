@@ -1,12 +1,10 @@
 import { TYPES } from '/Shared/Types';
-import { baseContainer } from '../Shared/BaseContainer';
-import { UserRepository } from './Repositories/UserRepository';
-import { AuthRepository } from './Repositories/AuthRepository';
+import { BaseContainer } from '../Shared/BaseContainer';
 import { DbGateway } from './Services/DbGateway';
+import { Container } from 'inversify';
 
-baseContainer.bind<DbGateway>(TYPES.DbGateway).to(DbGateway);
+const baseContainer: Container = new BaseContainer().buildBaseTemplate()
 
-baseContainer.bind<UserRepository>(TYPES.UserRepository).to(UserRepository);
-baseContainer.bind<AuthRepository>(TYPES.AuthRepository).to(AuthRepository);
+baseContainer.bind(TYPES.DbGateway).to(DbGateway);
 
 export { baseContainer as appContainer }

@@ -1,12 +1,35 @@
 import {injectable} from 'inversify';
-import z from 'zod';
+import z, { ZodIssue } from 'zod';
+
+type ValidationResultSuccess<T> = {
+  success: true;
+  data: T;
+};
+
+type ValidationResultError = {
+  success: false;
+  errors: ZodIssue[];
+};
+
+type ValidationResult<T> = ValidationResultSuccess<T> | ValidationResultError;
+
+export type LoginData = {
+  email: string;
+  password: string;
+};
+
+export type RegisterData = {
+  email: string;
+  password: string;
+  repeatPassword: string;
+};
 
 @injectable()
 export class AuthValidator {
-  public loginDataValidate = (email: string, password: string) => {
+  public loginDataValidate = (email: string, password: string): ValidationResult<LoginData> => {
     const schema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+      email: z.string().email({ message: "Invalid email address" }),
+      password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
     });
 
     const validationResult = schema.safeParse({email, password});
@@ -18,7 +41,7 @@ export class AuthValidator {
     }
 }
 
-  public registerDataValidate = (email: string, password: string, repeatPassword: string) => {
+  public registerDataValidate = (email: string, password: string, repeatPassword: string): ValidationResult<RegisterData> => {
     const schema = z.object({
       email: z.string().email({ message: "Invalid email address" }),
       password: z.string().min(8, { message: "Password must be at least 8 characters long" }),

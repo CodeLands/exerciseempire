@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '/Shared/Types';
-import { AuthValidator } from './AuthValidator';
+import { AuthValidator, LoginData, RegisterData } from './AuthValidator';
 import { AuthRepository } from '../../Repositories/AuthRepository';
 import { AuthGateway } from '../../Services/AuthGateway';
 import { JwtGateway } from '../../Services/JwtGateway';
+import { RepositoryResultStatus } from '/App/Repositories/Types/RepositoryTypes';
 
 
 @injectable()
@@ -22,57 +23,117 @@ export class AuthController {
     private readonly jwtGateway!: JwtGateway;
 
   public login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-
-    const validationResult = this.authValidator.loginDataValidate(email, password);
-    if(process.env.NODE_ENV === 'development'){
-      if (!validationResult.success) {
-      console.error(validationResult.errors);
-      } else {
-      console.log("Valid Login Payload:", validationResult.data);
-      }
+    let payload: LoginData | null = {
+      email: req.body.email,
+      password: req.body.password
     }
-    if (!validationResult.success) return res.status(400).json(validationResult);
 
-    const user = await this.authRepository.findByEmail(email);
-    if (!user.success) return res.status(400).json(user);
+    const validatedPayload = this.authValidator.loginDataValidate(payload.email, payload.password);
+    payload = null;
+    if (!validatedPayload.success) return res.json({
+      success: false,
+      errors: validatedPayload.errors
+    });
 
-    const validPassword = await this.authGateway.comparePassword(password, user.data.pass_hash);
-    if (!validPassword) return res.status(400).json({ success: false, errors: ["Invalid password"] });
+    const repoResultCheckIfUserExists = await this.authRepository.findByEmail(validatedPayload.data.email);
 
-    const token = this.jwtGateway.sign(user.data.id);
-    res.json({ success: true, data: { token, message: "User Logged in Successfully!" } });
+    if (repoResultCheckIfUserExists.status === RepositoryResultStatus.dbError)
+      return res.json({
+        success: false,
+        errors: ["Database Error!"]
+      });
+
+    if(repoResultCheckIfUserExists.status ===RepositoryResultStatus.zodError)
+      return res.json({
+        success: false,
+        errors: repoResultCheckIfUserExists.errors
+      });
+
+    if (repoResultCheckIfUserExists.status === RepositoryResultStatus.failed)
+      return res.json({
+        success: false,
+        errors: ["DB: User not found!"]
+      });
+
+    const validPassword = await this.authGateway.comparePassword(validatedPayload.data.password, repoResultCheckIfUserExists.data.pass_hash);
+    if (!validPassword) return res.json({ success: false, errors: ["Invalid password"] });
+
+    const token = this.jwtGateway.jwtSign(repoResultCheckIfUserExists.data.id);
+    res.json({
+      success: true,
+      message: "User Logged in Successfully!",
+      data: {
+        token
+      }
+    });
   };
 
   public register = async (req: Request, res: Response) => {
-    const { email, password, repeatPassword } = req.body;
-
-    const validationResult = this.authValidator.registerDataValidate(email, password, repeatPassword);
-    if(process.env.NODE_ENV === 'development'){
-      if (!validationResult.success) {
-      console.error(validationResult.errors);
-      } else {
-      console.log("Valid Register Payload:", validationResult.data);
-      }
+    let payload: RegisterData | null = {
+      email: req.body.email,
+      password: req.body.password,
+      repeatPassword: req.body.repeatPassword
     }
-    if (!validationResult.success) return res.status(400).json(validationResult);
 
-    const user = await this.authRepository.findByEmail(email);
-    if (user) return res.status(400).json({ success: false, errors: ["User already exists"] });
+    const validatedPayload = this.authValidator.registerDataValidate(payload.email, payload.password, payload.repeatPassword);
+    payload = null;
+    if (!validatedPayload.success)
+      return res.json({
+        success: false,
+        errors: validatedPayload.errors
+    });
 
-    const passwordHash = await this.authGateway.hashPassword(password);
-    const createdUser = await this.authRepository.create({ email, password_hash: passwordHash });
+    const repoResultCheckIfUserExists = await this.authRepository.findByEmail(validatedPayload.data.email);
+    if(repoResultCheckIfUserExists.status === RepositoryResultStatus.dbError)
+      return res.json({
+        success: false,
+        errors: ["Database Error!"]
+      });
 
-    if(!createdUser.success)
-      return createdUser
+    if(repoResultCheckIfUserExists.status === RepositoryResultStatus.zodError)
+      return res.json({
+        success: false,
+        errors: repoResultCheckIfUserExists.errors
+      });
 
-    const token = this.jwtGateway.sign(createdUser.data.id);
-    res.json({ success: true, data: { token, message: "User Registered Successfully!" } });
+    if(repoResultCheckIfUserExists.status === RepositoryResultStatus.success)
+      return res.json({
+        success: false,
+        errors: ["User already exists!"]
+      });
+
+    const passwordHash = await this.authGateway.hashPassword(validatedPayload.data.password);
+    const repoResultCreatedUser = await this.authRepository.create({ email: validatedPayload.data.email, password_hash: passwordHash });
+
+    if(repoResultCreatedUser.status === RepositoryResultStatus.dbError)
+      return res.json({
+        success: false,
+        errors: ["Database Error!"]
+      });
+      
+    if(repoResultCreatedUser.status === RepositoryResultStatus.zodError)
+      return res.json({
+        success: false,
+        errors: ["Database Validation Error!"]
+      });
+
+    if(repoResultCreatedUser.status === RepositoryResultStatus.failed)
+      return res.json({
+        success: false,
+        errors: ["Failed to create user!"]
+      });
+
+    const token = this.jwtGateway.jwtSign(repoResultCreatedUser.data.id);
+    res.json({
+      success: true,
+      message: "User Registered Successfully!",
+      data: {
+        token,
+      }
+    });
   };
 
-  public logout = async (req: Request, res: Response) => {
-    res.json({ success: true, message: "User Logged out Successfully!" });
-  }
+  // public logout = async (req: Request, res: Response) => {
+  //   res.json({ success: true, message: "User Logged out Successfully!" });
+  // }
 }
-
-//export const authController = new AuthController;

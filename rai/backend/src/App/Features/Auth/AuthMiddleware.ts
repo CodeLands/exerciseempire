@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { JwtGateway } from '../../Services/JwtGateway';
-import { TYPES } from '/Types';
+import { TYPES } from '/Shared/Types';
 
 interface CustomRequest extends Request {
   userId?: string;
@@ -18,7 +18,7 @@ class AuthMiddleware {
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.json({ success: false, errors: ['Token not found'] });
 
-    this.jwtGateway.verify(token, (err, userId) => {
+    this.jwtGateway.jwtVerify(token, (err, userId) => {
       if (err) return res.json({ success: false, errors: ['Invalid token'] });
       req.userId = userId as string;
       next();

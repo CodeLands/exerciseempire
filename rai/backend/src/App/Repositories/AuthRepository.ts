@@ -1,69 +1,75 @@
 import { inject, injectable } from 'inversify';
 import { DbGateway } from '../Services/DbGateway';
-import { TYPES } from '/Shared/Types';
-import { UserSchema } from '../ValidationSchemas/UserSchema';
-import { RepositiryResult } from '/Types/Repository';
+import { UserAuthSchema } from './DBSchemas/UserSchema';
+import { RepositoryResultStatus, RepositoryResult } from './Types/RepositoryTypes';
 import { z } from 'zod';
-
-const dbGateway = new DbGateway;
+import { TYPES } from '/Shared/Types';
 
 @injectable()
 export class AuthRepository {
 
-    public async findByEmail(email: string): Promise<RepositiryResult<z.infer<typeof UserSchema>>> {
-        const result = await dbGateway.query('SELECT * FROM users WHERE email = $1', [email]);
+  @inject(TYPES.DbGateway)
+  private readonly dbGateway: DbGateway = null!;
 
-        if(!result.success)
-          return result
+    public async findByEmail(email: string): Promise<RepositoryResult<z.infer<typeof UserAuthSchema>>> {
+      const result = await this.dbGateway.query('SELECT * FROM UsersAuth WHERE email = $1', [email]);
 
-        if (result.data.rows.length === 0) 
-          return {
-            success: false,
-            errors: ["No user with this email!"]
-          }
-        const user = result.data.rows[0];
-    
-        const validationResult = UserSchema.safeParse(user);
-    
-        if (!validationResult.success) 
-          return {
-            success: false,
-            errors: ["Invalid data from database!"]
-          }
-    
-        return { success: true,
-          data: validationResult.data
+      if(!result.dbSuccess)
+        return {
+          status: RepositoryResultStatus.dbError,
+          errors: ["Database error!"]
+        }
+
+      if(result.data.length === 0)
+        return {
+          status: RepositoryResultStatus.failed,
+          messages: ["User not found!"]
+        }
+
+      const user = result.data[0];
+      const validationResult = UserAuthSchema.safeParse(user);
+
+      if (!validationResult.success) 
+        return {
+          status: RepositoryResultStatus.zodError,
+          errors: ["Invalid data from database!", ...validationResult.error.errors.map(e => e.message)]
+        }
+  
+      return {
+        status: RepositoryResultStatus.success,
+        data: validationResult.data
       }
     }
 
-      public async create(data: { email: string; password_hash: string }): Promise<RepositiryResult<z.infer<typeof UserSchema>>> {
-        const result = await dbGateway.query(
-          'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING *',
+      public async create(data: { email: string; password_hash: string }): Promise<RepositoryResult<z.infer<typeof UserAuthSchema>>> {
+        const result = await this.dbGateway.query(
+          'INSERT INTO UsersAuth (email, password_hash) VALUES ($1, $2) RETURNING *',
           [data.email, data.password_hash]
         );
 
-        if(!result.success)
-          return result
-    
-        if (result.data.rows.length === 0) 
+        if(!result.dbSuccess)
           return {
-            success: false,
-            errors: ["User wasn't created!"]
+            status: RepositoryResultStatus.dbError,
+            errors: ["Database error!"]
+          }
+    
+        if (result.data.length === 0) 
+          return {
+            status: RepositoryResultStatus.failed,
+            messages: ["User not created!"]
           }
 
-        const newUser = result.data.rows[0];
-    
-        // Validate the newly created user data
-        const validationResult = UserSchema.safeParse(newUser);
+        const newUser = result.data[0];
+        const validationResult = UserAuthSchema.safeParse(newUser);
     
         if (!validationResult.success)
           return {
-          success: false,
-          errors: ["Invalid data from database!"]
-        }
+            status: RepositoryResultStatus.zodError,
+            errors: ["Invalid data from database!", ...validationResult.error.errors.map(e => e.message)]
+          }
     
         return {
-          success: true,
+          status: RepositoryResultStatus.success,
           data: validationResult.data
         }
       }

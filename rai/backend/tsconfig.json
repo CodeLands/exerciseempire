@@ -1,5 +1,5 @@
 {
-  "compilerOptions": {
+  "compilerOptions": { 
     "paths": {
       "/*": ["./src/*"]
     },
@@ -17,6 +17,6 @@
     "forceConsistentCasingInFileNames": true,
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../archive/old/Users/UserRepository.ts"]
   // "include": ["src/app/**/*.ts", "src/tests/**/*.ts"]
 }

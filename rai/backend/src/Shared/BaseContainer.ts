@@ -1,31 +1,44 @@
 import { Container } from 'inversify';
 import { TYPES } from './Types';
-import { UserController } from '../App/Features/Users/UserController';
 import { AuthRouter } from '../App/Features/Auth/AuthRouter';
 import { AuthValidator } from '../App/Features/Auth/AuthValidator';
 import { AuthController } from '../App/Features/Auth/AuthController';
-import { UserValidator } from '../App/Features/Users/UserValidator';
-import { UserRouter } from '../App/Features/Users/UserRouter';
 import { AuthGateway } from '../App/Services/AuthGateway';
 import { JwtGateway } from '../App/Services/JwtGateway';
-import { DbGateway } from '/App/Services/DbGateway';
+import { AuthRepository } from '/App/Repositories/AuthRepository';
 
-const baseContainer = new Container();
+export class BaseContainer {
+  container;
 
-// Features
-    // Auth
-baseContainer.bind<AuthValidator>(TYPES.AuthValidator).to(AuthValidator);
-baseContainer.bind<AuthController>(TYPES.AuthController).to(AuthController);
-baseContainer.bind<AuthRouter>(TYPES.AuthRouter).to(AuthRouter);
+  constructor() {
+    this.container = new Container({
+      autoBindInjectable: true,
+      defaultScope: "Singleton",
+    });
+  }
 
-    // User
-baseContainer.bind<UserValidator>(TYPES.UserValidator).to(UserValidator);
-baseContainer.bind<UserController>(TYPES.UserController).to(UserController);
-baseContainer.bind<UserRouter>(TYPES.UserRouter).to(UserRouter);
+  buildBaseTemplate = () => {
+    
+    // Features
+        // Auth
+    this.container.bind(TYPES.AuthValidator).to(AuthValidator).inSingletonScope()
+    this.container.bind(TYPES.AuthController).to(AuthController).inSingletonScope()
+    this.container.bind(TYPES.AuthRouter).to(AuthRouter).inSingletonScope()
+    this.container.bind(TYPES.AuthRepository).to(AuthRepository).inSingletonScope() 
+    
+        // User
+    // this.container.bind(TYPES.UserValidator).to(UserValidator).inSingletonScope()
+    // this.container.bind(TYPES.UserController).to(UserController).inSingletonScope()
+    // this.container.bind(TYPES.UserRouter).to(UserRouter).inSingletonScope()
+    // this.container.bind(TYPES.UserRepository).to(UserRepository).inSingletonScope()
 
-// Services
-baseContainer.bind<DbGateway>(TYPES.DbGateway).to(DbGateway)
-baseContainer.bind<AuthGateway>(TYPES.AuthGateway).to(AuthGateway);
-baseContainer.bind<JwtGateway>(TYPES.JwtGateway).to(JwtGateway);
+        // Sensors
+        
+    
+    // Services
+    this.container.bind(TYPES.AuthGateway).to(AuthGateway).inSingletonScope()
+    this.container.bind(TYPES.JwtGateway).to(JwtGateway).inSingletonScope()
 
-export { baseContainer };
+    return this.container;
+  };
+}

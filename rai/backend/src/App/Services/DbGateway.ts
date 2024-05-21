@@ -1,20 +1,25 @@
 import { injectable } from 'inversify';
 import { Pool, QueryResult } from 'pg';
 
-type SuccessDB = {
-    success: true,
-    data: QueryResult<any>
+
+export type SuccessDB = {
+    dbSuccess: true,
+    data: any[]
 }
 
 export type FailedDB = {
-    success: false,
+    dbSuccess: false,
     errors: unknown[]
 }
 
-type DBResult = SuccessDB | FailedDB
+export type DBResult = SuccessDB | FailedDB
+
+export interface IDBGateway {
+    query(query: string, params?: any[]): Promise<DBResult>;
+}
 
 @injectable()
-export class DbGateway {
+export class DbGateway implements IDBGateway {
     public pool: Pool = new Pool({
         connectionString: process.env.DATABASE_URL,
     });
@@ -23,14 +28,14 @@ export class DbGateway {
         try {
             const result = await this.pool.query(query, params);
             return {
-                success: true,
-                data: result
+                dbSuccess: true,
+                data: result.rows
             }
         } catch (error: unknown) {
             // Handle the error here, e.g. log the error or throw a custom error
             console.error('An error occurred while executing the database query:', error);
             return {
-                success: false,
+                dbSuccess: false,
                 errors: [ error ]
             }
         }

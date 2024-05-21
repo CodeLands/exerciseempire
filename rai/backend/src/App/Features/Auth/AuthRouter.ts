@@ -5,17 +5,11 @@ import { AuthController } from './AuthController';
 
 @injectable()
 export class AuthRouter {
-    public router: Router = Router();
-
     @inject(TYPES.AuthController)
     private readonly authController!: AuthController;
 
-    constructor() {
-        this.defineAuthRoutes()
-    }
-
-    public defineAuthRoutes() {
-        this.router.post('/login', this.authController.login);
-        this.router.post('/register', this.authController.register);
+    public defineAuthRoutes(router: Router) {
+        router.post('/login', this.authController.login);
+        router.post('/register', this.authController.register);
     }
 }

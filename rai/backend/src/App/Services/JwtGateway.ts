@@ -5,11 +5,11 @@ const secret = process.env.JWT_SECRET || 'your_secret_key';
 
 @injectable()
 class JwtGateway {
-  sign(payload: any) {
+  jwtSign(payload: any) {
     return jwt.sign(payload, secret);
   }
 
-  verify(token: string, callback?: jwt.VerifyCallback) {
+  jwtVerify(token: string, callback?: jwt.VerifyCallback) {
     jwt.verify(token, secret, callback);
   }
 }
