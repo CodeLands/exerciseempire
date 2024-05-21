@@ -6,6 +6,10 @@ import { AuthController } from '../App/Features/Auth/AuthController';
 import { AuthGateway } from '../App/Services/AuthGateway';
 import { JwtGateway } from '../App/Services/JwtGateway';
 import { AuthRepository } from '/App/Repositories/AuthRepository';
+import { SensorDataValidator } from '/App/Features/SensorData/SensorDataValidator';
+import { SensorDataController } from '/App/Features/SensorData/SensorDataController';
+import { SensorDataRouter } from '/App/Features/SensorData/SensorDataRouter';
+import { SensorDataRepository } from '/App/Repositories/SensorDataRepository';
 
 export class BaseContainer {
   container;
@@ -26,6 +30,12 @@ export class BaseContainer {
     this.container.bind(TYPES.AuthRouter).to(AuthRouter).inSingletonScope()
     this.container.bind(TYPES.AuthRepository).to(AuthRepository).inSingletonScope() 
     
+      // SensorData
+    this.container.bind(TYPES.SensorDataValidator).to(SensorDataValidator).inSingletonScope()
+    this.container.bind(TYPES.SensorDataController).to(SensorDataController).inSingletonScope()
+    this.container.bind(TYPES.SensorDataRouter).to(SensorDataRouter).inSingletonScope()
+    this.container.bind(TYPES.SensorDataRepository).to(SensorDataRepository).inSingletonScope()
+
         // User
     // this.container.bind(TYPES.UserValidator).to(UserValidator).inSingletonScope()
     // this.container.bind(TYPES.UserController).to(UserController).inSingletonScope()

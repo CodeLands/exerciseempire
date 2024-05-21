@@ -7,12 +7,16 @@ export const TYPES = {
     AuthRouter: Symbol.for('AuthRouter'),
 
       // User
-    UserValidator: Symbol.for('UserValidator'),
-    UserController: Symbol.for('UserController'),
-    UserRepository: Symbol.for('UserRepository'),
-    UserRouter: Symbol.for('UserRouter'),
+    // UserValidator: Symbol.for('UserValidator'),
+    // UserController: Symbol.for('UserController'),
+    // UserRepository: Symbol.for('UserRepository'),
+    // UserRouter: Symbol.for('UserRouter'),
 
       // Sensor Data
+    SensorDataValidator: Symbol.for('SensorDataValidator'),
+    SensorDataController: Symbol.for('SensorDataController'),
+    SensorDataRepository: Symbol.for('SensorDataRepository'),
+    SensorDataRouter: Symbol.for('SensorDataRouter'),
 
       // User Stats
 
