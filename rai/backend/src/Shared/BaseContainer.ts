@@ -10,6 +10,11 @@ import { ActivitiesRouter } from '/App/Features/Activities/ActivitiesRouter';
 import { ActivitiesValidator } from '/App/Features/Activities/ActivitiesValidator';
 import { ActivitiesController } from '/App/Features/Activities/ActivitiesController';
 import { ActivitiesRepository } from '/App/Repositories/ActivitiesRepository';
+import { SensorDataValidator } from '/App/Features/SensorData/SensorDataValidator';
+import { SensorDataController } from '/App/Features/SensorData/SensorDataController';
+import { SensorDataRouter } from '/App/Features/SensorData/SensorDataRouter';
+import { SensorDataRepository } from '/App/Repositories/SensorDataRepository';
+import { ExecutedActivityRepository } from '/App/Repositories/ExecutedActivityRepository';
 
 export class BaseContainer {
   container;
@@ -35,6 +40,16 @@ export class BaseContainer {
     this.container.bind(TYPES.ActivitiesController).to(ActivitiesController).inSingletonScope()
     this.container.bind(TYPES.ActivitiesRouter).to(ActivitiesRouter).inSingletonScope()
     this.container.bind(TYPES.ActivitiesRepository).to(ActivitiesRepository).inSingletonScope()
+    
+      // SensorData
+    this.container.bind(TYPES.SensorDataValidator).to(SensorDataValidator).inSingletonScope()
+    this.container.bind(TYPES.SensorDataController).to(SensorDataController).inSingletonScope()
+    this.container.bind(TYPES.SensorDataRouter).to(SensorDataRouter).inSingletonScope()
+    this.container.bind(TYPES.SensorDataRepository).to(SensorDataRepository).inSingletonScope()
+
+    // Standalone Repositories
+    this.container.bind(TYPES.ExecutedActivityRepository).to(ExecutedActivityRepository).inSingletonScope()
+
         // User
     // this.container.bind(TYPES.UserValidator).to(UserValidator).inSingletonScope()
     // this.container.bind(TYPES.UserController).to(UserController).inSingletonScope()

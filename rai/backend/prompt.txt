@@ -1,0 +1,131 @@
+Pripravite podatkovni model in vzpostavite podatkovno bazo, ki bo hranila vse podatke.
+V podatkovni model obvezno vključite podatke, ki jih boste zajemali iz različnih senzorjev (kamera, pospeškometri, GPS lokacija,...).
+
+Shranjujte tudi obdelane podatke (Pridobljeni leveli telesnih atributov uporabnika).
+Implementirajte spletno storitev, ki za komunikacijo uporablja protocol HTTP (RESTful API, SOAP,…).
+Storitev naj omogoča vnos podatkov ter branje podatkov iz podatkovne baze.
+Needed routes:
+
+I need to create Database in Postgresql
+
+I need to store:
+
+	- UsersAuth: (User authentication data)
+		- email,
+		- pass_hash,
+		- hasSet2FA
+
+	- ActivityCategories (Activity categories)
+		- category
+
+	- Activities: (Available activities)
+		- activity, (running, cycling,...)
+		- category_id
+
+	- Stats: (Stats about user that we track and that activities have defined base values for)
+		- stat (endurance, stamina, strength, agility,...)
+
+	- ActivityBaseStats: (Base stat values of specific activity)
+		- activity_id,
+		- stat_id,
+		- base_stat_value
+
+	- Sensors: (Available sensors)
+		- sensor (Accelometer, Žiroskop, GPS, Pedometer,...)
+
+	- ActivitySensor (Which sensors activity uses)
+		- activity_id
+		- sensor_id
+
+	- ExecutedActivities: (Activities executed by the user)
+		- user_id
+		- activity_id
+		- timestamp
+		- duration
+		- is_active
+
+	- ExecutedActivitySensorData (Sensor data from preformed activity)
+		- value
+		- timestamp
+		- sensor_id
+		- executed_activity_id
+
+	- UserCurrentStats: (Current amount of stats that use has)
+		- user_id
+		- stat_id
+		- value
+
+	- StatLevels:
+		- level (1, 2, 3,...)
+		- required_exp (100, 250, 375,...)
+
+
+Can we also store how stat is calculated based on activity's stat_base_value and sensor data or is it better to have that in code?
+Is anything that I have in DB specification better to have defined in code on backend?
+Is there anything you would change or add or remove from database (maybe move to backend express server? or vice versa)?
+Maybe create other stat attributes to track, maybe use other sensors?
+Maybe I forgot something so feel free to fill in.
+What kind of values do sensor data even output?
+Can you also greate script to seed the database with test data?
+How often should data be sent from phone?
+Should we somehow pack data by taking several sensor readings and average them out and store that in database?
+We are also probably going show some statistics on previous executed activities so if we need some other table like for ExercisesSummary include that as well.
+We could also scrape some data about which activity gives you the most of which stat or something like that so think about this too and add tables if needed.
+Those optional and not core tables that we "might" need put in the separate code block at the end...
+Can you adjust and generate postgresql create database for all that?
+
+
+
+		- endurance,
+		- stamina,
+		- strength,
+		- agility,
+		
+
+    Accelometer (pospešek naprave), 
+
+    Žiroskop (orientacija naprave), 
+
+    GPS (lokacija naprave), 
+
+    Hitrost teka, kolesarjenja,... 
+
+    Pedometer (korakometer), 
+
+
+
+and an API
+
+
+// Auth routes (first user needs to be logged in)
+	- Auth:
+		- Login
+		- Register
+	- 2FA:
+		- Set/Unset 2FA
+		- Authenticate 2FA
+
+// Activity routes (once logged in and 2 Factor Authenticated he can access following protected routes)
+	- Activity Specific:
+		- Activity List:
+			- List of all activities and their base stats
+		- Activity Select:
+			- So that Player can select current activity (also deselect when done?)
+
+// Sensor routes (once player has activity selected he can be sending sensor data)
+(Once sensor data is send backend will compute obtained experience based on selected activities base stats and sensor data combined)
+	- Sensor Data:
+		- Seperate for each sensor?
+		- Or 1 for all and check request body?
+
+// Workout review routes
+	- Profile Data (Body attribute experience and levels):
+		- Sends player back their profile stats with latest computed levels and experiences for each tracked body attribute
+
+// Activity history routes
+	- Activity history
+
+
+Dodatno:
+Izdelajte program (scrapper), ki bo iz izbranega spletnega vira prenesel podatke v surovi obliki (HTML, JSON,…) in iz nje izluščil podatke. Izluščene podatke pošiljite v API, ki jih bo shranil v podatkovno bazo.
+Primer scrapper-ja v Node.js najdete tukaj. Nekaj primerov virov podatkov:

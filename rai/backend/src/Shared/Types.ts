@@ -17,6 +17,21 @@ export const TYPES = {
   ActivitiesController: Symbol.for("ActivitiesController"),
   ActivitiesRepository: Symbol.for("ActivitiesRepository"),
   ActivitiesRouter: Symbol.for("ActivitiesRouter"),
+  
+      // User
+    // UserValidator: Symbol.for('UserValidator'),
+    // UserController: Symbol.for('UserController'),
+    // UserRepository: Symbol.for('UserRepository'),
+    // UserRouter: Symbol.for('UserRouter'),
+
+      // Sensor Data
+    SensorDataValidator: Symbol.for('SensorDataValidator'),
+    SensorDataController: Symbol.for('SensorDataController'),
+    SensorDataRepository: Symbol.for('SensorDataRepository'),
+    SensorDataRouter: Symbol.for('SensorDataRouter'),
+
+      // Executed Activity
+    ExecutedActivityRepository: Symbol.for('ExecutedActivityRepository'),
 
   // Sensor Data
 
