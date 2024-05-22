@@ -1,11 +1,8 @@
 import { inject, injectable } from "inversify";
 import { DbGateway } from "../../../Services/DbGateway";
-import {
-  RepositoryResultStatus,
-  RepositoryResult,
-} from "../../../Types/RepositoryTypes";
 import { z } from "zod";
 import { TYPES } from "/Shared/Types";
+import { RepositoryResult, RepositoryResultStatus } from "/App/Types/RepositoryTypes";
 import { ExecutedActivitiySchema } from "./DBSchemas/ExecutedActivitySchema";
 
 @injectable()
@@ -15,8 +12,8 @@ export class ExecutedActivityRepository {
 
   public async create( activity_id: number, user_id: number ): Promise<RepositoryResult<z.infer<typeof ExecutedActivitiySchema>>> {
     const result = await this.dbGateway.query(`
-        INSERT INTO ExecutedActivities (activity_id, user_id, is_active, start_time, duration)
-        VALUES (${activity_id}, ${user_id}, false, NOW(), 0)`)
+        INSERT INTO ExecutedActivities ( user_id, activity_id, start_time, duration, is_active)
+        VALUES (${user_id}, ${activity_id}, NOW(), 0, false) RETURNING *;`)
 
     if (!result.dbSuccess)
         return {
@@ -83,7 +80,6 @@ export class ExecutedActivityRepository {
         data: validationResult.data,
     }
   }
-
 
   public async getByActivityId( activity_id: number ): Promise<RepositoryResult<z.infer<typeof ExecutedActivitiySchema>[]>> {
     const result = await this.dbGateway.query(

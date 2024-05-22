@@ -2,11 +2,7 @@ import { inject, injectable } from "inversify";
 import { DbGateway } from "../Services/DbGateway";
 import { z } from "zod";
 import { TYPES } from "/Shared/Types";
-import { ActivitiesSchema } from "./DBSchemas/ActivitiesSchema";
-import {
-  RepositoryResultStatus,
-  RepositoryResult,
-} from "./Types/RepositoryTypes";
+import { RepositoryResult, RepositoryResultStatus } from "../Types/RepositoryTypes";
 
 // Define schemas
 const ActivityWithStatsSchema = z.object({

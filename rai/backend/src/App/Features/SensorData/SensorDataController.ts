@@ -1,10 +1,26 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
-import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
-import { CreateActivityPayload, SensorDataPayload, SensorDataValidator, ToggleActivityPayload } from "./SensorDataValidator";
+import { SensorDataValidator } from "./SensorDataValidator";
 import { SensorDataRepository } from "./Repositories/SensorDataRepository";
 import { ExecutedActivityRepository } from "./Repositories/ExecutedActivityRepository";
+import { RepositoryResultStatus } from "/App/Types/RepositoryTypes";
+
+export type SensorDataPayload = {
+  executed_activity_id: number;
+  sensor_id: number;
+  value: number;
+  timestamp: number;
+};
+
+export type CreateActivityPayload = {
+  activity_id: number;
+  user_id: number;
+};
+
+export type ToggleActivityPayload = {
+  executed_activity_id: number;
+};
 
 @injectable()
 export class SensorDataController {
@@ -19,10 +35,20 @@ export class SensorDataController {
 
   public createExecutedActivity = async (req: Request, res: Response) => {
     // Receive Sensor Data: Data is received via a POST request.
-    let payload: CreateActivityPayload | null = {
-      activity_id: req.body.activity_id,
-      user_id: req.body.user_id,
-    };
+    let payload: CreateActivityPayload | null = null
+    try {
+      payload = {
+        activity_id: JSON.parse(req.body.activity_id),
+        user_id: JSON.parse(req.body.user_id),
+      };
+    }
+    catch (e) {
+      console.log(e);
+      return res.json({
+        success: false,
+        errors: ["Invalid JSON!"],
+      });
+    }
 
     // Validate Data Structure: Ensure the incoming sensor data matches the expected schema.
     const validatedPayload = this.sensorDataValidator.createActivityValidate(payload.activity_id, payload.user_id);
@@ -66,9 +92,19 @@ export class SensorDataController {
 
   public toggleActivity = async (req: Request, res: Response) => {
     // Receive Sensor Data: Data is received via a POST request.
-    let payload: ToggleActivityPayload | null = {
-      executed_activity_id: req.body.executed_activity_id,
-    };
+    let payload: ToggleActivityPayload | null = null;
+    try {
+      payload = {
+        executed_activity_id: JSON.parse(req.body.executed_activity_id)
+      };
+    }
+    catch (e) {
+      console.log(e);
+      return res.json({
+        success: false,
+        errors: ["Invalid JSON!"],
+      });
+    }
 
     // Validate Data Structure: Ensure the incoming sensor data matches the expected schema.
     const validatedPayload = this.sensorDataValidator.toggleActivityValidate(payload.executed_activity_id);
@@ -140,12 +176,21 @@ export class SensorDataController {
 
   public postSensorData = async (req: Request, res: Response) => {
     // Receive Sensor Data: Data is received via a POST request.
-    let payload: SensorDataPayload | null = {
-        executed_activity_id: req.body.executed_activity_id,
-        sensor_id: req.body.sensor_id,
-        value: req.body.value,
-        timestamp: req.body.timestamp,
+    let payload: SensorDataPayload | null = null
+    try {
+      payload = {
+        executed_activity_id: JSON.parse(req.body.executed_activity_id),
+        sensor_id: JSON.parse(req.body.sensor_id), 
+        value: JSON.parse(req.body.value),
+        timestamp: JSON.parse(req.body.timestamp),
     };
+    } catch (e) {
+      console.log(e);
+      return res.json({
+        success: false,
+        errors: ["Invalid JSON!"],
+      });
+    }
 
     // Validate Data Structure: Ensure the incoming sensor data matches the expected schema.
     const validatedPayload = this.sensorDataValidator.sensorDataValidate(
