@@ -82,3 +82,14 @@ CREATE TABLE IF NOT EXISTS ActivitySummary (
     executed_activity_id INT REFERENCES ExecutedActivities(id),
     summary_details TEXT
 );
+
+CREATE TABLE IF NOT EXISTS StrengthExercisesScrapeData (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+CREATE TABLE IF NOT EXISTS SportsScrapeData (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    rating VARCHAR(255)
+);
