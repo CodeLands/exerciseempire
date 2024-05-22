@@ -1,8 +1,9 @@
-# To install dependencies
+# First install
+Potrebno biti v backend
 npm install
 
-# To run development server
+## Run dev server
 npm run dev
 
-# To run tests
+## Run test
 npm run test
