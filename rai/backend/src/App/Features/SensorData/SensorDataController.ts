@@ -233,6 +233,27 @@ export class SensorDataController {
         errors: ["DB: ExecutedActivity referenced by SensorData is not active!"],
       });
 
+      // Get Base Stats: Retrieve the base stats for the activity.
+      const getExecutedActivityBaseStats = await this.sensorDataRepository.getExecutedActivityBaseStats(validatedPayload.data.executed_activity_id);
+
+      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.dbError)
+        return res.json({
+          success: false,
+          errors: ["Database Error!"],
+        });
+
+      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.zodError)
+        return res.json({
+          success: false,
+          errors: getExecutedActivityBaseStats.errors,
+        });
+
+      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.failed)
+        return res.json({
+          success: false,
+          errors: ["DB: ExecutedActivityBaseStats not found!"],
+        });
+
     // Save Sensor Data: If the activity is valid and in progress, save the sensor data.
     const repoResultCreateSensorData = await this.sensorDataRepository.create(
       validatedPayload.data.executed_activity_id,
@@ -259,10 +280,63 @@ export class SensorDataController {
         errors: ["DB: SensorData could not be created!"],
       });
 
+
+      // Calculate Stats: Calculate the stats for the sensor data.
+
+    // Validate Sensor Data: Ensure the sensor data is within the expected range.
+    const baseStats = getExecutedActivityBaseStats.data;
+    const sensorData = validatedPayload.data.value;
+    
+    // stat on baseStats represents stat we are checking against
+    // value on baseStats represents the value we are checking against
+    
+    // loop through baseStats and multiply base_stat_value by sensorData value
+
+    const calculatedStats = baseStats.map((current_stat) => {
+      return {
+        id: current_stat.id,
+        stat: current_stat.stat,
+        value: current_stat.base_stat_value * sensorData,
+      };
+    })
+
+    const insertRealTimeStats = async () => {
+      for (const current_stat of calculatedStats) {
+        const repoResultIncrementRealTimeStats = await this.sensorDataRepository.incrementRealTimeStats(
+          validatedPayload.data.executed_activity_id,
+          current_stat.id,
+          current_stat.value,
+        );
+    
+        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.dbError)
+          return res.json({
+            success: false,
+            errors: ["Database Error!"],
+          });
+    
+        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.zodError)
+          return res.json({
+            success: false,
+            errors: repoResultIncrementRealTimeStats.errors,
+          });
+    
+        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.failed) {
+          console.log(repoResultIncrementRealTimeStats);
+          return res.json({
+            success: false,
+            errors: ["DB: RealTimeStats could not be incremented!"],
+          });
+        }
+      }
+    };
+    
+    await insertRealTimeStats();
+    
+
     // Respond: Return an appropriate response based on the outcome of the above steps.
     res.json({
       success: true,
-      message: "Sensor Data Saved Successfully!",
+      message: "Sensor Data Saved and Computed Successfully!",
       data: repoResultCreateSensorData.data,
     });
   }
