@@ -16,8 +16,8 @@ export class SensorDataRepository {
   public async create(
     executed_activity_id: number,
     sensor_id: number,
-    value: string,
-    timestamp: string,
+    value: number,
+    timestamp: number,
   ): Promise<RepositoryResult<z.infer<typeof SensorDataSchema>>> {
         const result = await this.dbGateway.query(
         "INSERT INTO SensorData (executed_activity_id, sensor_id, value, timestamp) VALUES ($1, $2, $3, $4) RETURNING *",

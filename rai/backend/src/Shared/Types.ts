@@ -18,6 +18,9 @@ export const TYPES = {
     SensorDataRepository: Symbol.for('SensorDataRepository'),
     SensorDataRouter: Symbol.for('SensorDataRouter'),
 
+      // Executed Activity
+    ExecutedActivityRepository: Symbol.for('ExecutedActivityRepository'),
+
       // User Stats
 
       

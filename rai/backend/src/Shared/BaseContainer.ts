@@ -10,6 +10,7 @@ import { SensorDataValidator } from '/App/Features/SensorData/SensorDataValidato
 import { SensorDataController } from '/App/Features/SensorData/SensorDataController';
 import { SensorDataRouter } from '/App/Features/SensorData/SensorDataRouter';
 import { SensorDataRepository } from '/App/Repositories/SensorDataRepository';
+import { ExecutedActivityRepository } from '/App/Repositories/ExecutedActivityRepository';
 
 export class BaseContainer {
   container;
@@ -35,6 +36,9 @@ export class BaseContainer {
     this.container.bind(TYPES.SensorDataController).to(SensorDataController).inSingletonScope()
     this.container.bind(TYPES.SensorDataRouter).to(SensorDataRouter).inSingletonScope()
     this.container.bind(TYPES.SensorDataRepository).to(SensorDataRepository).inSingletonScope()
+
+    // Standalone Repositories
+    this.container.bind(TYPES.ExecutedActivityRepository).to(ExecutedActivityRepository).inSingletonScope()
 
         // User
     // this.container.bind(TYPES.UserValidator).to(UserValidator).inSingletonScope()

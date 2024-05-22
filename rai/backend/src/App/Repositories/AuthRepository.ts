@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { DbGateway } from "../Services/DbGateway";
-import { UserAuthSchema } from "./DBSchemas/UserSchema";
+import { UserAuthSchema } from "./DBSchemas/UserAuthSchema";
 import {
   RepositoryResultStatus,
   RepositoryResult,

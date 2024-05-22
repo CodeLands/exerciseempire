@@ -7,6 +7,7 @@ import { DbGatewayMock } from '../../../../Tests/Mocks/DB/DbGatewayMock';
 import { TYPES } from '/Shared/Types';
 import { SensorDataValidator } from '../SensorDataValidator';
 import { SensorDataRepository } from '/App/Repositories/SensorDataRepository';
+import { ExecutedActivityRepository } from '/App/Repositories/ExecutedActivityRepository';
 
 // Setup of Controller Dependencies
   // Mocks
@@ -17,8 +18,10 @@ let sensorDataValidator: SensorDataValidator = null!;
 let sensorDataValidateSpy: jest.Spied<typeof sensorDataValidator.sensorDataValidate> = null!;
 
 let sensorDataRepository: SensorDataRepository = null!;
-let checkActivityIsActiveSpy: jest.Spied<typeof sensorDataRepository.checkActivityIsActive> = null!;
 let createSensorDataSpy: jest.Spied<typeof sensorDataRepository.create> = null!;
+
+let executedActivityRepository: ExecutedActivityRepository = null!;
+let getExecutedActivityByIdSpy: jest.Spied<typeof executedActivityRepository.getById> = null!;
 
 // TO ADD - ActivityRepository
 
@@ -31,9 +34,13 @@ beforeAll(() => {
   sensorDataValidator = testContainer.get(TYPES.SensorDataValidator);
   sensorDataValidateSpy = jest.spyOn(sensorDataValidator, 'sensorDataValidate');
 
+  executedActivityRepository = testContainer.get(TYPES.ExecutedActivityRepository);
+  getExecutedActivityByIdSpy = jest.spyOn(executedActivityRepository, 'getById');
+
   sensorDataRepository = testContainer.get(TYPES.SensorDataRepository);
-  checkActivityIsActiveSpy = jest.spyOn(sensorDataRepository, 'checkActivityIsActive');
   createSensorDataSpy = jest.spyOn(sensorDataRepository, 'create');
+
+
 
   testApp = createApp(testContainer);
 }); 
@@ -50,17 +57,23 @@ describe('SensorData Routes:', () => {
   describe('POST /sensor-data Route:', () => {
     describe('Successfull cases:', () => {
       it('should ALLOW Saving Sensor Data if ASSOCIATED ACTIVITY IS ACTIVE', async () => {
-        // Setup mocks - TODO
+        // Setup mocks - TO CHECK
+        const timestamp = 1716377484
+
         const dbMockedCheckActivityIsActive = [{
           id: 1,
-          active: true,
-        }]
+          user_id: 1,
+          activity_id: 1,
+          start_time: timestamp,  // Assuming this format aligns with how you handle dates in JavaScript
+          duration: 0,
+          is_active: true,  // Correctly using boolean rather than "active"
+        }];        
         const dbMockedCreateSensorData = [{
           id: 1,
-          activity_id: 1,
+          executed_activity_id: 1,
           sensor_id: 1,
-          value: 1,
-          created_at: new Date(),
+          value: "1",
+          timestamp: timestamp,
         }]
         dbGateway.query = jest.fn().mockResolvedValueOnce({
           dbSuccess: true,
@@ -72,38 +85,51 @@ describe('SensorData Routes:', () => {
         
         // Call BlackBox / System Under Test
         const payload = {
-          activity_id: 1,
+          executed_activity_id: 1,
           sensor_id: 1,
           value: 1,
-          timestamp: new Date(),
+          timestamp: timestamp
         }
         const response = await request(testApp).post('/sensor-data').send(payload);
 
         // Expectations
           // Validation
         expect(sensorDataValidateSpy).toHaveBeenCalledTimes(1);
-        expect(sensorDataValidateSpy).toHaveBeenCalledWith(payload.activity_id, payload.sensor_id, payload.value, payload.timestamp);
+        expect(sensorDataValidateSpy).toHaveBeenCalledWith(payload.executed_activity_id, payload.sensor_id, payload.value, payload.timestamp);
+        expect(sensorDataValidateSpy).toHaveReturnedWith({
+          data: {
+            executed_activity_id: 1,
+            sensor_id: 1,
+            timestamp: timestamp,
+            value: 1
+          },
+          success: true
+        });
 
           // Repository check if associated activity is active
-        expect(checkActivityIsActiveSpy).toHaveBeenCalledTimes(1);
-        expect(checkActivityIsActiveSpy).toHaveBeenCalledWith(payload.activity_id);
-
-          // Check if repository called dbGateway.query
-        expect(dbGateway.query).toHaveBeenCalledTimes(1);
-        expect(dbGateway.query).toHaveBeenCalledWith('');
-
-          // Repository creates sensor data entry
-        expect(createSensorDataSpy).toHaveBeenCalledTimes(1);
-        expect(createSensorDataSpy).toHaveBeenCalledWith(payload.activity_id, payload.sensor_id, payload.value, payload.timestamp);
+        expect(getExecutedActivityByIdSpy).toHaveBeenCalledTimes(1);
+        expect(getExecutedActivityByIdSpy).toHaveBeenCalledWith(payload.executed_activity_id);
+        // expect(getExecutedActivityByIdSpy).toHaveReturnedWith({
+        //   status: 'success',
+        //   data: dbMockedCheckActivityIsActive[0]
+        // });
 
           // Check if repository called dbGateway.query
         expect(dbGateway.query).toHaveBeenCalledTimes(2);
-        expect(dbGateway.query).toHaveBeenCalledWith('');
+        expect(dbGateway.query).toHaveBeenNthCalledWith(1, 'SELECT * FROM ExecutedActivities WHERE id = $1', [payload.executed_activity_id]);
+
+          // Repository creates sensor data entry
+        expect(createSensorDataSpy).toHaveBeenCalledTimes(1);
+        expect(createSensorDataSpy).toHaveBeenCalledWith(payload.executed_activity_id, payload.sensor_id, payload.value, payload.timestamp);
+
+          // Check if repository called dbGateway.query
+        expect(dbGateway.query).toHaveBeenNthCalledWith(2, 'INSERT INTO SensorData (executed_activity_id, sensor_id, value, timestamp) VALUES ($1, $2, $3, $4) RETURNING *', [payload.executed_activity_id, payload.sensor_id, payload.value, payload.timestamp]);
 
           // Response
         expect(response.body).toEqual({
           success: true,
           message: "Sensor Data Saved Successfully!",
+          data: dbMockedCreateSensorData[0]
         });
       });
     })
@@ -122,72 +148,12 @@ describe('SensorData Routes:', () => {
 
         // })
       })
-      it('should NOT ALLOW Sensor Data with NON-EXISTING Activity to save', async () => {
-        // Setup mocks
-        const dbMockedDataGetUserByEmail: [] = []
-        dbGateway.query = jest.fn().mockResolvedValueOnce({
-          dbSuccess: true,
-          data: dbMockedDataGetUserByEmail
-        });
-        
-        // Call BlackBox / System Under Test
-        const payload = {
-          email: 'test@test.com',
-          password: 'password',
-        }
-        const response = await request(testApp).post('/login').send(payload);
+      // it('should NOT ALLOW Sensor Data with NON-EXISTING Activity to save', async () => {
 
-        // Expectations
-          // Validation
-        expect(loginDataValidateSpy).toHaveBeenCalledTimes(1);
-        expect(loginDataValidateSpy).toHaveBeenCalledWith(payload.email, payload.password);
+      // });
+      // it('should NOT ALLOW Sensor Data with NON-ACTIVE Activity to save', async () => {
 
-          // Repository check for user existance
-        expect(dbGateway.query).toHaveBeenCalledTimes(1);
-        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM UsersAuth WHERE email = $1', [payload.email]);
-
-          // Password gets compared
-        expect(comparePasswordSpy).toHaveBeenCalledTimes(0);
-
-          // Response
-        expect(response.body).toEqual({
-          success: false,
-          errors: ["DB: User not found!"],
-        });
-      });
-      it('should NOT ALLOW Sensor Data with NON-ACTIVE Activity to save', async () => {
-        // Setup mocks
-        const dbMockedDataGetUserByEmail: [] = []
-        dbGateway.query = jest.fn().mockResolvedValueOnce({
-          dbSuccess: true,
-          data: dbMockedDataGetUserByEmail
-        });
-        
-        // Call BlackBox / System Under Test
-        const payload = {
-          email: 'test@test.com',
-          password: 'password',
-        }
-        const response = await request(testApp).post('/login').send(payload);
-
-        // Expectations
-          // Validation
-        expect(loginDataValidateSpy).toHaveBeenCalledTimes(1);
-        expect(loginDataValidateSpy).toHaveBeenCalledWith(payload.email, payload.password);
-
-          // Repository check for user existance
-        expect(dbGateway.query).toHaveBeenCalledTimes(1);
-        expect(dbGateway.query).toHaveBeenCalledWith('SELECT * FROM UsersAuth WHERE email = $1', [payload.email]);
-
-          // Password gets compared
-        expect(comparePasswordSpy).toHaveBeenCalledTimes(0);
-
-          // Response
-        expect(response.body).toEqual({
-          success: false,
-          errors: ["DB: User not found!"],
-        });
-      });
+      // });
       })
     })
   })
