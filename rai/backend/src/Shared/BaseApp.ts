@@ -1,21 +1,24 @@
-import 'reflect-metadata';
-import express from 'express';
-import { Container } from 'inversify';
-import { TYPES } from '/Shared/Types';
-import { AuthRouter } from '/App/Features/Auth/AuthRouter';
+import "reflect-metadata";
+import express from "express";
+import { Container } from "inversify";
+import { TYPES } from "/Shared/Types";
+import { AuthRouter } from "/App/Features/Auth/AuthRouter";
+import { ActivitiesRouter } from "/App/Features/Activities/ActivitiesRouter";
 
 export const createApp = (container: Container): express.Application => {
   const app = express();
-  const router = express.Router()
+  const router = express.Router();
 
   app.use(express.json());
   app.use(express.urlencoded({ extended: true })); // Support for URL-encoded bodies
 
   // const userRouter: UserRouter = container.get(TYPES.UserRouter);
   const authRouter: AuthRouter = container.get(TYPES.AuthRouter);
+  const activitiesRouter: ActivitiesRouter = container.get(TYPES.ActivitiesRouter);
 
   // userRouter.defineUserRoutes(router)
-  authRouter.defineAuthRoutes(router)
+  authRouter.defineAuthRoutes(router);
+  activitiesRouter.defineActivitiesRoutes(router);
 
   app.use(router);
 
