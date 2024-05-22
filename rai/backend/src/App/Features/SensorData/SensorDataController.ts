@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
-import { RepositoryResultStatus } from "/App/Repositories/Types/RepositoryTypes";
+import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
 import { SensorDataValidator } from "./SensorDataValidator";
-import { SensorDataRepository } from "/App/Repositories/SensorDataRepository";
-import { ExecutedActivityRepository } from "/App/Repositories/ExecutedActivityRepository";
+import { SensorDataRepository } from "./Repositories/SensorDataRepository";
+import { ExecutedActivityRepository } from "./Repositories/ExecutedActivityRepository";
 
 type SensorPayload = {
     executed_activity_id: number;

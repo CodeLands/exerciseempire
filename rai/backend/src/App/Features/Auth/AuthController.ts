@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
 import { AuthValidator, LoginData, RegisterData } from "./AuthValidator";
-import { AuthRepository } from "../../Repositories/AuthRepository";
-import { AuthGateway } from "../../Services/AuthGateway";
-import { JwtGateway } from "../../Services/JwtGateway";
-import { RepositoryResultStatus } from "/App/Repositories/Types/RepositoryTypes";
+import { AuthRepository } from "./Repositories/AuthRepository";
+import { AuthGateway } from "./Services/AuthGateway";
+import { JwtGateway } from "./Services/JwtGateway";
+import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
 
 @injectable()
 export class AuthController {

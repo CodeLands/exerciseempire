@@ -6,7 +6,7 @@ import { testContainer } from "../../../../Tests/TestContainer";
 import { DbGatewayMock } from "../../../../Tests/Mocks/DB/DbGatewayMock";
 import { TYPES } from "/Shared/Types";
 import { ActivitiesValidator } from "../ActivitiesValidator";
-import { ActivitiesRepository } from "/App/Repositories/ActivitiesRepository";
+import { ActivitiesRepository } from "../Repositories/ActivitiesRepository";
 
 // Setup of Controller Dependencies
 // Mocks

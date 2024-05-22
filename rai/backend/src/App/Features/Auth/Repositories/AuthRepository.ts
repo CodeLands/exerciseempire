@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
-import { DbGateway } from "../Services/DbGateway";
+import { DbGateway } from "../../../Services/DbGateway";
 import { UserAuthSchema } from "./DBSchemas/UserAuthSchema";
 import {
   RepositoryResultStatus,
   RepositoryResult,
-} from "./Types/RepositoryTypes";
+} from "../../../Types/RepositoryTypes";
 import { z } from "zod";
 import { TYPES } from "/Shared/Types";
 

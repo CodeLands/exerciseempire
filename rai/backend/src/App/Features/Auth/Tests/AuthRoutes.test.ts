@@ -6,9 +6,9 @@ import { testContainer } from '../../../../Tests/TestContainer';
 import { DbGatewayMock } from '../../../../Tests/Mocks/DB/DbGatewayMock';
 import { TYPES } from '/Shared/Types';
 import { AuthValidator } from '../AuthValidator';
-import { AuthRepository } from '/App/Repositories/AuthRepository';
-import { AuthGateway } from '/App/Services/AuthGateway';
-import { JwtGateway } from '/App/Services/JwtGateway';
+import { AuthRepository } from '../Repositories/AuthRepository';
+import { AuthGateway } from '../Services/AuthGateway';
+import { JwtGateway } from '../Services/JwtGateway';
 
 // Setup of Controller Dependencies
   // Mocks

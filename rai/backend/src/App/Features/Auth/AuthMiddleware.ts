@@ -1,7 +1,7 @@
 // /middleware/auth.ts
 import { Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
-import { JwtGateway } from '../../Services/JwtGateway';
+import { JwtGateway } from './Services/JwtGateway';
 import { TYPES } from '/Shared/Types';
 
 interface CustomRequest extends Request {

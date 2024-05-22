@@ -6,8 +6,8 @@ import { testContainer } from '../../../../Tests/TestContainer';
 import { DbGatewayMock } from '../../../../Tests/Mocks/DB/DbGatewayMock';
 import { TYPES } from '/Shared/Types';
 import { SensorDataValidator } from '../SensorDataValidator';
-import { SensorDataRepository } from '/App/Repositories/SensorDataRepository';
-import { ExecutedActivityRepository } from '/App/Repositories/ExecutedActivityRepository';
+import { SensorDataRepository } from '../Repositories/SensorDataRepository';
+import { ExecutedActivityRepository } from '../Repositories/ExecutedActivityRepository';
 
 // Setup of Controller Dependencies
   // Mocks

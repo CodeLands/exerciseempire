@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
 import { ActivitiesValidator, LoginData, RegisterData } from "./ActivitiesValidator";
-import { ActivitiesRepository } from "../../Repositories/ActivitiesRepository";
-import { RepositoryResultStatus } from "/App/Repositories/Types/RepositoryTypes";
+import { ActivitiesRepository } from "./Repositories/ActivitiesRepository";
+import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
 
 @injectable()
 export class ActivitiesController {
