@@ -49,4 +49,41 @@ export class ExecutedActivityRepository {
         data: validationResult.data,
     }
   }
+
+  public async getByActivityId( activity_id: number ): Promise<RepositoryResult<z.infer<typeof ExecutedActivitiySchema>>> {
+      const result = await this.dbGateway.query(
+          "SELECT * FROM ExecutedActivities WHERE activity_id = $1",
+          [activity_id],
+        );
+      if (!result.dbSuccess)
+          return {
+              status: RepositoryResultStatus.dbError,
+              errors: ["Database error!"],
+          };
+
+
+      if (result.data.length === 0)
+          return {
+              status: RepositoryResultStatus.failed,
+              messages: ["ExecutedActivity not found!"],
+          };
+
+
+      const executedActivityData = result.data[0];
+      const validationResult = ExecutedActivitiySchema.safeParse(executedActivityData);
+
+      if (!validationResult.success)
+          return {
+            status: RepositoryResultStatus.zodError,
+            errors: [
+              "Invalid data from database!",
+              validationResult.error.flatten().fieldErrors.toString(),
+            ],
+          };
+
+      return {
+          status: RepositoryResultStatus.success,
+          data: validationResult.data,
+      }
+    }
 }

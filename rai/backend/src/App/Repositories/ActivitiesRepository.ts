@@ -1,12 +1,12 @@
 import { inject, injectable } from "inversify";
-import { DbGateway } from "../../../Services/DbGateway";
+import { DbGateway } from "../Services/DbGateway";
 import { z } from "zod";
 import { TYPES } from "/Shared/Types";
 import { ActivitiesSchema } from "./DBSchemas/ActivitiesSchema";
 import {
   RepositoryResultStatus,
   RepositoryResult,
-} from "../../../Types/RepositoryTypes";
+} from "./Types/RepositoryTypes";
 
 // Define schemas
 const ActivityWithStatsSchema = z.object({
@@ -17,21 +17,8 @@ const ActivityWithStatsSchema = z.object({
   stat: z.string().nonempty({ message: "Stat cannot be empty" }),
   base_stat_value: z.number(),
 });
-const ExecutedActivityStatsSchema = z.object({
-  executed_activity_id: z.number().int().positive({ message: "Executed activity ID must be a positive integer" }),
-  activity_id: z.number().int().positive({ message: "Activity ID must be a positive integer" }),
-  user_id: z.number().int().positive({ message: "User ID must be a positive integer" }),
-  start_time: z.union([z.string(), z.date()]).refine(value => !isNaN(Date.parse(value as string)), { message: "Invalid start time format" }),
-  duration: z.number().int().positive({ message: "Duration must be a positive integer" }),
-  is_active: z.boolean({ message: "Is active must be a boolean" }),
-  stat_id: z.number().int().positive({ message: "Stat ID must be a positive integer" }),
-  current_value: z.number().int().positive({ message: "Current value must be a positive integer" }),
-  last_updated: z.union([z.string(), z.date()]).refine(value => !isNaN(Date.parse(value as string)), { message: "Invalid last updated format" }),
-  stat: z.string().nonempty({ message: "Stat cannot be empty" }),
-});
 
 type ActivityWithStats = z.infer<typeof ActivityWithStatsSchema>;
-type ExecutedActivityStats = z.infer<typeof ExecutedActivityStatsSchema>;
 
 type GroupedActivities = {
   category: string;
@@ -116,60 +103,4 @@ export class ActivitiesRepository {
       data: activitiesUnderCategories,
     };
   }
-
-  public async getExecutedActivityStats(userId: number, activityId: number): Promise<RepositoryResult<ExecutedActivityStats[]>> {
-      const result = await this.dbGateway.query(
-        `SELECT
-            ea.id AS executed_activity_id,
-            ea.activity_id,
-            ea.user_id,
-            ea.start_time,
-            ea.duration,
-            ea.is_active,
-            rs.stat_id,
-            rs.current_value,
-            rs.last_updated,
-            s.stat
-         FROM
-            ExecutedActivities ea
-         INNER JOIN
-            RealTimeStats rs ON ea.id = rs.executed_activity_id
-         INNER JOIN
-            Stats s ON rs.stat_id = s.id
-         WHERE
-            ea.user_id = $1 AND ea.activity_id = $2`,
-        [userId, activityId]
-      );
-
-      if (!result.dbSuccess) {
-        return {
-          status: RepositoryResultStatus.dbError,
-          errors: ["Database error!"],
-        };
-      }
-
-      if (result.data.length === 0) {
-        return {
-          status: RepositoryResultStatus.failed,
-          messages: ["No executed activities found"],
-        };
-      }
-
-      const validationResult = z.array(ExecutedActivityStatsSchema).safeParse(result.data);
-
-      if (!validationResult.success) {
-        return {
-          status: RepositoryResultStatus.zodError,
-          errors: [
-            "Invalid data from database!",
-            ...validationResult.error.errors.map((e) => e.message),
-          ],
-        };
-      }
-
-      return {
-        status: RepositoryResultStatus.success,
-        data: validationResult.data,
-      };
-    }
 }

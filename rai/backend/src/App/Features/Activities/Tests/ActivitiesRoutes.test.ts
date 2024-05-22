@@ -95,43 +95,43 @@ describe("Activities Routes:", () => {
           success: true,
           message: "Getting activities",
           data: [
-                    {
-                      category: "Outdoor",
-                      activities: [
-                        {
-                          id: 1,
-                          activity: "Running",
-                          category_id: 1,
-                          stats: [
-                            { stat: "Endurance", base_stat_value: 70 },
-                            { stat: "Speed", base_stat_value: 80 }
-                          ]
-                        },
-                        {
-                          id: 3,
-                          activity: "Cycling",
-                          category_id: 1,
-                          stats: [
-                            { stat: "Endurance", base_stat_value: 75 },
-                            { stat: "Strength", base_stat_value: 60 }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      category: "Water Sports",
-                      activities: [
-                        {
-                          id: 2,
-                          activity: "Swimming",
-                          category_id: 3,
-                          stats: [
-                            { stat: "Endurance", base_stat_value: 85 }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+              {
+                category: "Outdoor",
+                activities: [
+                  {
+                    id: 1,
+                    activity: "Running",
+                    category_id: 1,
+                    stats: [
+                      { stat: "Endurance", base_stat_value: 70 },
+                      { stat: "Speed", base_stat_value: 80 }
+                    ]
+                  },
+                  {
+                    id: 3,
+                    activity: "Cycling",
+                    category_id: 1,
+                    stats: [
+                      { stat: "Endurance", base_stat_value: 75 },
+                      { stat: "Strength", base_stat_value: 60 }
+                    ]
+                  }
+                ]
+              },
+              {
+                category: "Water Sports",
+                activities: [
+                  {
+                    id: 2,
+                    activity: "Swimming",
+                    category_id: 3,
+                    stats: [
+                      { stat: "Endurance", base_stat_value: 85 }
+                    ]
+                  }
+                ]
+              }
+            ]
         });
       });
     });

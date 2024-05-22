@@ -37,4 +37,38 @@ export class ActivitiesController {
           data: result.data,
         });
   }
+
+  public getActivityStats = async (req: Request, res: Response) => {
+      const { user_id, activity_id } = req.query;
+
+      if (!user_id || !activity_id) {
+        return res.json({
+          success: false,
+          errors: ["user_id and activity_id are required"],
+        });
+      }
+
+      const result = await this.activitiesRepository.getExecutedActivityStats(Number(user_id), Number(activity_id));
+      if (result.status === RepositoryResultStatus.dbError)
+        return res.json({
+          success: false,
+          errors: ["Database Error!"],
+        });
+      if (result.status === RepositoryResultStatus.zodError)
+        return res.json({
+          success: false,
+          errors: result.errors,
+        });
+      if (result.status === RepositoryResultStatus.failed) {
+        return res.json({
+          success: false,
+          message: "Executed activities not found",
+        });
+      }
+      return res.json({
+        success: true,
+        message: "Getting executed activity stats",
+        data: result.data,
+      });
+    }
 }

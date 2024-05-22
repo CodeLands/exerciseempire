@@ -10,5 +10,6 @@ export class ActivitiesRouter {
 
   public defineActivitiesRoutes(router: Router) {
     router.get("/activities", this.activitiesController.listActivities);
+    router.get("/activity-stats", this.activitiesController.getActivityStats);
   }
 }
