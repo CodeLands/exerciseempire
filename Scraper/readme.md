@@ -1,14 +1,20 @@
-# Setup:
-npm install
-npm install typescript
-npm install axios cheerio
-npm install pg
-npx install
+## Setup:
+<ul>
+  <li>npm install</li>
+  <li>npm install typescript</li>
+  <li>npm install axios cheerio</li>
+  <li>npm install pg</li>
+  <li>npx install</li>
+</ul>
 
-# Tips:
-npm audit fix
-npx tsc -init
+## Tips:
+<ul>
+  <li>npm audit fix</li>
+  <li>npx tsc -init</li>
+</ul>
 
-# Run:
-npx tsc
-node src/scraper.js
+## Run:
+<ul>
+  <li>npx tsc</li>
+  <li>node src/scraper.js</li>
+</ul>
