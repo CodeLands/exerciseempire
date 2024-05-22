@@ -31,9 +31,11 @@ const ExecutedActivityStatsSchema = z.object({
 });
 
 const AggregatedStatsSchema = z.object({
+  stat_id: z.number().int().positive({ message: "Stat ID must be a positive integer" }),
   stat: z.string().nonempty({ message: "Stat cannot be empty" }),
   total_value: z.number().int().nonnegative({ message: "Total value must be a non-negative integer" }),
 });
+
 
 type AggregatedStats = z.infer<typeof AggregatedStatsSchema>;
 type ActivityWithStats = z.infer<typeof ActivityWithStatsSchema>;
@@ -182,8 +184,9 @@ export class ActivitiesRepository {
     public async aggregateUserStats(userId: number): Promise<RepositoryResult<AggregatedStats[]>> {
         const result = await this.dbGateway.query(
           `SELECT
+              s.id AS stat_id,
               s.stat,
-              SUM(rs.current_value)::int AS total_value
+              COALESCE(SUM(rs.current_value)::int, 0) AS total_value
            FROM
               ExecutedActivities ea
            INNER JOIN
@@ -193,7 +196,7 @@ export class ActivitiesRepository {
            WHERE
               ea.user_id = $1
            GROUP BY
-              s.stat`,
+              s.id, s.stat`,
           [userId]
         );
 
