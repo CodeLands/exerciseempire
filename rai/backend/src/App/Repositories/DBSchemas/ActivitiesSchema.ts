@@ -5,8 +5,7 @@ export const ActivitiesSchema = z.object({
   id: z
     .number()
     .int({ message: "ID must be an integer" })
-    .positive({ message: "ID must be a positive number" })
-    .optional(),
+    .positive({ message: "ID must be a positive number" }),
   activity: z
     .string()
     .max(255, { message: "Activity must be 255 characters or less" })

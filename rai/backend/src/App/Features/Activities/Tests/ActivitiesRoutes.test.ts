@@ -42,22 +42,25 @@ describe("Activities Routes:", () => {
     describe("Successful cases:", () => {
       it("should fetch activities from the database", async () => {
         const dbMockedDataGetActivities = [
-          {
-            id: 1,
-            activity: "Swimming",
-            category_id: 2,
-          },
-          {
-            id: 2,
-            activity: "Running",
-            category_id: 1,
-          },
-          {
-            id: 3,
-            activity: "Cycling",
-            category_id: 3,
-          },
-        ];
+        {
+          id: 1,
+          activity: "Running",
+          category_id: 1,
+          category: "Outdoor"
+        },
+        {
+          id: 2,
+          activity: "Swimming",
+          category_id: 3,
+          category: "Water Sports"
+        },
+        {
+          id: 3,
+          activity: "Cycling",
+          category_id: 1,
+          category: "Outdoor"
+        }
+      ];
         dbGateway.query = jest.fn().mockResolvedValueOnce({
           dbSuccess: true,
           data: dbMockedDataGetActivities,
@@ -68,7 +71,33 @@ describe("Activities Routes:", () => {
         expect(response.body).toEqual({
           success: true,
           message: "Getting activities",
-          data: dbMockedDataGetActivities
+          data: [
+            {
+              "category": "Outdoor",
+              "activities": [
+                  {
+                      "id": 1,
+                      "activity": "Running",
+                      "category_id": 1
+                  },
+                  {
+                      "id": 3,
+                      "activity": "Cycling",
+                      "category_id": 1
+                  }
+              ]
+            },
+            {
+              "category": "Water Sports",
+              "activities": [
+                  {
+                      "id": 2,
+                      "activity": "Swimming",
+                      "category_id": 3
+                  }
+              ]
+            }
+          ]
         });
       });
     });

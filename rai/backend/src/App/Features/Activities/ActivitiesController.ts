@@ -1,11 +1,7 @@
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
-import {
-  ActivitiesValidator,
-  LoginData,
-  RegisterData,
-} from "./ActivitiesValidator";
+import { ActivitiesValidator, LoginData, RegisterData } from "./ActivitiesValidator";
 import { ActivitiesRepository } from "../../Repositories/ActivitiesRepository";
 import { RepositoryResultStatus } from "/App/Repositories/Types/RepositoryTypes";
 
@@ -41,7 +37,4 @@ export class ActivitiesController {
           data: result.data,
         });
   }
-  // public logout = async (req: Request, res: Response) => {
-  //   res.json({ success: true, message: "User Logged out Successfully!" });
-  // }
 }

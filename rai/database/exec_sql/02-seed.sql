@@ -25,7 +25,13 @@ INSERT INTO Stats (stat) VALUES
 -- Inserting activity base stats
 INSERT INTO ActivityBaseStats (activity_id, stat_id, base_stat_value) VALUES
 (1, 1, 10), -- Running increases Endurance by 10
+(1, 2, 20), -- Swimming increases Strength by 20
+(1, 3, 15), -- Cycling increases Agility by 15
+(2, 1, 10), -- Running increases Endurance by 10
 (2, 2, 20), -- Swimming increases Strength by 20
+(2, 3, 15), -- Cycling increases Agility by 15
+(3, 1, 10), -- Running increases Endurance by 10
+(3, 2, 20), -- Swimming increases Strength by 20
 (3, 3, 15); -- Cycling increases Agility by 15
 
 -- Inserting sensors
