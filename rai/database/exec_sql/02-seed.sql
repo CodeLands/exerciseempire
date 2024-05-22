@@ -71,7 +71,12 @@ INSERT INTO StatLevels (level, required_exp) VALUES
 
 -- Inserting real-time stats (mock data assuming real-time updates are happening)
 INSERT INTO RealTimeStats (executed_activity_id, stat_id, current_value, last_updated) VALUES
-(1, 1, 55, '2023-05-20 08:05:00');
+(1, 1, 55, '2023-05-20 08:05:00'), -- Endurance for Running
+(1, 2, 30, '2023-05-20 08:06:00'), -- Strength for Running
+(1, 3, 25, '2023-05-20 08:07:00'), -- Agility for Running
+(2, 1, 40, '2023-05-20 09:05:00'), -- Endurance for Swimming
+(2, 2, 20, '2023-05-20 09:06:00'), -- Strength for Swimming
+(2, 3, 15, '2023-05-20 09:07:00'); -- Agility for Swimming
 
 -- Inserting activity summaries (example of how summaries might be stored post-activity)
 INSERT INTO ActivitySummary (executed_activity_id, summary_details) VALUES

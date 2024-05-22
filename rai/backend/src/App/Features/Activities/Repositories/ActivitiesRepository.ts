@@ -30,6 +30,12 @@ const ExecutedActivityStatsSchema = z.object({
   stat: z.string().nonempty({ message: "Stat cannot be empty" }),
 });
 
+const AggregatedStatsSchema = z.object({
+  stat: z.string().nonempty({ message: "Stat cannot be empty" }),
+  total_value: z.number().int().nonnegative({ message: "Total value must be a non-negative integer" }),
+});
+
+type AggregatedStats = z.infer<typeof AggregatedStatsSchema>;
 type ActivityWithStats = z.infer<typeof ActivityWithStatsSchema>;
 type ExecutedActivityStats = z.infer<typeof ExecutedActivityStatsSchema>;
 
@@ -172,4 +178,47 @@ export class ActivitiesRepository {
         data: validationResult.data,
       };
     }
+
+    public async aggregateUserStats(userId: number): Promise<RepositoryResult<AggregatedStats[]>> {
+        const result = await this.dbGateway.query(
+          `SELECT
+              s.stat,
+              SUM(rs.current_value)::int AS total_value
+           FROM
+              ExecutedActivities ea
+           INNER JOIN
+              RealTimeStats rs ON ea.id = rs.executed_activity_id
+           INNER JOIN
+              Stats s ON rs.stat_id = s.id
+           WHERE
+              ea.user_id = $1
+           GROUP BY
+              s.stat`,
+          [userId]
+        );
+
+        if (!result.dbSuccess) {
+          return {
+            status: RepositoryResultStatus.dbError,
+            errors: ["Database error!"],
+          };
+        }
+
+        const validationResult = z.array(AggregatedStatsSchema).safeParse(result.data);
+
+        if (!validationResult.success) {
+          return {
+            status: RepositoryResultStatus.zodError,
+            errors: [
+              "Invalid data from database!",
+              ...validationResult.error.errors.map((e) => e.message),
+            ],
+          };
+        }
+
+        return {
+          status: RepositoryResultStatus.success,
+          data: validationResult.data,
+        };
+      }
 }

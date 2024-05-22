@@ -71,4 +71,38 @@ export class ActivitiesController {
         data: result.data,
       });
     }
+
+    public aggregateUserStats = async (req: Request, res: Response) => {
+        const { user_id } = req.query;
+
+        if (!user_id) {
+          return res.json({
+            success: false,
+            errors: ["user_id is required"],
+          });
+        }
+
+        const result = await this.activitiesRepository.aggregateUserStats(Number(user_id));
+        if (result.status === RepositoryResultStatus.dbError)
+          return res.json({
+            success: false,
+            errors: ["Database Error!"],
+          });
+        if (result.status === RepositoryResultStatus.zodError)
+          return res.json({
+            success: false,
+            errors: result.errors,
+          });
+        if (result.status === RepositoryResultStatus.failed) {
+          return res.json({
+            success: false,
+            message: "No stats found",
+          });
+        }
+        return res.json({
+          success: true,
+          message: "Aggregated user stats",
+          data: result.data,
+        });
+      }
 }

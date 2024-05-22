@@ -50,10 +50,10 @@ export class ExecutedActivityRepository {
     }
   }
 
-  public async getByActivityId( activity_id: number ): Promise<RepositoryResult<z.infer<typeof ExecutedActivitiySchema>>> {
+  public async getUserExecutedActivitiesStats( activity_id: number, user_id: number ): Promise<RepositoryResult<z.infer<typeof ExecutedActivitiySchema>>> {
       const result = await this.dbGateway.query(
-          "SELECT * FROM ExecutedActivities WHERE activity_id = $1",
-          [activity_id],
+          "SELECT * FROM ExecutedActivities WHERE activity_id = $1 and user_id = $2",
+          [activity_id, user_id],
         );
       if (!result.dbSuccess)
           return {
