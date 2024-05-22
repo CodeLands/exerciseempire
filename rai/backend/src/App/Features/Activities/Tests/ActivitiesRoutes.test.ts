@@ -42,25 +42,48 @@ describe("Activities Routes:", () => {
     describe("Successful cases:", () => {
       it("should fetch activities from the database", async () => {
         const dbMockedDataGetActivities = [
-        {
-          id: 1,
-          activity: "Running",
-          category_id: 1,
-          category: "Outdoor"
-        },
-        {
-          id: 2,
-          activity: "Swimming",
-          category_id: 3,
-          category: "Water Sports"
-        },
-        {
-          id: 3,
-          activity: "Cycling",
-          category_id: 1,
-          category: "Outdoor"
-        }
-      ];
+          {
+            category: "Outdoor",
+            activity_id: 1,
+            activity: "Running",
+            category_id: 1,
+            stat: "Endurance",
+            base_stat_value: 70
+          },
+          {
+            category: "Outdoor",
+            activity_id: 1,
+            activity: "Running",
+            category_id: 1,
+            stat: "Speed",
+            base_stat_value: 80
+          },
+          {
+            category: "Water Sports",
+            activity_id: 2,
+            activity: "Swimming",
+            category_id: 3,
+            stat: "Endurance",
+            base_stat_value: 85
+          },
+          {
+            category: "Outdoor",
+            activity_id: 3,
+            activity: "Cycling",
+            category_id: 1,
+            stat: "Endurance",
+            base_stat_value: 75
+          },
+          {
+            category: "Outdoor",
+            activity_id: 3,
+            activity: "Cycling",
+            category_id: 1,
+            stat: "Strength",
+            base_stat_value: 60
+          }
+        ];
+
         dbGateway.query = jest.fn().mockResolvedValueOnce({
           dbSuccess: true,
           data: dbMockedDataGetActivities,
@@ -72,32 +95,43 @@ describe("Activities Routes:", () => {
           success: true,
           message: "Getting activities",
           data: [
-            {
-              "category": "Outdoor",
-              "activities": [
-                  {
-                      "id": 1,
-                      "activity": "Running",
-                      "category_id": 1
-                  },
-                  {
-                      "id": 3,
-                      "activity": "Cycling",
-                      "category_id": 1
-                  }
-              ]
-            },
-            {
-              "category": "Water Sports",
-              "activities": [
-                  {
-                      "id": 2,
-                      "activity": "Swimming",
-                      "category_id": 3
-                  }
-              ]
-            }
-          ]
+                    {
+                      category: "Outdoor",
+                      activities: [
+                        {
+                          id: 1,
+                          activity: "Running",
+                          category_id: 1,
+                          stats: [
+                            { stat: "Endurance", base_stat_value: 70 },
+                            { stat: "Speed", base_stat_value: 80 }
+                          ]
+                        },
+                        {
+                          id: 3,
+                          activity: "Cycling",
+                          category_id: 1,
+                          stats: [
+                            { stat: "Endurance", base_stat_value: 75 },
+                            { stat: "Strength", base_stat_value: 60 }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      category: "Water Sports",
+                      activities: [
+                        {
+                          id: 2,
+                          activity: "Swimming",
+                          category_id: 3,
+                          stats: [
+                            { stat: "Endurance", base_stat_value: 85 }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
         });
       });
     });
