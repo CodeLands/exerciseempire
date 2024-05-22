@@ -27,33 +27,20 @@ export class ActivitiesRepository {
           messages: ["No activities"],
         };
 
-      const activitiesList = result.data;
-      const validationResults = activitiesList.map((activity: any) =>
-        ActivitiesSchema.safeParse(activity)
-      );
+      const validationResult = z.array(ActivitiesSchema).safeParse(result.data);
 
-      const invalidResults = validationResults.filter(
-        (validationResult) => !validationResult.success
-      );
-
-      if (invalidResults.length > 0)
-        return {
-          status: RepositoryResultStatus.zodError,
-          errors: [
-            "Invalid data from database!",
-            ...invalidResults.flatMap((result) =>
-              result.error ? result.error.errors.map((e) => e.message) : []
-            ),
-          ],
-        };
-
-      const validData = validationResults
-        .filter((validationResult) => validationResult.success)
-        .map((validationResult) => validationResult.data) as z.infer<typeof ActivitiesSchema>[];
+      if (!validationResult.success)
+            return {
+              status: RepositoryResultStatus.zodError,
+              errors: [
+                "Invalid data from database!",
+                ...validationResult.error.errors.map((e) => e.message),
+              ],
+            };
 
       return {
         status: RepositoryResultStatus.success,
-        data: validData,
+        data: validationResult.data,
       };
     }
   /*public async create(data: {

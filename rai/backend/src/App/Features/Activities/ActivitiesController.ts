@@ -11,17 +11,36 @@ import { RepositoryResultStatus } from "/App/Repositories/Types/RepositoryTypes"
 
 @injectable()
 export class ActivitiesController {
-  @inject(TYPES.ActivitiesValidator)
-  private readonly activitiesValidator!: ActivitiesValidator;
+  //@inject(TYPES.ActivitiesValidator)
+  //private readonly activitiesValidator!: ActivitiesValidator;
 
   @inject(TYPES.ActivitiesRepository)
   private readonly activitiesRepository!: ActivitiesRepository;
 
-  public listActivities = async (req: Request, res: Response): Promise<void> => {
-      const activities = await this.activitiesRepository.listActivities();
-      res.json({ success: true, message: "Getting activities", activities });
-  };
-
+  public listActivities = async (req: Request, res: Response) => {
+      const result = await this.activitiesRepository.listActivities();
+      if (result.status === RepositoryResultStatus.dbError)
+            return res.json({
+              success: false,
+              errors: ["Database Error!"],
+      });
+      if (result.status === RepositoryResultStatus.zodError)
+        return res.json({
+          success: false,
+          errors: result.errors,
+      });
+      if (result.status === RepositoryResultStatus.failed) {
+        return res.json({
+          success: false,
+          message: "Activities not found",
+        })
+      }
+      return res.json({
+          success: true,
+          message: "Getting activities",
+          data: result.data,
+        });
+  }
   // public logout = async (req: Request, res: Response) => {
   //   res.json({ success: true, message: "User Logged out Successfully!" });
   // }

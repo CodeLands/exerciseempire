@@ -68,10 +68,7 @@ describe("Activities Routes:", () => {
         expect(response.body).toEqual({
           success: true,
           message: "Getting activities",
-          activities: {
-            data: dbMockedDataGetActivities,
-            status: "Success",
-          },
+          data: dbMockedDataGetActivities
         });
       });
     });
