@@ -15,12 +15,8 @@ export const SensorDataSchema = z.object({
     }).nonempty({
         message: 'Value cannot be empty'
     }),
-    timestamp: z.number({
-        message: 'Start time must be a number'
-    }).int().positive({
-        message: 'Start time must be a positive integer'
-    }).refine((val) => val !== undefined, {
-        message: 'Start time cannot be null'
+    timestamp: z.date({
+        message: 'Start time must be a date'
     }),
     // timestamp: z.date().or(z.string().refine(val => !isNaN(Date.parse(val)), {
     //     message: 'Timestamp must be a valid ISO 8601 date string'

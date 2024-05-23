@@ -14,10 +14,8 @@ export const ExecutedActivitiySchema = z.object({
     }).refine((val) => val !== undefined, {
         message: 'Activity ID must reference an existing activity'
     }),
-    start_time: z.number({
-        message: 'Start time must be a number'
-    }).int().positive({
-        message: 'Start time must be a positive integer'
+    start_time: z.date({
+        message: 'Start time must be a string'
     }).refine((val) => val !== undefined, {
         message: 'Start time cannot be null'
     }),
