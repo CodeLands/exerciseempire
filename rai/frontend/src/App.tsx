@@ -8,6 +8,7 @@ import HomePage from './features/HomePage'
 import NotFoundPage from './features/NotFoundPage';
 import BlankLayout from './layouts/BlankLayout';
 import GuestLayout from './layouts/GuestLayout';
+import ProtectedRoute from './features/auth/ProtectedRoute';
 
 
 function App() {
@@ -19,7 +20,9 @@ function App() {
         <Routes>
           {/* Protected Routes */}
           <Route path="/" element={<ThreeColumnWithSidebar />}>
-            <Route path="home" element={<HomePage />} />
+            <Route element={<ProtectedRoute />}>
+              <Route path="home" element={<HomePage />} />
+            </Route>
           </Route>
           {/* Public Routes */}
             {/* BlankLayout Routes */}
