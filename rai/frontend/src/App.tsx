@@ -1,16 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ThreeColumnWithSidebar from './layouts/ThreeColumnWithSidebar'
-import SimpleLayout from './layouts/SimpleLayout'
-
 import WelcomePage from './features/WelcomePage'
 import LoginPage from './features/auth/LoginPage'
 import RegisterPage from './features/auth/RegisterPage'
 import HomePage from './features/HomePage'
+import NotFoundPage from './features/NotFoundPage';
+import BlankLayout from './layouts/BlankLayout';
+import GuestLayout from './layouts/GuestLayout';
 
 
 function App() {
@@ -20,13 +17,20 @@ function App() {
     <Router>
 
         <Routes>
-          <Route path="/" element={<SimpleLayout />}>
-            <Route index element={<WelcomePage />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} /> 
-          </Route>
+          {/* Protected Routes */}
           <Route path="/" element={<ThreeColumnWithSidebar />}>
             <Route path="home" element={<HomePage />} />
+          </Route>
+          {/* Public Routes */}
+            {/* BlankLayout Routes */}
+          <Route path="/" element={<BlankLayout />}>
+            <Route path="login" element={<LoginPage />} />
+            <Route path="register" element={<RegisterPage />} /> 
+          <Route path="*" element={<NotFoundPage />} />
+          </Route>
+            {/* GuestLayout Routes */}
+          <Route path="/" element={<GuestLayout />}>
+            <Route index element={<WelcomePage />} />
           </Route>
         </Routes>
     </Router>
