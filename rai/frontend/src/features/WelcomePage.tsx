@@ -1,51 +1,47 @@
-import {
-  ArrowPathIcon,
-  CloudArrowUpIcon,
-  LockClosedIcon,
-  ServerIcon,
-} from '@heroicons/react/20/solid'
-
+import { CloudArrowUpIcon, LockClosedIcon, ServerIcon, HeartIcon, ChartBarIcon, UsersIcon, FlagIcon } from '@heroicons/react/24/outline';
 
 const primaryFeatures = [
   {
-    name: 'Push to deploy.',
-    description: 'Lorem ipsum, dolor sit amet consectetur adipisicing elit aute id magna.',
-    icon: CloudArrowUpIcon,
+    name: 'Track Workouts',
+    description: 'Log your exercise routines, sets, and reps to monitor progress over time.',
+    icon: CloudArrowUpIcon, // You can replace with a more appropriate icon from Heroicons
   },
   {
-    name: 'SSL certificates.',
-    description: 'Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.',
-    icon: LockClosedIcon,
+    name: 'Nutrition Tracking',
+    description: 'Monitor your daily food intake, calories, and macronutrients to stay on track with your diet.',
+    icon: LockClosedIcon, // You can replace with a more appropriate icon from Heroicons
   },
   {
-    name: 'Database backups.',
-    description: 'Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus.',
-    icon: ServerIcon,
+    name: 'Health Metrics',
+    description: 'Keep track of vital health stats like heart rate, sleep patterns, and weight.',
+    icon: HeartIcon,
   },
-]
+];
+
 const secondaryFeatures = [
   {
-    name: 'Push to deploy',
+    name: 'Goal Setting',
     description:
-      'Commodo nec sagittis tortor mauris sed. Turpis tortor quis scelerisque diam id accumsan nullam tempus. Pulvinar etiam lacus volutpat eu. Phasellus praesent ligula sit faucibus.',
+      'Set and track your fitness goals, whether it\'s losing weight, building muscle, or improving endurance.',
     href: '#',
-    icon: CloudArrowUpIcon,
+    icon: FlagIcon,
   },
   {
-    name: 'SSL certificates',
+    name: 'Progress Reports',
     description:
-      'Pellentesque enim a commodo malesuada turpis eleifend risus. Facilisis donec placerat sapien consequat tempor fermentum nibh.',
+      'Get detailed reports and visualizations of your fitness journey to see how far you’ve come.',
     href: '#',
-    icon: LockClosedIcon,
+    icon: ChartBarIcon,
   },
   {
-    name: 'Simple queues',
+    name: 'Community Challenges',
     description:
-      'Pellentesque sit elit congue ante nec amet. Dolor aenean curabitur viverra suspendisse iaculis eget. Nec mollis placerat ultricies euismod ut condimentum.',
+      'Join challenges with friends and the community to stay motivated and engaged.',
     href: '#',
-    icon: ArrowPathIcon,
+    icon: UsersIcon,
   },
-]
+];
+
 const featuredTestimonial = {
   body: 'Integer id nunc sit semper purus. Bibendum at lacus ut arcu blandit montes vitae auctor libero. Hac condimentum dignissim nibh vulputate ut nunc. Amet nibh orci mi venenatis blandit vel et proin. Non hendrerit in vel ac diam.',
   author: {
