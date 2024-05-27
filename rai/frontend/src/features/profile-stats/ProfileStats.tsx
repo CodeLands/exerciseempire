@@ -100,7 +100,7 @@ export default function ProfileStats() {
             <div
             className={classNames('z-10 bg-white shadow-xl ring-1 ring-gray-900/10')}
             >
-            <div className="p-8 lg:pt-12 xl:p-10 xl:pt-14">
+            <div className="p-8 xl:p-10">
                 <h3
                 id="profile"
                 className={classNames('text-gray-900 text-sm font-semibold leading-6')}
@@ -129,19 +129,20 @@ export default function ProfileStats() {
                     See more
                 </Link>
                 </div>
-                <div className="mt-8 flow-root sm:mt-10">
+                <div className="flow-root sm:mt-10 border-t border-gray-300 py-4">
+                    
                 <ul
                     role="list"
-                    className={classNames('divide-gray-900/5 border-gray-900/5 text-gray-600 -my-2 divide-y border-t text-sm leading-6 lg:border-t-0')}
+                    className={classNames('divide-gray-900/5 text-gray-600 divide-y border-t text-sm leading-6 lg:border-t-0')}
                 >
                     {userStats.attributes.map((attribute) => {
                         const colors = AttributeColorsToTextAndBgMap[AttributeColorMap[attribute.name]];
                         return (
-                        <li key={attribute.name} >
+                        <li key={attribute.name} className='my-4 bg-gray-100 rounded'>
                             <div>
-                                <p className="text-gray-900 font-semibold">{attribute.name + " Lvl: " + attribute.lvl}</p>
+                                <p className="ml-1 text-gray-900 font-semibold">{attribute.name + " Lvl: " + attribute.lvl}</p>
                             </div>
-                            <div className="bg-white rounded-xl shadow-sm overflow-hidden p-1">
+                            <div className="bg-gray-100 rounded shadow-sm overflow-hidden p-1 my-1">
                                 <div className="relative h-6 flex items-center justify-center">
                                 <div className={`absolute top-0 bottom-0 left-0 rounded-lg w-[${attribute.percentOfLvl}%] ${colors.bg}`}></div>
                                 <div className={`relative ${colors.text} font-medium text-sm`}>{attribute.percentOfLvl + '%'}</div>
