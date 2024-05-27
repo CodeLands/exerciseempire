@@ -60,7 +60,7 @@ export default function RegisterPage() {
       } else {
         // Handle error response
         const data = await response.json();
-        if(!data.message) {
+        if (!data.message) {
           setErrorMessage('Registration failed. Unknown error.');
         } else {
           setErrorMessage(data.message);

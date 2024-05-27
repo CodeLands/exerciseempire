@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useAuth } from './AuthContext';
 
 // Define the zod schema for validation
 const loginSchema = z.object({
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<{ email?: string, password?: string }>({});
   const navigate = useNavigate();
+  const { setToken, setUser } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('htto://www.google.com/api/login', {
+      const response = await fetch('/api/login', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -49,17 +51,18 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-
       if (response.ok) {
         const data = await response.json();
         const token = data.token;
 
-        localStorage.setItem('token', token);
+        setToken(token);
+        setUser(data.user); // Assuming the user data is returned in the response
+
         navigate('/home');
       } else {
-        // Handle error response so that you check the response body for message field
+        // Handle error response
         const data = await response.json();
-        if(!data.message) {
+        if (!data.message) {
           setErrorMessage('Authentication failed. Unknown error.');
         } else {
           setErrorMessage(data.message);
