@@ -1,17 +1,16 @@
-import { Fragment, PropsWithChildren, useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
   CalendarIcon,
   ChartPieIcon,
-  DocumentDuplicateIcon,
   FolderIcon,
   HomeIcon,
-  UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import ProfileStats from '../features/profile-stats/ProfileStats';
 
 const navigation = [
   { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
@@ -19,11 +18,6 @@ const navigation = [
   { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
   { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
 ]
-// const teams = [
-//   { id: 1, name: 'Heroicons', href: '#', initial: 'H', current: false },
-//   { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T', current: false },
-//   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
-// ]
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -275,6 +269,7 @@ export default function ThreeColumnWithSidebar() {
 
         <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
           {/* Secondary column (hidden on smaller screens) */}
+          <ProfileStats />
         </aside>
       </div>
     </>

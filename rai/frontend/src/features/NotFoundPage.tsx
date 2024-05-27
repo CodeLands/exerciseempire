@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "./auth/AuthContext";
 
 export default function NotFoundPage() {
+  const { user } = useAuth()
     return (
       <>
         {/*
@@ -22,9 +24,12 @@ export default function NotFoundPage() {
             <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">Page not found</h1>
             <p className="mt-4 text-base text-white/70 sm:mt-6">Sorry, we couldn’t find the page you’re looking for.</p>
             <div className="mt-10 flex justify-center">
-              <Link to="/" className="text-sm font-semibold leading-7 text-white">
-                <span aria-hidden="true">&larr;</span> Back to home
-              </Link>
+              {user ? <Link to="/" className="text-sm font-semibold leading-7 text-white">
+                        <span aria-hidden="true">&larr;</span> Back to home
+                      </Link>
+              : <Link to="/" className="text-sm font-semibold leading-7 text-white">
+              <span aria-hidden="true">&larr;</span> Back to welcome
+            </Link>}
             </div>
           </div>
         </main>

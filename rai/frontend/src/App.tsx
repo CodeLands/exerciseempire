@@ -20,17 +20,18 @@ function App() {
         <Routes>
           {/* Protected Routes */}
           <Route path="/" element={<ThreeColumnWithSidebar />}>
-            <Route element={<ProtectedRoute />}>
+            {/* <Route element={<ProtectedRoute />}> */}
               <Route path="home" element={<HomePage />} />
-            </Route>
+            {/* </Route> */}
           </Route>
           {/* Public Routes */}
             {/* BlankLayout Routes */}
           <Route path="/" element={<BlankLayout />}>
             <Route path="login" element={<LoginPage />} />
             <Route path="register" element={<RegisterPage />} /> 
-          <Route path="*" element={<NotFoundPage />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
+
             {/* GuestLayout Routes */}
           <Route path="/" element={<GuestLayout />}>
             <Route index element={<WelcomePage />} />
