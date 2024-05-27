@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, PropsWithChildren, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -26,11 +26,11 @@ const teams = [
   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 ]
 
-function classNames(...classes) {
+function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function ThreeColumnWithSidebar(props) {
+export default function ThreeColumnWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
