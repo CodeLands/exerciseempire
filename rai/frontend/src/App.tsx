@@ -10,6 +10,7 @@ import BlankLayout from './layouts/BlankLayout';
 import GuestLayout from './layouts/GuestLayout';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import ActivityHistory from './features/activity-history/ActivityHistory';
+import UserStatsGraph from './features/statistics/UserStatsGraph';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
               <Route path="home" element={<HomePage />} />
             {/* </Route> */}
             <Route path="activity-history" element={<ActivityHistory />} />
+            <Route path="statistics" element={<UserStatsGraph />} />
           </Route>
           {/* Public Routes */}
             {/* BlankLayout Routes */}
