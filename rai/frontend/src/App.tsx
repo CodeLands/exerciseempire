@@ -12,36 +12,39 @@ import ProtectedRoute from "./features/auth/ProtectedRoute";
 import ActivityHistory from "./features/activity-history/ActivityHistory";
 import UserStatsGraph from "./features/statistics/UserStatsGraph";
 import Settings from "./features/settings/Settings";
+import { DarkModeProvider } from "./features/settings/DarkModeContext";
 
 function App() {
   return (
-    <>
-      <Router>
-        <Routes>
-          {/* Protected Routes */}
-          <Route path="/" element={<ThreeColumnWithSidebar />}>
-            {/* <Route element={<ProtectedRoute />}> */}
-            <Route path="home" element={<HomePage />} />
-            <Route path="settings" element={<Settings />} />
-            {/* </Route> */}
-            <Route path="activity-history" element={<ActivityHistory />} />
-            <Route path="statistics" element={<UserStatsGraph />} />
-          </Route>
-          {/* Public Routes */}
-          {/* BlankLayout Routes */}
-          <Route path="/" element={<BlankLayout />}>
-            <Route path="login" element={<LoginPage />} />
-            <Route path="register" element={<RegisterPage />} />
-          </Route>
-          <Route path="*" element={<NotFoundPage />} />
+    <DarkModeProvider>
+      <>
+        <Router>
+          <Routes>
+            {/* Protected Routes */}
+            <Route path="/" element={<ThreeColumnWithSidebar />}>
+              {/* <Route element={<ProtectedRoute />}> */}
+              <Route path="home" element={<HomePage />} />
+              <Route path="settings" element={<Settings />} />
+              {/* </Route> */}
+              <Route path="activity-history" element={<ActivityHistory />} />
+              <Route path="statistics" element={<UserStatsGraph />} />
+            </Route>
+            {/* Public Routes */}
+            {/* BlankLayout Routes */}
+            <Route path="/" element={<BlankLayout />}>
+              <Route path="login" element={<LoginPage />} />
+              <Route path="register" element={<RegisterPage />} />
+            </Route>
+            <Route path="*" element={<NotFoundPage />} />
 
-          {/* GuestLayout Routes */}
-          <Route path="/" element={<GuestLayout />}>
-            <Route index element={<WelcomePage />} />
-          </Route>
-        </Routes>
-      </Router>
-    </>
+            {/* GuestLayout Routes */}
+            <Route path="/" element={<GuestLayout />}>
+              <Route index element={<WelcomePage />} />
+            </Route>
+          </Routes>
+        </Router>
+      </>
+    </DarkModeProvider>
   );
 }
 
