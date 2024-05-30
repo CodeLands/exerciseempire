@@ -13,10 +13,11 @@ import { useAuth } from '../features/auth/AuthContext';
 import ProfileStats from '../features/profile-stats/ProfileStats';
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
+  { name: 'Dashboard', href: '/home', icon: HomeIcon, current: true },
   { name: 'Activities', href: '#', icon: FolderIcon, current: false },
   { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
   { name: 'Reports', href: '#', icon: ChartPieIcon, current: false },
+  { name: 'History', href: '/activity-history/', icon: ChartPieIcon, current: false },
 ]
 
 function classNames(...classes: string[]) {

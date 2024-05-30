@@ -9,6 +9,7 @@ import NotFoundPage from './features/NotFoundPage';
 import BlankLayout from './layouts/BlankLayout';
 import GuestLayout from './layouts/GuestLayout';
 import ProtectedRoute from './features/auth/ProtectedRoute';
+import ActivityHistory from './features/activity-history/ActivityHistory';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             {/* <Route element={<ProtectedRoute />}> */}
               <Route path="home" element={<HomePage />} />
             {/* </Route> */}
+            <Route path="activity-history" element={<ActivityHistory />} />
           </Route>
           {/* Public Routes */}
             {/* BlankLayout Routes */}

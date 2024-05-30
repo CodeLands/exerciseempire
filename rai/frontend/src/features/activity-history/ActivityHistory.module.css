@@ -1,0 +1,10 @@
+.activityHistory {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.activityHistory h2 {
+  text-align: center;
+  color: #333;
+}
