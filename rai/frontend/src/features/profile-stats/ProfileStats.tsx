@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import './ProfileStats.css'
+import { AttributeColorMap, AttributeColors, Attributes } from '../../types/AtributeTypes'
 
 enum AttributeBgColors {
     red = 'bg-red-200',
@@ -15,32 +16,11 @@ enum AttributeTextColors {
     green = 'text-green-900',
 }
 
-enum Attributes {
-    Strength = 'Strength',
-    Endurance = 'Endurance',
-    Flexibility = 'Flexibility',
-    Agility = 'Agility',
-}
-
-enum AttributeColors {
-    Red = 'Red',
-    Orange = 'Orange',
-    Blue = 'Blue',
-    Green = 'Green',
-}
-
 const AttributeColorsToTextAndBgMap: Record<AttributeColors, {text: AttributeTextColors, bg: AttributeBgColors}> = {
     [AttributeColors.Red]: {text: AttributeTextColors.red, bg: AttributeBgColors.red},
     [AttributeColors.Orange]: {text: AttributeTextColors.orange, bg: AttributeBgColors.orange},
     [AttributeColors.Blue]: {text: AttributeTextColors.blue, bg: AttributeBgColors.blue},
     [AttributeColors.Green]: {text: AttributeTextColors.green, bg: AttributeBgColors.green},
-}
-
-const AttributeColorMap: Record<Attributes, AttributeColors> = {
-    [Attributes.Strength]: AttributeColors.Red,
-    [Attributes.Endurance]: AttributeColors.Orange,
-    [Attributes.Flexibility]: AttributeColors.Blue,
-    [Attributes.Agility]: AttributeColors.Green,
 }
 
 enum ActiveStatus {
