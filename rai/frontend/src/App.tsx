@@ -11,6 +11,7 @@ import GuestLayout from './layouts/GuestLayout';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import ActivityHistory from './features/activity-history/ActivityHistory';
 import UserStatsGraph from './features/statistics/UserStatsGraph';
+import ActivityList from './features/activities/ActivityList';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<ThreeColumnWithSidebar />}>
             {/* <Route element={<ProtectedRoute />}> */}
               <Route path="home" element={<HomePage />} />
+              <Route path="activities" element={<ActivityList />} />
             {/* </Route> */}
             <Route path="activity-history" element={<ActivityHistory />} />
             <Route path="statistics" element={<UserStatsGraph />} />
