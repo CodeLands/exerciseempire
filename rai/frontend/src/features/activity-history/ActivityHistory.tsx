@@ -59,8 +59,8 @@ const activities: Activity[] = [
 
 const ActivityHistory: React.FC = () => {
   return (
-    <div className={styles.activityHistory}>
-      <h2>Activity History</h2>
+    <div className={`${styles.activityHistory} bg-white dark:bg-gray-800 p-6 rounded shadow-md`}>
+      <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-6">Activity History</h2>
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {activities.map(activity => (
           <ActivityItem key={activity.id} activity={activity} />

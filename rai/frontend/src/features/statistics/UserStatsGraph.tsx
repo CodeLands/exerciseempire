@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { useDarkMode } from '../settings/DarkModeContext';
 
 ChartJS.register(
   CategoryScale,
@@ -57,49 +58,53 @@ const data = {
   ],
 };
 
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top' as const,
-      labels: {
-        usePointStyle: true,
-        pointStyle: 'rectRounded',
-      },
-    },
-    title: {
-      display: true,
-      text: 'User Stats Over Time',
-      font: {
-        size: 24,
-      },
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-      grid: {
-        color: 'rgba(200, 200, 200, 0.2)',
-      },
-      ticks: {
-        color: 'rgba(100, 100, 100, 0.7)',
-      },
-    },
-    x: {
-      grid: {
-        display: false,
-      },
-      ticks: {
-        color: 'rgba(100, 100, 100, 0.7)',
-      },
-    },
-  },
-};
-
 const UserStatsGraph: React.FC = () => {
+  const { isDarkMode } = useDarkMode();
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'rectRounded',
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(100, 100, 100, 0.7)',
+        },
+      },
+      title: {
+        display: true,
+        text: 'User Stats Over Time',
+        font: {
+          size: 24,
+        },
+        color: isDarkMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(100, 100, 100, 0.9)',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(200, 200, 200, 0.2)',
+        },
+        ticks: {
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(100, 100, 100, 0.7)',
+        },
+      },
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(100, 100, 100, 0.7)',
+        },
+      },
+    },
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded shadow-md">
-      <h2 className="text-2xl font-semibold text-gray-700 mb-6">User Stats Over Time</h2>
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow-md">
+      <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-6">User Stats Over Time</h2>
       <Line data={data} options={options} />
     </div>
   );

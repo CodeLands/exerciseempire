@@ -7,6 +7,7 @@ import {
   FolderIcon,
   HomeIcon,
   XMarkIcon,
+  CogIcon,
 } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
@@ -18,6 +19,7 @@ const navigation = [
   { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
   { name: 'Statistics', href: '/statistics', icon: ChartPieIcon, current: false },
   { name: 'History', href: '/activity-history/', icon: ChartPieIcon, current: false },
+  { name: 'Settings', href: '/settings', icon: CogIcon, current: false},
 ]
 
 function classNames(...classes: string[]) {
@@ -38,7 +40,7 @@ export default function ThreeColumnWithSidebar() {
         <body class="h-full">
         ```
       */}
-      <div>
+      <div className="h-full dark:bg-gray-900">
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
             <Transition.Child
@@ -81,7 +83,7 @@ export default function ThreeColumnWithSidebar() {
                     </div>
                   </Transition.Child>
                   {/* Sidebar component, swap this element with another sidebar if you like */}
-                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-2">
+                  <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-gray-800 px-6 pb-2">
                     <div className="flex h-16 shrink-0 items-center">
                       {/* <img
                         className="h-8 w-auto"
@@ -100,14 +102,14 @@ export default function ThreeColumnWithSidebar() {
                                   href={item.href}
                                   className={classNames(
                                     item.current
-                                      ? 'bg-gray-50 text-indigo-600'
-                                      : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
+                                      ? 'bg-gray-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400'
+                                      : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-700',
                                     'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                                   )}
                                 >
                                   <item.icon
                                     className={classNames(
-                                      item.current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
+                                      item.current ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400',
                                       'h-6 w-6 shrink-0'
                                     )}
                                     aria-hidden="true"
@@ -158,9 +160,9 @@ export default function ThreeColumnWithSidebar() {
         </Transition.Root>
 
         {/* Static sidebar for desktop */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col h-full">
           {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6">
+          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6">
             <div className="flex h-16 shrink-0 items-center">
               {/* <img
                 className="h-8 w-auto"
@@ -179,14 +181,14 @@ export default function ThreeColumnWithSidebar() {
                           href={item.href}
                           className={classNames(
                             item.current
-                              ? 'bg-gray-50 text-indigo-600'
-                              : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50',
+                              ? 'bg-gray-50 dark:bg-gray-700 text-indigo-600 dark:text-indigo-400'
+                              : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-gray-50 dark:hover:bg-gray-700',
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                           )}
                         >
                           <item.icon
                             className={classNames(
-                              item.current ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600',
+                              item.current ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-gray-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400',
                               'h-6 w-6 shrink-0'
                             )}
                             aria-hidden="true"
@@ -230,10 +232,10 @@ export default function ThreeColumnWithSidebar() {
                 <li className="-mx-6 mt-auto">
                   <a
                     href="#"
-                    className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-50"
+                    className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     <img
-                      className="h-8 w-8 rounded-full bg-gray-50"
+                      className="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-700"
                       src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                       alt=""
                     />
@@ -246,31 +248,31 @@ export default function ThreeColumnWithSidebar() {
           </div>
         </div>
 
-        <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white px-4 py-4 shadow-sm sm:px-6 lg:hidden">
-          <button type="button" className="-m-2.5 p-2.5 text-gray-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
+        <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-white dark:bg-gray-800 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+          <button type="button" className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden" onClick={() => setSidebarOpen(true)}>
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
-          <div className="flex-1 text-sm font-semibold leading-6 text-gray-900">Dashboard</div>
+          <div className="flex-1 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-200">Dashboard</div>
           <a href="#">
             <span className="sr-only">Your profile</span>
             <img
-              className="h-8 w-8 rounded-full bg-gray-50"
+              className="h-8 w-8 rounded-full bg-gray-50 dark:bg-gray-700"
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
               alt=""
             />
           </a>
         </div>
 
-        <main className="lg:pl-72">
-          <div className="xl:pl-96">
-            <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
+        <main className="lg:pl-72 h-full">
+          <div className="xl:pl-96 h-full">
+            <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6 h-full">
                 <Outlet />
             </div>
           </div>
         </main>
 
-        <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
+        <aside className="fixed inset-y-0 left-72 hidden w-96 overflow-y-auto border-r border-gray-200 dark:border-gray-700 px-4 py-6 sm:px-6 lg:px-8 xl:block dark:bg-gray-800 h-full">
           {/* Secondary column (hidden on smaller screens) */}
           <ProfileStats />
         </aside>
