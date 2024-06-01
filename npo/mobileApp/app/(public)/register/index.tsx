@@ -2,23 +2,24 @@ import { Link } from 'expo-router';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   return (
     <GestureHandlerRootView style={styles.container}>
-      <Text style={styles.title}>Login:</Text>
+      <Text style={styles.title}>Register:</Text>
       <TextInput style={styles.input} placeholder="Email" />
       <TextInput style={styles.input} placeholder="Password" />
+      <TextInput style={styles.input} placeholder="Confirm Password" />
       <Link replace href="/home" asChild>
         <Pressable>
-          <Text style={styles.mainButton}>Login (Go to Home)</Text>
+          <Text style={styles.mainButton}>Register (Go to Home)</Text>
         </Pressable>
       </Link>
-      <Link href="/register" asChild>
+      <Link href="/login" asChild>
         <Pressable style={styles.sideButton}>
-          <Text>To Register</Text>
+          <Text>To Login</Text>
         </Pressable>
       </Link>
-    </GestureHandlerRootView>
+      </GestureHandlerRootView>
   );
 }
 
@@ -50,11 +51,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     marginBottom: 10,
+    borderWidth: 1,
   },
   sideButton: {
     backgroundColor: 'lightblue',
     padding: 10,
     borderRadius: 5,
     color: 'white',
+    borderWidth: 1,
   },
 });
