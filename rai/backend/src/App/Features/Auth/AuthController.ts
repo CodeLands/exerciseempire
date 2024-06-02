@@ -7,6 +7,7 @@ import { AuthGateway } from "./Services/AuthGateway";
 import { JwtGateway } from "./Services/JwtGateway";
 import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
 
+
 @injectable()
 export class AuthController {
   @inject(TYPES.AuthValidator)
@@ -67,12 +68,18 @@ export class AuthController {
     if (!validPassword)
       return res.json({ success: false, errors: ["Invalid password"] });
 
-    const token = this.jwtGateway.jwtSign(repoResultCheckIfUserExists.data.id);
+    const tempAuthToken = this.jwtGateway.jwtSign({
+      sub: repoResultCheckIfUserExists.data.id,
+      step: "login",
+    }, {
+      expiresIn: "10min",
+      
+    });
     res.json({
       success: true,
-      message: "User Logged in Successfully!",
+      message: "User Completed First Factor Authentication!",
       data: {
-        token,
+        token: tempAuthToken,
       },
     });
   };
@@ -143,17 +150,19 @@ export class AuthController {
         errors: ["Failed to create user!"],
       });
 
-    const token = this.jwtGateway.jwtSign(repoResultCreatedUser.data.id);
-    res.json({
+      const tempAuthToken = this.jwtGateway.jwtSign({
+        sub: repoResultCreatedUser.data.id,
+        step: "login",
+      }, {
+        expiresIn: "10min",
+      });
+
+      res.json({
       success: true,
-      message: "User Registered Successfully!",
+      message: "User Registered and completed First Factor Authentication!",
       data: {
-        token,
+        tempAuthToken,
       },
     });
   };
-
-  // public logout = async (req: Request, res: Response) => {
-  //   res.json({ success: true, message: "User Logged out Successfully!" });
-  // }
 }
