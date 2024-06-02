@@ -18,6 +18,7 @@ import { ExecutedActivityRepository } from '/App/Features/SensorData/Repositorie
 import { FaceIdValidator } from '/App/Features/Auth/FaceId/FaceIdValidator';
 import { FaceIdController } from '/App/Features/Auth/FaceId/FaceIdController';
 import { FaceIdRouter } from '/App/Features/Auth/FaceId/FaceIdRouter';
+import { AuthMiddleware } from '/App/Features/Auth/AuthMiddleware';
 
 export class BaseContainer {
   container;
@@ -37,6 +38,7 @@ export class BaseContainer {
     this.container.bind(TYPES.AuthController).to(AuthController).inSingletonScope()
     this.container.bind(TYPES.AuthRouter).to(AuthRouter).inSingletonScope()
     this.container.bind(TYPES.AuthRepository).to(AuthRepository).inSingletonScope()
+    this.container.bind(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope()
 
         // FaceId
     this.container.bind(TYPES.FaceIdValidator).to(FaceIdValidator).inSingletonScope()

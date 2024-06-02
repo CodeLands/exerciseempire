@@ -5,6 +5,7 @@ export const TYPES = {
   AuthController: Symbol.for("AuthController"),
   AuthRepository: Symbol.for("AuthRepository"),
   AuthRouter: Symbol.for("AuthRouter"),
+  AuthMiddleware: Symbol.for("AuthMiddleware"),
 
   // FaceId
   FaceIdValidator: Symbol.for("FaceIdValidator"),
