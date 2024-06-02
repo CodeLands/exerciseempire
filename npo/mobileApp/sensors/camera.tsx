@@ -10,7 +10,7 @@ export type CameraProps = {
   mode: CameraModeExtended;
   videoLength?: number;
   facing: CameraType;
-  onCaptureVideo?: () => void;
+  onCapturedVideo?: (video: string) => void;
   onCapturePicture?: () => void;
 };
 
@@ -71,7 +71,16 @@ export default function CameraScreen(props: CameraProps) {
     const video = await cameraRef.current?.recordAsync({
         maxDuration: props.videoLength,
     });
-    console.log({ video });
+    if (!video) {
+      console.log("No video recorded");
+      return;
+    }
+    console.log("Camera: ", { video });
+    if (!props.onCapturedVideo) {
+      console.log("No onCapturedVideo callback provided");
+      return;
+    }
+    props.onCapturedVideo(video.uri);
   };
 
   const renderPicture = () => {
@@ -98,6 +107,11 @@ export default function CameraScreen(props: CameraProps) {
         responsiveOrientationWhenOrientationLocked
       >
         <View style={styles.shutterContainer}>
+          <View style={{ flexDirection: "column", alignItems: "center" }}>
+          {isRecording && (
+            <Text style={{ color: "red", fontSize: 20, marginBottom: 20 }}>Recording...</Text>
+          )}
+
         {props.mode === "pictureOnly" ? "" : props.mode === "videoOnly" ? "" : (
           <Pressable onPress={toggleMode}>
           {mode === "picture" ? (
@@ -131,6 +145,7 @@ export default function CameraScreen(props: CameraProps) {
             {/* <Pressable onPress={toggleFacing}>
                 <FontAwesome6 name="rotate-left" size={32} color="white" />
             </Pressable> */}
+            </View>
         </View>
       </CameraView>
     );
