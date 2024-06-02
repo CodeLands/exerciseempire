@@ -3,3 +3,7 @@ export enum AuthFactorType {
     secondFactor = "2nd-factor-authenticated"
   }
   
+  export type TokenPayload = {
+    sub: number;
+    step: AuthFactorType;
+  };

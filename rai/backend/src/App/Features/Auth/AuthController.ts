@@ -6,7 +6,7 @@ import { AuthRepository } from "./Repositories/AuthRepository";
 import { AuthGateway } from "./Services/AuthGateway";
 import { JwtGateway } from "./Services/JwtGateway";
 import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
-
+import { AuthFactorType } from "./Types/FactorAuthType";
 
 @injectable()
 export class AuthController {
@@ -70,10 +70,10 @@ export class AuthController {
 
     const tempAuthToken = this.jwtGateway.jwtSign({
       sub: repoResultCheckIfUserExists.data.id,
-      step: "login",
+      step: AuthFactorType.firstFactor,
     }, {
       expiresIn: "10min",
-      
+
     });
     res.json({
       success: true,
