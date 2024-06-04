@@ -71,7 +71,7 @@ export class FaceIdController {
           errors: ["DB: User not found!"],
         });
 
-    if (!repoResultFindUserById.data.hasSet2FA)
+    if (!repoResultFindUserById.data.hasset2fa)
         return res.json({
             success: false,
             errors: ["User has not registered face yet!"],
@@ -187,7 +187,7 @@ export class FaceIdController {
                   errors: ["DB: User not found!"],
                 });
 
-            if (repoResultFindUserById.data.hasSet2FA)
+            if (repoResultFindUserById.data.hasset2fa)
                 return res.json({
                     success: false,
                     errors: ["User has already registered face!"],
@@ -241,64 +241,64 @@ export class FaceIdController {
     }
   };
 
-    public faceIdDelete = async (req: RequestWithUser, res: Response) => {
-      if (!req.userId || !req.authStep)
-        return res.json({ success: false, errors: ["User not logged in"] });  
+  public faceIdDelete = async (req: RequestWithUser, res: Response) => {
+    if (!req.userId || !req.authStep)
+      return res.json({ success: false, errors: ["User not logged in"] });  
 
-        try {
-            let response = await axiosInstance.post(`/delete-face?userId=${req.userId}`);
-    
-            let pythonPayload: FaceIdSetupResult | null = {
-                wasSetup: response.data.wasSetup,
-            };
-            response = null!
-        
-            const pythonValidatedPayload = this.faceIdValidator.FaceResultSetup(
-                pythonPayload.wasSetup
-            );
-            pythonPayload = null;
-            if (!pythonValidatedPayload.success)
-            return res.json({
-                success: false,
-                errors: [...pythonValidatedPayload.errors,
-                    "Invalid remove face id result from python server."
-                ]
-            });
-    
-            if (pythonValidatedPayload.data.wasSetup) {
-                const repoResultUpdateUser = await this.authRepository.updateHasSet2FA(
-                    req.userId,
-                    false
-                );
-            
-                if (repoResultUpdateUser.status === RepositoryResultStatus.dbError)
-                return res.json({
-                    success: false,
-                    errors: ["Database Error!"],
-                });
-            
-                if (repoResultUpdateUser.status === RepositoryResultStatus.zodError)
-                return res.json({
-                    success: false,
-                    errors: repoResultUpdateUser.errors,
-                });
-            
-                if (repoResultUpdateUser.status === RepositoryResultStatus.failed)
-                return res.json({
-                    success: false,
-                    errors: ["DB: User not found!"],
-                });
-    
-                res.json({
-                    success: true,
-                    message: "User Removed 2FA!",
-                });
-            } else {
-                res.status(401).send("Face id couldnt be removed.");
-            }
-        } catch (error) {
-            console.error('Express Error: Face Remove.: ', error);
-            res.status(500).send("Express Error: Face Remove: " + error);
-        }
-    };
+      try {
+          let response = await axiosInstance.post(`/delete-face?userId=${req.userId}`);
+  
+          let pythonPayload: FaceIdSetupResult | null = {
+              wasSetup: response.data.wasSetup,
+          };
+          response = null!
+      
+          const pythonValidatedPayload = this.faceIdValidator.FaceResultSetup(
+              pythonPayload.wasSetup
+          );
+          pythonPayload = null;
+          if (!pythonValidatedPayload.success)
+          return res.json({
+              success: false,
+              errors: [...pythonValidatedPayload.errors,
+                  "Invalid remove face id result from python server."
+              ]
+          });
+  
+          if (pythonValidatedPayload.data.wasSetup) {
+              const repoResultUpdateUser = await this.authRepository.updateHasSet2FA(
+                  req.userId,
+                  false
+              );
+          
+              if (repoResultUpdateUser.status === RepositoryResultStatus.dbError)
+              return res.json({
+                  success: false,
+                  errors: ["Database Error!"],
+              });
+          
+              if (repoResultUpdateUser.status === RepositoryResultStatus.zodError)
+              return res.json({
+                  success: false,
+                  errors: repoResultUpdateUser.errors,
+              });
+          
+              if (repoResultUpdateUser.status === RepositoryResultStatus.failed)
+              return res.json({
+                  success: false,
+                  errors: ["DB: User not found!"],
+              });
+  
+              res.json({
+                  success: true,
+                  message: "User Removed 2FA!",
+              });
+          } else {
+              res.status(401).send("Face id couldnt be removed.");
+          }
+      } catch (error) {
+          console.error('Express Error: Face Remove.: ', error);
+          res.status(500).send("Express Error: Face Remove: " + error);
+      }
+  };
 }

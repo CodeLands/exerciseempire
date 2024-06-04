@@ -2,13 +2,27 @@ import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import * as SecureStore from 'expo-secure-store';
+
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleRegister = () => {
+  async function save(key: string, value: string) {
+    await SecureStore.setItemAsync(key, value);
+  }
+/*   const storeToken = async (value: string) => {
+    try {
+      await AsyncStorage.setItem('tempToken', value);
+      console.log('Temp Token saved:', value);
+    } catch (e) {
+      console.error('Error saving token:', e);
+    }
+  }; */
+
+  const handleRegister = async () => {
     if (process.env.IS_PRODUCTION === 'false') {
       return router.push('/home');
     }
@@ -23,14 +37,36 @@ export default function RegisterScreen() {
       return;
     }
 
-    fetch(api + "/register", {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
+    const route = api + "/register/";
+    console.log('Sending request to: ', route);
+    try {
+    const result = await fetch(route, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password, repeatPassword: confirmPassword }),
     })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      });
+    const data = await result.json();
+    console.log(data);
+
+    if (data.success) {
+      const tempToken = data.data.token;
+      //storeToken(tempToken);
+      save('tempToken', tempToken);
+      console.log('Token saved:', tempToken);
+      router.replace('/faceId');
+      if (data.data.has2FA)
+        router.replace('/faceIdLogin');
+      else
+        router.replace('/faceIdRegister');
+    } else {
+      console.error('Register failed:', data.message);
+    }
+    } catch (error) {
+      console.error('Error logging in:', error);
+    }
   };
 
   return (
@@ -41,7 +77,7 @@ export default function RegisterScreen() {
       <TextInput style={styles.input} placeholder="Confirm Password" onChangeText={(value) => setConfirmPassword(value)} value={confirmPassword} />
 
         <Pressable onPress={handleRegister}>
-          <Text style={styles.mainButton}>Register (Go to Home)</Text>
+          <Text style={styles.mainButton}>Register</Text>
         </Pressable>
       <Link href="/login" asChild>
         <Pressable style={styles.sideButton}>

@@ -79,6 +79,7 @@ export class AuthController {
       success: true,
       message: "User Completed First Factor Authentication!",
       data: {
+        has2FA: repoResultCheckIfUserExists.data.hasset2fa,
         token: tempAuthToken,
       },
     });
@@ -141,7 +142,10 @@ export class AuthController {
     if (repoResultCreatedUser.status === RepositoryResultStatus.zodError)
       return res.json({
         success: false,
-        errors: ["Database Validation Error!"],
+        errors: [
+          ...repoResultCreatedUser.errors,
+          "DB Validation Error!"
+        ],
       });
 
     if (repoResultCreatedUser.status === RepositoryResultStatus.failed)
@@ -161,7 +165,8 @@ export class AuthController {
       success: true,
       message: "User Registered and completed First Factor Authentication!",
       data: {
-        tempAuthToken,
+        has2FA: repoResultCreatedUser.data.hasset2fa,
+        token: tempAuthToken,
       },
     });
   };

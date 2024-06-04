@@ -36,7 +36,10 @@
     "react-native-screens": "3.31.1",
     "react-native-web": "~0.19.10",
     "expo-image": "~1.12.9",
-    "expo-dev-client": "~4.0.15"
+    "expo-dev-client": "~4.0.15",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "expo-secure-store": "~13.0.1",
+    "expo-application": "~5.9.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
