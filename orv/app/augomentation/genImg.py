@@ -1,77 +1,119 @@
 import cv2
-import numpy as np
 import random
-import time
+import os
 
-st = 1;
-# Definicija funkcij za algoritme
+import numpy as np
 
-# Algoritem za dodajanje Gaussian blura
-def apply_gaussian_blur(image):
-    kernel_size = (5, 5)  # Velikost jedra za Gaussian blur
-    blurred_image = cv2.GaussianBlur(image, kernel_size, 0)
-    return blurred_image
+st = 1
+num_augmented_copies = 20  # Number of augmented copies per frame
+resize_width = 224  # Set desired width to 224
+resize_height = 224  # Set desired height to 224
+skip_frames = 3  # Process every 3rd frame
 
-
-# Algoritem za izbiro naključne barvne sheme
-# def apply_random_color_scheme(image):
-#     color_spaces = [cv2.COLOR_BGR2HSV, cv2.COLOR_BGR2HLS]
-#     random_color_space = random.choice(color_spaces)
-#     converted_image = cv2.cvtColor(image, random_color_space)
-#     return converted_image
+# Create output directory if it doesn't exist
+output_dir = "../model/Images/me"
+os.makedirs(output_dir, exist_ok=True)
 
 
-# Algoritem za naključno obračanje slike
-def apply_random_rotation(image):
-    angle = random.randint(-20, 20)
-    rows, cols, _ = image.shape
-    rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-    rotated_image = cv2.warpAffine(image, rotation_matrix, (cols, rows))
-    return rotated_image
+# Custom augmentation functions
+
+# 1. Algorithm for adding 20 black squares at random positions
+def add_random_black_squares(image):
+    square_size = 2  # Size of the black squares
+    for _ in range(50):
+        y = random.randint(0, image.shape[0] - square_size)
+        x = random.randint(0, image.shape[1] - square_size)
+        image[y:y + square_size, x:x + square_size] = 0
+    return image
 
 
-# Algoritem za spreminjanje svetlosti slike
-def apply_brightness(image):
+# 2. Custom brightness adjustment
+def apply_custom_brightness(image):
+    """Applies brightness adjustment to the image without using external libraries."""
     brightness_offset = random.randint(-50, 50)
-    modified_image = cv2.convertScaleAbs(image, beta=brightness_offset)
-    return modified_image
+    bright_image = image.astype(int)
+    bright_image += brightness_offset
+    bright_image = np.clip(bright_image, 0, 255).astype('uint8')
+    return bright_image
 
 
-# Zanka za zajem slike iz kamere vsako sekundo
-while True:
-    # Zajem slike iz kamere
-    camera = cv2.VideoCapture(0)
+# 3. Algorithm for adding salt noise with squares
+def apply_salt_noise(image):
+    square_size = 2  # Size of the black squares
+    for _ in range(50):
+        y = random.randint(0, image.shape[0] - square_size)
+        x = random.randint(0, image.shape[1] - square_size)
+        image[y:y + square_size, x:x + square_size] = 0
+    return image
+
+
+# 4. Algorithm for changing the contrast of the image
+def apply_contrast(image):
+    factor = random.uniform(0.5, 1.5)
+    contrast_image = image.astype(int)
+    for y in range(len(image)):
+        for x in range(len(image[0])):
+            for c in range(3):
+                contrast_image[y][x][c] = 128 + factor * (image[y][x][c] - 128)
+    contrast_image = contrast_image.clip(0, 255).astype('uint8')
+    return contrast_image
+
+
+# Video file path
+video_file = 'video.mp4'
+
+# Open the video file
+camera = cv2.VideoCapture(video_file)
+
+frame_count = 0
+
+while camera.isOpened():
     ret, original_image = camera.read()
-    camera.release()
 
-    # Preveri, ali je bila slika uspešno prebrana
+    # Check if the frame was successfully read
     if not ret:
-        print("Napaka pri branju slike iz kamere")
-        exit()
+        print("Error reading frame from video or end of video")
+        break
 
-    # Izvedba algoritmov na 1000 kopijah slike
-    for i in range(1000):
-        image_copy = original_image.copy()
+    frame_count += 1
 
-        # Uporaba algoritmov
-        image_copy = apply_gaussian_blur(image_copy)
-        #image_copy = apply_random_color_scheme(image_copy)
-        image_copy = apply_random_rotation(image_copy)
-        image_copy = apply_brightness(image_copy)
+    # Skip frames to process every skip_frames-th frame
+    if frame_count % skip_frames != 0:
+        continue
 
-        # Oblikovanje imena datoteke glede na vrednost i
-        if i < 10:
-            filename = f"gen/0000{st}_0000{i}.jpg"
-        elif 10 <= i < 100:
-            filename = f"gen/0000{st}_000{i}.jpg"
-        elif 100 <= i < 1000:
-            filename = f"gen/0000{st}_00{i}.jpg"
-        elif 1000 <= i < 10000:
-            filename = f"gen/0000{st}_0{i}.jpg"
-        else:
-            filename = f"gen/0000{st}_{i}.jpg"
+    # Resize the frame
+    resized_image = cv2.resize(original_image, (resize_width, resize_height))
+
+    # Perform augmentations on num_augmented_copies copies of the frame
+    for i in range(num_augmented_copies):
+        image_copy = resized_image.copy()
+
+        # Gaussian blur
+        kernel_size = (5, 5)
+        image_copy = cv2.GaussianBlur(image_copy, kernel_size, 0)
+
+        # Custom augmentations
+        image_copy = apply_custom_brightness(image_copy)
+        image_copy = apply_contrast(image_copy)
+        image_copy = apply_salt_noise(image_copy)
+
+        # Random rotation
+        angle = random.randint(-20, 20)
+        rows, cols, _ = image_copy.shape
+        rotation_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
+        image_copy = cv2.warpAffine(image_copy, rotation_matrix, (cols, rows))
+
+        # Generate filename based on the value of i
+        filename = f"{output_dir}/"
+        filename += f"{st:05d}_" if st < 100000 else f"{st:06d}_"
+        filename += f"{i:05d}.jpg" if i < 100000 else f"{i:06d}.jpg"
+
         cv2.imwrite(filename, image_copy)
+        # print(f"Saved: {filename}")
 
-    st = st + 1;
-    # Počakaj eno sekundo pred zajemom naslednje slike
-    time.sleep(5)
+    st += 1
+    # Wait one second before capturing the next frame
+    # time.sleep(5)
+
+camera.release()
+print("Processing completed")
