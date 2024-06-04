@@ -2,7 +2,8 @@ import React, { Fragment } from 'react'
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
 import { PowerIcon } from '@heroicons/react/24/outline'
-import { Attributes } from '../../types/AtributeTypes'
+import { AttributeColorMap, Attributes } from '../../types/AtributeTypes'
+import { AttributeColorsToTextAndBgMap } from '../profile-stats/ProfileStats'
 
 enum Statuses {
   Paid = 'text-green-700 bg-green-50 ring-green-600/20',
@@ -11,22 +12,22 @@ enum Statuses {
 }
 
 type BaseStat = {
-    id: number
-    name: Attributes
-    value: number
+  id: number
+  name: Attributes
+  value: number
 }
 
 type Activity = {
-    id: number,
-    name: string,
-    baseStats: BaseStat[]
+  id: number,
+  name: string,
+  baseStats: BaseStat[]
 }
 
 type Category = {
-    id: number,
-    name: Attributes,
-    icon: React.ReactNode
-    activities: Activity[]
+  id: number,
+  name: Attributes,
+  icon: React.ReactNode
+  activities: Activity[]
 }
 
 const CatagoriesAndActivitiesWithBaseStats: Category[] = [
@@ -35,32 +36,32 @@ const CatagoriesAndActivitiesWithBaseStats: Category[] = [
     name: Attributes.Strength,
     icon: <PowerIcon className="h-6 w-6" />,
     activities: [
-        {
+      {
+        id: 1,
+        name: 'Bench Press',
+        baseStats: [
+          {
             id: 1,
-            name: 'Bench Press',
-            baseStats: [
-                {
-                    id: 1,
-                    name: Attributes.Strength,
-                    value: 100
-                },
-                {
-                    id: 2,
-                    name: Attributes.Endurance,
-                    value: 100
-                },
-                {
-                    id: 3,
-                    name: Attributes.Flexibility,
-                    value: 100
-                },
-                {
-                    id: 4,
-                    name: Attributes.Agility,
-                    value: 100
-                }
-            ]
-        }
+            name: Attributes.Strength,
+            value: 100
+          },
+          {
+            id: 2,
+            name: Attributes.Endurance,
+            value: 100
+          },
+          {
+            id: 3,
+            name: Attributes.Flexibility,
+            value: 100
+          },
+          {
+            id: 4,
+            name: Attributes.Agility,
+            value: 100
+          }
+        ]
+      }
     ]
   },
   {
@@ -68,32 +69,32 @@ const CatagoriesAndActivitiesWithBaseStats: Category[] = [
     name: Attributes.Endurance,
     icon: 'https://tailwindui.com/img/logos/48x48/savvycal.svg',
     activities: [
-        {
+      {
+        id: 1,
+        name: 'Bench Press',
+        baseStats: [
+          {
             id: 1,
-            name: 'Bench Press',
-            baseStats: [
-                {
-                    id: 1,
-                    name: Attributes.Strength,
-                    value: 100
-                },
-                {
-                    id: 2,
-                    name: Attributes.Endurance,
-                    value: 100
-                },
-                {
-                    id: 3,
-                    name: Attributes.Flexibility,
-                    value: 100
-                },
-                {
-                    id: 4,
-                    name: Attributes.Agility,
-                    value: 100
-                }
-            ]
-        }
+            name: Attributes.Strength,
+            value: 100
+          },
+          {
+            id: 2,
+            name: Attributes.Endurance,
+            value: 100
+          },
+          {
+            id: 3,
+            name: Attributes.Flexibility,
+            value: 100
+          },
+          {
+            id: 4,
+            name: Attributes.Agility,
+            value: 100
+          }
+        ]
+      }
     ]
   },
   {
@@ -101,32 +102,32 @@ const CatagoriesAndActivitiesWithBaseStats: Category[] = [
     name: Attributes.Flexibility,
     icon: 'https://tailwindui.com/img/logos/48x48/reform.svg',
     activities: [
-        {
+      {
+        id: 1,
+        name: 'Bench Press',
+        baseStats: [
+          {
             id: 1,
-            name: 'Bench Press',
-            baseStats: [
-                {
-                    id: 1,
-                    name: Attributes.Strength,
-                    value: 100
-                },
-                {
-                    id: 2,
-                    name: Attributes.Endurance,
-                    value: 100
-                },
-                {
-                    id: 3,
-                    name: Attributes.Flexibility,
-                    value: 100
-                },
-                {
-                    id: 4,
-                    name: Attributes.Agility,
-                    value: 100
-                }
-            ]
-        }
+            name: Attributes.Strength,
+            value: 100
+          },
+          {
+            id: 2,
+            name: Attributes.Endurance,
+            value: 100
+          },
+          {
+            id: 3,
+            name: Attributes.Flexibility,
+            value: 100
+          },
+          {
+            id: 4,
+            name: Attributes.Agility,
+            value: 100
+          }
+        ]
+      }
     ]
   },
   {
@@ -134,32 +135,32 @@ const CatagoriesAndActivitiesWithBaseStats: Category[] = [
     name: Attributes.Agility,
     icon: 'https://tailwindui.com/img/logos/48x48/reform.svg',
     activities: [
-        {
+      {
+        id: 1,
+        name: 'Bench Press',
+        baseStats: [
+          {
             id: 1,
-            name: 'Bench Press',
-            baseStats: [
-                {
-                    id: 1,
-                    name: Attributes.Strength,
-                    value: 100
-                },
-                {
-                    id: 2,
-                    name: Attributes.Endurance,
-                    value: 100
-                },
-                {
-                    id: 3,
-                    name: Attributes.Flexibility,
-                    value: 100
-                },
-                {
-                    id: 4,
-                    name: Attributes.Agility,
-                    value: 100
-                }
-            ]
-        }
+            name: Attributes.Strength,
+            value: 100
+          },
+          {
+            id: 2,
+            name: Attributes.Endurance,
+            value: 100
+          },
+          {
+            id: 3,
+            name: Attributes.Flexibility,
+            value: 100
+          },
+          {
+            id: 4,
+            name: Attributes.Agility,
+            value: 100
+          }
+        ]
+      }
     ]
   },
 ]
@@ -170,84 +171,44 @@ function classNames(...classes: string[]) {
 
 export default function activityList() {
   return (
-    <ul role="list" className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-3 xl:gap-x-8">
-      {CatagoriesAndActivitiesWithBaseStats.map((client) => (
-        <li key={client.id} className="overflow-hidden rounded-xl border border-gray-200">
-          <div className="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
-            <img
-              src={client.icon}
-              alt={client.name}
-              className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10"
-            />
-            <div className="text-sm font-medium leading-6 text-gray-900">{client.name}</div>
-            <Menu as="div" className="relative ml-auto">
-              <MenuButton className="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500">
-                <span className="sr-only">Open options</span>
-                <EllipsisHorizontalIcon className="h-5 w-5" aria-hidden="true" />
-              </MenuButton>
-              <Transition
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <MenuItems className="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <MenuItem>
-                    {({ focus }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          focus ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        View<span className="sr-only">, {client.name}</span>
-                      </a>
-                    )}
-                  </MenuItem>
-                  <MenuItem>
-                    {({ focus }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          focus ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Edit<span className="sr-only">, {client.name}</span>
-                      </a>
-                    )}
-                  </MenuItem>
-                </MenuItems>
-              </Transition>
-            </Menu>
-          </div>
-          <dl className="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
-            <div className="flex justify-between gap-x-4 py-3">
-              <dt className="text-gray-500">Last invoice</dt>
-              <dd className="text-gray-700">
-                <time dateTime={client.lastInvoice.dateTime}>{client.lastInvoice.date}</time>
-              </dd>
-            </div>
-            <div className="flex justify-between gap-x-4 py-3">
-              <dt className="text-gray-500">Amount</dt>
-              <dd className="flex items-start gap-x-2">
-                <div className="font-medium text-gray-900">{client.lastInvoice.amount}</div>
-                <div
-                  className={classNames(
-                    Statuses[client.lastInvoice.status],
-                    'rounded-md py-1 px-2 text-xs font-medium ring-1 ring-inset'
-                  )}
-                >
-                  {client.lastInvoice.status}
+    <div id="accordion-open" data-accordion="open">
+      {CatagoriesAndActivitiesWithBaseStats.map((category) => (
+        <div key={category.id}>
+          <h2 id="accordion-open-heading-1">
+            <button type="button" className="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3" data-accordion-target="#accordion-collapse-body-1" aria-expanded="true" aria-controls="accordion-collapse-body-1">
+              <span>{category.name}</span>
+              <svg data-accordion-icon className="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5 5 1 1 5" />
+              </svg>
+            </button>
+          </h2>
+          {category.activities.map((activity) => (
+        <div key={activity.id} id="accordion-open-body-1" className={/* hidden */ ""} aria-labelledby="accordion-open-heading-1">
+            <div className="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+              <p className="mb-2 text-gray-500 dark:text-gray-400">{activity.name}</p>
+              <div className="text-gray-500 dark:text-gray-400">
+                {activity.baseStats.map((attribute) => {
+                        const colors = AttributeColorsToTextAndBgMap[AttributeColorMap[attribute.name]];
+                        return (
+                        <li key={attribute.name} className='my-4 bg-gray-100 dark:bg-gray-700 rounded'>
+                            <div>
+                                <p className="ml-1 text-gray-900 dark:text-gray-100 font-semibold">{attribute.name /* + " Lvl: " + attribute.lvl */}</p>
+                            </div>
+                            <div className="bg-gray-100 dark:bg-gray-700 rounded shadow-sm overflow-hidden p-1 my-1">
+                                <div className="relative h-6 flex items-center justify-center">
+                                <div className={`absolute top-0 bottom-0 left-0 rounded-lg w-[${attribute.value}%] ${colors.bg}`}></div>
+                                <div className={`relative ${colors.text} font-medium text-sm`}>{attribute.value + '%'}</div>
+                                </div>
+                            </div>
+                        </li>
+                        );
+                    })}
                 </div>
-              </dd>
             </div>
-          </dl>
-        </li>
+          </div>
+          ))}
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }
