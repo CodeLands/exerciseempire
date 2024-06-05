@@ -42,7 +42,7 @@ export default function ActivityList() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get('http://localhost:3000/activities'); // Adjust the URL to match your backend endpoint
+        const response = await axios.get('/api/activities'); // Adjust the URL to match your backend endpoint
         if (response.data.success) {
           const data = response.data.data;
           console.log('Fetched Data:', data); // Log the fetched data
