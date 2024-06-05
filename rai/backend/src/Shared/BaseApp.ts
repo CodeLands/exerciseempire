@@ -9,8 +9,10 @@ import { FaceIdRouter } from "/App/Features/Auth/FaceId/FaceIdRouter";
 
 export const createApp = (container: Container): express.Application => {
   const app = express();
+  const cors = require('cors');
   const router = express.Router();
 
+  app.use(cors({ origin: 'http://localhost:5173' }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true })); // Support for URL-encoded bodies
 
