@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import styles from './ActivityHistory.module.css';
+import axios from 'axios';
 
 enum Attributes {
   Strength = 'Strength',
@@ -21,46 +22,58 @@ interface Activity {
   attributes: Attribute[];
 }
 
-const activities: Activity[] = [
-  {
-    id: 1,
-    description: '50km marathon in the mountains',
-    date: '2024-05-01',
-    attributes: [
-      { name: Attributes.Strength, percent: 20 },
-      { name: Attributes.Endurance, percent: 70 },
-      { name: Attributes.Flexibility, percent: 5 },
-      { name: Attributes.Agility, percent: 5 },
-    ],
-  },
-  {
-    id: 2,
-    description: 'Hiking in Kranjska Gora',
-    date: '2024-05-05',
-    attributes: [
-      { name: Attributes.Strength, percent: 20 },
-      { name: Attributes.Endurance, percent: 50 },
-      { name: Attributes.Flexibility, percent: 10 },
-      { name: Attributes.Agility, percent: 20 },
-    ],
-  },
-  {
-    id: 3,
-    description: 'Gym workout',
-    date: '2024-05-10',
-    attributes: [
-      { name: Attributes.Strength, percent: 25 },
-      { name: Attributes.Endurance, percent: 25 },
-      { name: Attributes.Flexibility, percent: 25 },
-      { name: Attributes.Agility, percent: 25 },
-    ],
-  }
-];
-
 const ActivityHistory: React.FC = () => {
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await axios.get('/api/list-activity-stats', {
+          params: { user_id: 1 } // Replace with the actual user ID
+        });
+
+        console.log('Response:', response); // Log the full response for debugging
+
+        if (response.data && response.data.success) {
+          const data = response.data.data;
+          const activitiesMap: { [key: number]: Activity } = {};
+
+          data.forEach((entry: any) => {
+            if (!activitiesMap[entry.executed_activity_id]) {
+              activitiesMap[entry.executed_activity_id] = {
+                id: entry.executed_activity_id,
+                description: `Activity ${entry.activity_id}`, // Replace with actual description if available
+                date: new Date(entry.start_time).toLocaleDateString(),
+                attributes: []
+              };
+            }
+            activitiesMap[entry.executed_activity_id].attributes.push({
+              name: entry.stat as Attributes,
+              percent: entry.current_value,
+            });
+          });
+
+          console.log('Activities Map:', activitiesMap); // Log the transformed activities map
+
+          setActivities(Object.values(activitiesMap));
+        } else {
+          console.error('Failed response structure:', response.data);
+          setError('Failed to fetch activity stats');
+        }
+      } catch (error) {
+        console.error('Error fetching activity stats:', error);
+        setError('Error fetching activity stats');
+      }
+    };
+
+    fetchActivities();
+  }, []);
+
   return (
     <div className={`${styles.activityHistory} bg-white dark:bg-gray-800 p-6 rounded shadow-md`}>
       <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-6">Activity History</h2>
+      {error && <div className="text-red-500">{error}</div>}
       <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {activities.map(activity => (
           <ActivityItem key={activity.id} activity={activity} />

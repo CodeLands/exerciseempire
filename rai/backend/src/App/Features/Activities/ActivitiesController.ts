@@ -107,4 +107,39 @@ export class ActivitiesController {
         data: result.data,
       });
     }
+    
+    public listActivityStats = async (req: Request, res: Response) => {
+      const { user_id } = req.query;
+  
+      const validation = this.activitiesValidator.validateUserId(Number(user_id));
+      if (!validation.success) {
+        return res.json({
+          success: false,
+          errors: validation.error,
+        });
+      }
+  
+      const result = await this.activitiesRepository.listActivityStats(validation.data.user_id);
+      if (result.status === RepositoryResultStatus.dbError)
+        return res.json({
+          success: false,
+          errors: ["Database Error!"],
+        });
+      if (result.status === RepositoryResultStatus.zodError)
+        return res.json({
+          success: false,
+          errors: result.errors,
+        });
+      if (result.status === RepositoryResultStatus.failed) {
+        return res.json({
+          success: false,
+          message: "No activity stats found",
+        });
+      }
+      return res.json({
+        success: true,
+        message: "Getting all activity stats for user",
+        data: result.data,
+      });
+    }
 }

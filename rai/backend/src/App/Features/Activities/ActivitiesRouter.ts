@@ -12,5 +12,6 @@ export class ActivitiesRouter {
     router.get("/activities", this.activitiesController.listActivities);
     router.get("/activity-stats", this.activitiesController.getActivityStats);
     router.get("/aggregate-stats", this.activitiesController.aggregateUserStats);
+    router.get("/list-activity-stats", this.activitiesController.listActivityStats);
   }
 }

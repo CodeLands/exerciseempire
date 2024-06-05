@@ -50,4 +50,12 @@ export class ActivitiesValidator {
       return { success: true, data: validationResult.data };
     }
   }
+
+  public validateUserId(userId: number) {
+    const schema = z.object({
+      user_id: z.number().positive({ message: "User ID must be a positive integer" })
+    });
+
+    return schema.safeParse({ user_id: userId });
+  }
 }

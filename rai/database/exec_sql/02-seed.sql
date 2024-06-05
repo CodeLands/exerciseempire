@@ -51,6 +51,7 @@ INSERT INTO ActivitySensor (activity_id, sensor_id) VALUES
 -- Inserting executed activities
 INSERT INTO ExecutedActivities (user_id, activity_id, start_time, duration, is_active) VALUES
 (1, 1, '2023-05-20 08:00:00', 60, TRUE),
+(1, 3, '2023-06-05 08:00:00', 50, False),
 (2, 2, '2023-05-20 09:00:00', 30, FALSE);
 
 -- Inserting executed activity sensor data

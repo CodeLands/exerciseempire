@@ -224,4 +224,60 @@ export class ActivitiesRepository {
           data: validationResult.data,
         };
       }
+
+      public async listActivityStats(userId: number): Promise<RepositoryResult<ExecutedActivityStats[]>> {
+        const result = await this.dbGateway.query(
+          `SELECT
+              ea.id AS executed_activity_id,
+              ea.activity_id,
+              ea.user_id,
+              ea.start_time,
+              ea.duration,
+              ea.is_active,
+              rs.stat_id,
+              rs.current_value,
+              rs.last_updated,
+              s.stat
+           FROM
+              ExecutedActivities ea
+           INNER JOIN
+              RealTimeStats rs ON ea.id = rs.executed_activity_id
+           INNER JOIN
+              Stats s ON rs.stat_id = s.id
+           WHERE
+              ea.user_id = $1`,
+          [userId]
+        );
+    
+        if (!result.dbSuccess) {
+          return {
+            status: RepositoryResultStatus.dbError,
+            errors: ["Database error!"],
+          };
+        }
+    
+        if (result.data.length === 0) {
+          return {
+            status: RepositoryResultStatus.failed,
+            messages: ["No activity stats found"],
+          };
+        }
+    
+        const validationResult = z.array(ExecutedActivityStatsSchema).safeParse(result.data);
+    
+        if (!validationResult.success) {
+          return {
+            status: RepositoryResultStatus.zodError,
+            errors: [
+              "Invalid data from database!",
+              ...validationResult.error.errors.map((e) => e.message),
+            ],
+          };
+        }
+    
+        return {
+          status: RepositoryResultStatus.success,
+          data: validationResult.data,
+        };
+      }
 }
