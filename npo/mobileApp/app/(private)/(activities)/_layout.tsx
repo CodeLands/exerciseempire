@@ -9,9 +9,6 @@ export default function StackLayout() {
         headerShown: true, 
         headerTitle: 'Activities',
         }} />
-      <Stack.Screen name="activity/[id]" options={{
-        headerBackVisible: true
-        }} />
     </Stack>
   )
 }

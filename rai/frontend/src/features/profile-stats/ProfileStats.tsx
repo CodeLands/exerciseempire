@@ -16,7 +16,7 @@ enum AttributeTextColors {
     green = 'text-green-900 dark:text-green-100',
 }
 
-const AttributeColorsToTextAndBgMap: Record<AttributeColors, {text: AttributeTextColors, bg: AttributeBgColors}> = {
+export const AttributeColorsToTextAndBgMap: Record<AttributeColors, {text: AttributeTextColors, bg: AttributeBgColors}> = {
     [AttributeColors.Red]: {text: AttributeTextColors.red, bg: AttributeBgColors.red},
     [AttributeColors.Orange]: {text: AttributeTextColors.orange, bg: AttributeBgColors.orange},
     [AttributeColors.Blue]: {text: AttributeTextColors.blue, bg: AttributeBgColors.blue},

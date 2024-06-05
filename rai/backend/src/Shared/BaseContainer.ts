@@ -15,6 +15,10 @@ import { SensorDataController } from '/App/Features/SensorData/SensorDataControl
 import { SensorDataRouter } from '/App/Features/SensorData/SensorDataRouter';
 import { SensorDataRepository } from '/App/Features/SensorData/Repositories/SensorDataRepository';
 import { ExecutedActivityRepository } from '/App/Features/SensorData/Repositories/ExecutedActivityRepository';
+import { FaceIdValidator } from '/App/Features/Auth/FaceId/FaceIdValidator';
+import { FaceIdController } from '/App/Features/Auth/FaceId/FaceIdController';
+import { FaceIdRouter } from '/App/Features/Auth/FaceId/FaceIdRouter';
+import { AuthMiddleware } from '/App/Features/Auth/AuthMiddleware';
 
 export class BaseContainer {
   container;
@@ -34,6 +38,12 @@ export class BaseContainer {
     this.container.bind(TYPES.AuthController).to(AuthController).inSingletonScope()
     this.container.bind(TYPES.AuthRouter).to(AuthRouter).inSingletonScope()
     this.container.bind(TYPES.AuthRepository).to(AuthRepository).inSingletonScope()
+    this.container.bind(TYPES.AuthMiddleware).to(AuthMiddleware).inSingletonScope()
+
+        // FaceId
+    this.container.bind(TYPES.FaceIdValidator).to(FaceIdValidator).inSingletonScope()
+    this.container.bind(TYPES.FaceIdController).to(FaceIdController).inSingletonScope()
+    this.container.bind(TYPES.FaceIdRouter).to(FaceIdRouter).inSingletonScope()
 
         // Activities
     this.container.bind(TYPES.ActivitiesValidator).to(ActivitiesValidator).inSingletonScope()

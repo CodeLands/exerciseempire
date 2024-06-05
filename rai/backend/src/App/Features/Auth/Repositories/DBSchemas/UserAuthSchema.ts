@@ -16,4 +16,7 @@ export const UserAuthSchema = z.object({
     }).max(72, {
       message: "pass_hash must be at most 72 characters long!"
     }),
+    hasset2fa: z.boolean({
+      required_error: "hasSet2FA is required!"
+    }),
   });

@@ -6,6 +6,7 @@ import { AuthRepository } from "./Repositories/AuthRepository";
 import { AuthGateway } from "./Services/AuthGateway";
 import { JwtGateway } from "./Services/JwtGateway";
 import { RepositoryResultStatus } from "../../Types/RepositoryTypes";
+import { AuthFactorType } from "./Types/FactorAuthType";
 
 @injectable()
 export class AuthController {
@@ -67,12 +68,19 @@ export class AuthController {
     if (!validPassword)
       return res.json({ success: false, errors: ["Invalid password"] });
 
-    const token = this.jwtGateway.jwtSign(repoResultCheckIfUserExists.data.id);
+    const tempAuthToken = this.jwtGateway.jwtSign({
+      sub: repoResultCheckIfUserExists.data.id,
+      step: AuthFactorType.firstFactor,
+    }, {
+      expiresIn: "10min",
+
+    });
     res.json({
       success: true,
-      message: "User Logged in Successfully!",
+      message: "User Completed First Factor Authentication!",
       data: {
-        token,
+        has2FA: repoResultCheckIfUserExists.data.hasset2fa,
+        token: tempAuthToken,
       },
     });
   };
@@ -134,7 +142,10 @@ export class AuthController {
     if (repoResultCreatedUser.status === RepositoryResultStatus.zodError)
       return res.json({
         success: false,
-        errors: ["Database Validation Error!"],
+        errors: [
+          ...repoResultCreatedUser.errors,
+          "DB Validation Error!"
+        ],
       });
 
     if (repoResultCreatedUser.status === RepositoryResultStatus.failed)
@@ -143,17 +154,20 @@ export class AuthController {
         errors: ["Failed to create user!"],
       });
 
-    const token = this.jwtGateway.jwtSign(repoResultCreatedUser.data.id);
-    res.json({
+      const tempAuthToken = this.jwtGateway.jwtSign({
+        sub: repoResultCreatedUser.data.id,
+        step: "login",
+      }, {
+        expiresIn: "10min",
+      });
+
+      res.json({
       success: true,
-      message: "User Registered Successfully!",
+      message: "User Registered and completed First Factor Authentication!",
       data: {
-        token,
+        has2FA: repoResultCreatedUser.data.hasset2fa,
+        token: tempAuthToken,
       },
     });
   };
-
-  // public logout = async (req: Request, res: Response) => {
-  //   res.json({ success: true, message: "User Logged out Successfully!" });
-  // }
 }
