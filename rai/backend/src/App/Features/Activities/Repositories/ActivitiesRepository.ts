@@ -245,7 +245,7 @@ export class ActivitiesRepository {
            INNER JOIN
               Stats s ON rs.stat_id = s.id
            WHERE
-              ea.user_id = $1`,
+              ea.user_id = $1 and ea.is_active = false`,
           [userId]
         );
     
