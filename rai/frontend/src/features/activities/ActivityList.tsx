@@ -93,14 +93,14 @@ export default function ActivityList() {
 
   return (
     <div id="accordion-open" data-accordion="collapse">
-      {categories.map((category) => {
+      {categories.map((category, index) => {
         if (category.id === null) return null; // Skip if no valid category ID
         return (
-          <div key={category.id}>
+          <div key={category.id} className="border-b border-gray-200 dark:border-gray-700">
             <h2 id={`accordion-open-heading-${category.id}`}>
               <button
                 type="button"
-                className="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3"
+                className={`flex items-center justify-between w-full p-5 font-medium text-gray-500 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3 ${index === categories.length - 1 ? 'rounded-b-xl' : ''}`}
                 onClick={() => toggleCategory(category.id)}
                 aria-expanded={expandedCategory === category.id}
                 aria-controls={`accordion-collapse-body-${category.id}`}
@@ -134,7 +134,7 @@ export default function ActivityList() {
                 console.log('Activity ID:', uniqueActivityKey); // Log unique activity keys
                 return (
                   <div key={uniqueActivityKey} id={`accordion-open-body-${uniqueActivityKey}`} className="" aria-labelledby={`accordion-open-heading-${category.id}`}>
-                    <div className="p-5 border border-b-0 border-gray-200 dark:border-gray-700 dark:bg-gray-900">
+                    <div className="p-5 border-t border-gray-200 dark:border-gray-700 dark:bg-gray-900">
                       <p className="mb-2 text-gray-500 dark:text-gray-400">{activity.name}</p>
                       <div className="text-gray-500 dark:text-gray-400">
                         <ul>
