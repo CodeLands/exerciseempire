@@ -22,4 +22,4 @@ jobs:
 
       - name: Run tests
         run: |
-          python orv/app/augmentation/test_augmentations.py
+          python3 orv/faceId/app/augmentation/genImg.py --test
