@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { z } from 'zod';
+import { useAuth } from './AuthContext';
 
 // Define the zod schema for validation
 const registerSchema = z.object({
@@ -20,6 +21,8 @@ export default function RegisterPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<{ email?: string, password?: string, repeat_password?: string }>({});
   const navigate = useNavigate();
+  const { setToken, setUser } = useAuth();
+
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +36,11 @@ export default function RegisterPage() {
 
     if (!result.success) {
       // Extract validation errors and set them in state
-      const errors: { email?: string, password?: string, repeat_password?: string } = {};
+      const errors: { email?: string, password?: string, repeatPassword?: string } = {};
       result.error.errors.forEach(error => {
         if (error.path[0] === 'email') errors.email = error.message;
         if (error.path[0] === 'password') errors.password = error.message;
-        if (error.path[0] === 'repeat_password') errors.repeat_password = error.message;
+        if (error.path[0] === 'repeatPassword') errors.repeatPassword = error.message;
       });
       setValidationErrors(errors);
       return;
@@ -52,18 +55,25 @@ export default function RegisterPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, repeatPassword }),
       });
 
-      if (response.ok) {
-        navigate('/login');
+      const responseJson = await response.json();
+
+      if (responseJson.success) {
+        console.log('Login successful:', responseJson);
+
+        setToken(responseJson.data.token);
+        setUser(responseJson.data.user); // Assuming the user data is returned in the response
+
+        navigate('/home');
       } else {
+        console.error('Login failed:', responseJson);
         // Handle error response
-        const data = await response.json();
-        if (!data.message) {
-          setErrorMessage('Registration failed. Unknown error.');
+        if (!responseJson.errors) {
+          setErrorMessage('Authentication failed. Unknown error.');
         } else {
-          setErrorMessage(data.message);
+          setErrorMessage(responseJson.errors);
         }
       }
     } catch (error) {
