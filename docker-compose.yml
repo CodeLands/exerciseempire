@@ -39,6 +39,16 @@ services:
     depends_on:
       - backend
 
+  flask_api:
+    build:
+      context: ./orv/faceId
+      dockerfile: Dockerfile
+    container_name: flask_api_service
+    ports:
+      - "5000:5000"
+    depends_on:
+      - backend
+
 #  mobile_app:
 #    build:
 #      context: ./npo/mobileApp
