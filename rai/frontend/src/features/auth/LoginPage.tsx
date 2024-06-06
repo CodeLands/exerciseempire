@@ -41,6 +41,7 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
+    console.log('Logging in with:', email, password);
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -51,21 +52,22 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const token = data.token;
+      const responseJson = await response.json();
 
-        setToken(token);
-        setUser(data.user); // Assuming the user data is returned in the response
+      if (responseJson.success) {
+        console.log('Login successful:', responseJson);
+
+        setToken(responseJson.data.token);
+        setUser(responseJson.data.user); // Assuming the user data is returned in the response
 
         navigate('/home');
       } else {
+        console.error('Login failed:', responseJson);
         // Handle error response
-        const data = await response.json();
-        if (!data.message) {
+        if (!responseJson.errors) {
           setErrorMessage('Authentication failed. Unknown error.');
         } else {
-          setErrorMessage(data.message);
+          setErrorMessage(responseJson.errors);
         }
       }
     } catch (error) {

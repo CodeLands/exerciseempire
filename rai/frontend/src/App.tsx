@@ -22,6 +22,7 @@ function App() {
         <Router>
           <Routes>
             {/* Protected Routes */}
+            
             <Route path="/" element={<ThreeColumnWithSidebar />}>
               {/* <Route element={<ProtectedRoute />}> */}
               <Route path="home" element={<HomePage />} />

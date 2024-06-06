@@ -81,6 +81,9 @@ export class AuthController {
       data: {
         has2FA: repoResultCheckIfUserExists.data.hasset2fa,
         token: tempAuthToken,
+        user: {
+          email: repoResultCheckIfUserExists.data.email,
+        },
       },
     });
   };
@@ -167,6 +170,9 @@ export class AuthController {
       data: {
         has2FA: repoResultCreatedUser.data.hasset2fa,
         token: tempAuthToken,
+        user: {
+          email: repoResultCreatedUser.data.email,
+        },
       },
     });
   };

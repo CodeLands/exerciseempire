@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -10,7 +10,7 @@ import {
   CogIcon,
 } from '@heroicons/react/24/outline'
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../features/auth/AuthContext';
+import { AuthProvider, useAuth } from '../features/auth/AuthContext';
 import ProfileStats from '../features/profile-stats/ProfileStats';
 
 const navigation = [
@@ -30,6 +30,11 @@ export default function ThreeColumnWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { user } = useAuth();
 
+  useEffect(() => {
+    console.log('User:', user);
+  }
+  , []);
+
   return (
     <>
       {/*
@@ -40,6 +45,8 @@ export default function ThreeColumnWithSidebar() {
         <body class="h-full">
         ```
       */}
+      <AuthProvider>
+
       <div className="h-full dark:bg-gray-900">
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
@@ -277,6 +284,7 @@ export default function ThreeColumnWithSidebar() {
           <ProfileStats />
         </aside>
       </div>
+      </AuthProvider>
     </>
   )
 }

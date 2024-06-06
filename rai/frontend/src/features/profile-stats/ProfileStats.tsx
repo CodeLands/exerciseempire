@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import './ProfileStats.css'
 import { AttributeColorMap, AttributeColors, Attributes } from '../../types/AtributeTypes'
+import { useEffect } from 'react'
 
 enum AttributeBgColors {
     red = 'bg-red-200 dark:bg-red-700',
@@ -75,6 +76,14 @@ function classNames(...classes: string[]) {
 }
 
 export default function ProfileStats() {
+
+    useEffect(() => {
+        console.log('ProfileStats mounted')
+        return () => {
+            console.log('ProfileStats unmounted')
+        }
+    }, [])
+
     return (
         <>
             <div
