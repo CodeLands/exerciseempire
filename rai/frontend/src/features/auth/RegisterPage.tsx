@@ -66,7 +66,9 @@ export default function RegisterPage() {
         setToken(responseJson.data.token);
         setUser(responseJson.data.user); // Assuming the user data is returned in the response
 
-        navigate('/home');
+        setTimeout(() => {
+          navigate('/home');
+        }, 1000);
       } else {
         console.error('Login failed:', responseJson);
         // Handle error response

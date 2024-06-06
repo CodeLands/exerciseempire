@@ -24,12 +24,13 @@ function App() {
             {/* Protected Routes */}
             
             <Route path="/" element={<ThreeColumnWithSidebar />}>
-              {/* <Route element={<ProtectedRoute />}> */}
-              <Route path="home" element={<HomePage />} />
-              <Route path="activities" element={<ActivityList />} />
-              <Route path="activity-history" element={<ActivityHistory />} />
-              <Route path="statistics" element={<UserStatsGraph />} />
-              <Route path="settings" element={<Settings />} />
+              <Route element={<ProtectedRoute />} >
+                <Route path="home" element={<HomePage />} />
+                <Route path="activities" element={<ActivityList />} />
+                <Route path="activity-history" element={<ActivityHistory />} />
+                <Route path="statistics" element={<UserStatsGraph />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
             </Route>
             {/* Public Routes */}
               {/* BlankLayout Routes */}

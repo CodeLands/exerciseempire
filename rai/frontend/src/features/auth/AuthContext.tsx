@@ -10,20 +10,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [user, setUser] = useState<any | null>(JSON.parse(localStorage.getItem('user') || 'null'));
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem('token'));
+  const [user, setUser] = useState<any | null>(JSON.parse(sessionStorage.getItem('user') || 'null'));
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
     } else {
-      localStorage.removeItem('token');
+      sessionStorage.removeItem('token');
     }
 
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
     }
   }, [token, user]);
 

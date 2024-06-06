@@ -28,10 +28,11 @@ function classNames(...classes: string[]) {
 
 export default function ThreeColumnWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   useEffect(() => {
     console.log('User:', user);
+    console.log('Token:', token);
   }
   , []);
 

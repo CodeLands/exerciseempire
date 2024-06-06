@@ -60,7 +60,10 @@ export default function LoginPage() {
         setToken(responseJson.data.token);
         setUser(responseJson.data.user); // Assuming the user data is returned in the response
 
-        navigate('/home');
+        setTimeout(() => {
+          navigate('/home');
+        }, 1000);
+        //navigate('/home');
       } else {
         console.error('Login failed:', responseJson);
         // Handle error response
