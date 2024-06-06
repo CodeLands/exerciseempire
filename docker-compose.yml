@@ -11,8 +11,56 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./exec_sql/01-generate.sql:/docker-entrypoint-initdb.d/01-generate.sql
-      - ./exec_sql/02-seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./rai/database/exec_sql/01-generate.sql:/docker-entrypoint-initdb.d/01-generate.sql
+      - ./rai/database/exec_sql/02-seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+
+  backend:
+    build:
+      context: ./rai/backend
+      dockerfile: Dockerfile
+    container_name: backend_service
+    environment:
+      - DATABASE_URL=postgres://myuser:mypassword@postgres_db:5432/mydatabase
+      - PORT=3000
+      - JWT_SECRET=secret
+      - FLASK_SERVER_URL=http://flask_api:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./rai/frontend
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+#  mobile_app:
+#    build:
+#      context: ./npo/mobileApp
+#      dockerfile: Dockerfile
+#    container_name: mobile_app_service
+#    env_file:
+#      - ./npo/mobileApp/.env
+#    ports:
+#      - "8081:8081"
+#    depends_on:
+#      - backend
+
+#  flask_api:
+#    build:
+#      context: ./orv/faceId
+#      dockerfile: Dockerfile
+#    container_name: flask_api_service
+#    ports:
+#      - "5000:5000"
+#    depends_on:
+#      - backend
+
 volumes:
   postgres_data:
     driver: local
