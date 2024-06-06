@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import './ProfileStats.css'
 import { AttributeColorMap, AttributeColors, Attributes } from '../../types/AtributeTypes'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 enum AttributeBgColors {
     red = 'bg-red-200 dark:bg-red-700',
@@ -38,54 +39,112 @@ type UserStats = {
 }
 
 type Attribute = {
-    name: Attributes,
+    stat: string,
     lvl: number,
-    percentOfLvl: number,
+    total_value: number,
 }
 
-const userStats: UserStats = {
+const userStatsConst: UserStats = {
     name: 'Chad',
     lvl: 50,
     active: ActiveStatus.Daily,
     attributes: [
         {
-            name: Attributes.Strength,
+            stat: Attributes.Strength,
             lvl: 50,
-            percentOfLvl: 25,
+            total_value: 25,
         },
         {
-            name: Attributes.Endurance,
+            stat: Attributes.Endurance,
             lvl: 33,
-            percentOfLvl: 50,
+            total_value: 50,
         },
         {
-            name: Attributes.Flexibility,
+            stat: Attributes.Flexibility,
             lvl: 25,
-            percentOfLvl: 75,
+            total_value: 75,
         },
         {
-            name: Attributes.Agility,
+            stat: Attributes.Agility,
             lvl: 10,
-            percentOfLvl: 99,
+            total_value: 99,
         },
     ]
+}
+
+type ServerData = {
+    stat_id: number,
+    stat: string,
+    total_value: number
+}
+
+const userStatsConst2 = {
+    stat_id: 1,
+    stat: "Endurance",
+    total_value: 655
 }
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+function calcExp(value: number) {
+    return Math.floor(value / 100)
+}
+
+function calcLvl(value: number) {
+    return Math.floor(value / 10)
+}
+
+function calcTotalLvl(lvls: number[]) {
+    console.log("Lvls: ", lvls)
+    return lvls.reduce((acc, curr) => acc + curr)
+}
+
+function mapServerData(serverData: ServerData[]): Attribute[] {
+    return serverData.map((data) => {
+        return {
+            stat: data.stat,
+            lvl: calcLvl(data.total_value),
+            total_value: calcExp(data.total_value)
+        }
+    })
+}
+
 export default function ProfileStats() {
+    const [ userStats, setUserStats ] = useState<UserStats | null>(null)
+    const [ serverData, setServerData ] = useState<ServerData[]>([])
 
     useEffect(() => {
-        console.log('ProfileStats mounted')
-        return () => {
-            console.log('ProfileStats unmounted')
+        async function fetchUserStats() {
+            const response = await axios.get('/api/aggregate-stats?user_id=1')
+            console.log("Response: ", response.data.data)
+            setServerData(response.data.data)
+
+            console.log("Mapped: ", mapServerData(response.data.data))
+
+            const mappedServerData = mapServerData(response.data.data)
+
+            const lvls = mappedServerData.map((stat) => {
+                return stat.lvl
+            })
+
+            console.log("Total Lvl: ", calcTotalLvl(lvls))
+            setUserStats({
+                name: 'Chad',
+                lvl: calcTotalLvl(lvls),
+                active: ActiveStatus.Daily,
+                attributes: mapServerData(response.data.data)
+            })
         }
+        fetchUserStats()
+
     }, [])
 
     return (
-        <>
+        
+<>
+{userStats && (
             <div
             className={classNames('z-10 bg-white dark:bg-gray-800 shadow-xl ring-1 ring-gray-900/10 dark:ring-gray-700')}
             >
@@ -104,10 +163,10 @@ export default function ProfileStats() {
                     Lvl: {userStats.lvl}
                     </p>
                     <div className="text-sm leading-5">
-                    <p className={'text-gray-900 dark:text-gray-100'}>{/* BodyBuilder,  */}{userStats.name}</p>
+                    <p className={'text-gray-900 dark:text-gray-100'}>{/* BodyBuilder,  */}{userStatsConst.name}</p>
                     <p
                         className={'text-gray-500 dark:text-gray-400'}
-                    >{`Active: ${userStats.active}`}</p>
+                    >{`Active: ${userStatsConst.active}`}</p>
                     </div>
                 </div>
                 <Link
@@ -125,16 +184,16 @@ export default function ProfileStats() {
                     className={classNames('divide-gray-900/5 dark:divide-gray-700 text-gray-600 dark:text-gray-400 divide-y border-t text-sm leading-6 lg:border-t-0')}
                 >
                     {userStats.attributes.map((attribute) => {
-                        const colors = AttributeColorsToTextAndBgMap[AttributeColorMap[attribute.name]];
+                        const colors = AttributeColorsToTextAndBgMap[AttributeColorMap[attribute.stat as Attributes]];
                         return (
-                        <li key={attribute.name} className='my-4 bg-gray-100 dark:bg-gray-700 rounded'>
+                        <li key={attribute.stat} className='my-4 bg-gray-100 dark:bg-gray-700 rounded'>
                             <div>
-                                <p className="ml-1 text-gray-900 dark:text-gray-100 font-semibold">{attribute.name + " Lvl: " + attribute.lvl}</p>
+                                <p className="ml-1 text-gray-900 dark:text-gray-100 font-semibold">{attribute.stat + " Lvl: " + attribute.lvl}</p>
                             </div>
                             <div className="bg-gray-100 dark:bg-gray-700 rounded shadow-sm overflow-hidden p-1 my-1">
                                 <div className="relative h-6 flex items-center justify-center">
-                                <div className={`absolute top-0 bottom-0 left-0 rounded-lg w-[${attribute.percentOfLvl}%] ${colors.bg}`}></div>
-                                <div className={`relative ${colors.text} font-medium text-sm`}>{attribute.percentOfLvl + '%'}</div>
+                                <div className={`absolute top-0 bottom-0 left-0 rounded-lg w-[${attribute.total_value}%] ${colors.bg}`}></div>
+                                <div className={`relative ${colors.text} font-medium text-sm`}>{attribute.total_value + '%'}</div>
                                 </div>
                             </div>
                         </li>
@@ -144,6 +203,8 @@ export default function ProfileStats() {
                 </div>
             </div>
             </div>
+
+        )}
         </>
     )
 }
