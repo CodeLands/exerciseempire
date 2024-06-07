@@ -18,7 +18,7 @@ FAILSAFE server auto-restarts every day at 7AM and after power regain if power l
 
 ##### Commands
 Access server: \
-ssh administrator@exerciseempire.ddns.net -p 42000 \
+ssh administrator@exerciseempire.ddns.net -p 42000 
 
 Generate keys: \
 ssh-keygen -t rsa -b 4096
