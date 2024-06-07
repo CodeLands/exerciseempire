@@ -15,3 +15,13 @@ password: exerciseempire123!?.
 #### Warning
 DO NOT shutdown if you are in ssh \
 FAILSAFE server auto-restarts every day at 7AM and after power regain if power loss 
+
+##### Commands
+Access server: \
+ssh administrator@exerciseempire.ddns.net -p 42000 \
+
+Generate keys: \
+ssh-keygen -t rsa -b 4096
+
+Copy keys for paswordless: \
+ssh-copy-id -p 42000 administrator@exerciseempire.ddns.net
