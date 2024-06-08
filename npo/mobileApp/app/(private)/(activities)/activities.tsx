@@ -10,14 +10,14 @@ export enum ActivityStats {
   Agility = 'Agility',
 }
 
-export const StatColors = {
+export const StatColors: { [key in ActivityStats]: string } = {
   [ActivityStats.Strength]: 'deeppink',
   [ActivityStats.Endurance]: 'royalblue',
   [ActivityStats.Flexibility]: 'green',
   [ActivityStats.Agility]: 'yellow',
 }
 
-export const StatWeakColors = {
+export const StatWeakColors: { [key in ActivityStats]: string } = {
   [ActivityStats.Strength]: 'pink',
   [ActivityStats.Endurance]: 'lightblue',
   [ActivityStats.Flexibility]: 'lightgreen',
@@ -32,7 +32,7 @@ const CategoryColors: { [key: number]: string } = {
 };
 
 type BaseStat = {
-  stat: string;
+  stat: ActivityStats;
   base_stat_value: number;
 };
 
@@ -50,6 +50,8 @@ type Category = {
   categoryName: string;
   activities: Activity[];
 };
+
+export let activities: Activity[] = [];
 
 export default function ActivitiesScreen() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -89,7 +91,7 @@ export default function ActivitiesScreen() {
               id: activityData.id,
               name: activityData.activity,
               baseStats: activityData.stats.map((statData: any) => ({
-                stat: statData.stat,
+                stat: statData.stat as ActivityStats,
                 base_stat_value: statData.base_stat_value,
               })),
               category: categoryData.category,
@@ -99,6 +101,9 @@ export default function ActivitiesScreen() {
           }));
           console.log('Transformed categories:', transformedCategories);
           setCategories(transformedCategories);
+
+          // Flatten activities and update the exported activities array
+          activities = transformedCategories.flatMap((category: Category) => category.activities);
         }
       } catch (error) {
         console.error('Error fetching activities:', error);
@@ -108,7 +113,7 @@ export default function ActivitiesScreen() {
     fetchData();
   }, []);
 
-  function determineBestStat(stats: BaseStat[]) {
+  function determineBestStat(stats: BaseStat[]): ActivityStats {
     // Find the stat with the highest base_stat_value
     let bestStat = stats[0];
     for (let i = 1; i < stats.length; i++) {

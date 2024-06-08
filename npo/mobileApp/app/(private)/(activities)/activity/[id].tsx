@@ -8,58 +8,61 @@ export type ActivityStat = {
   percentValue: number,
 }
 
-
 export default function ActivityScreen() {
   const { id } = useLocalSearchParams()
+  const currentActivity = activities.find(activity => activity.id === Number(id))
 
-  const currentActivity = activities.find(activity => activity.link === `activity/${id}`)
+  if (!currentActivity) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Activity not found</Text>
+      </View>
+    )
+  }
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{
-        headerTitle: `Activity: ${currentActivity?.name} - Details`,
+        headerTitle: `Activity: ${currentActivity.name} - Details`,
         headerBackVisible: true
-
-        }} />
-      <Text style={styles.title}>Activity: {currentActivity?.name}</Text>
-      <Text style={styles.description}>Best Stat: {currentActivity?.bestStat}</Text>
+      }} />
+      <Text style={styles.title}>Activity: {currentActivity.name}</Text>
+      <Text style={styles.description}>Best Stat: {currentActivity.bestStat}</Text>
       <FlatList
         style={styles.listItems}
-        data={currentActivity?.stats}
+        data={currentActivity.baseStats}
+        keyExtractor={(item) => item.stat}
         renderItem={({ item: stat }) =>
           <>
-          <View style={styles.listItemStat}>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-
+            <View style={styles.listItemStat}>
+              <View style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}>
-              <Text style={{
-                ...styles.listItemText,
-              }}>
-                {stat.stat}:
-              </Text>
-              <Text style={{
-                ...styles.listItemText,
-              }}>
-                {stat.percentValue}%
+                <Text style={{
+                  ...styles.listItemText,
+                }}>
+                  {stat.stat}:
                 </Text>
-            </View>
-
-
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{
-                ...styles.listItemBar,
-                backgroundColor: StatColors[stat.stat],
-                width: `${stat.percentValue}%`,
-              }}></Text>
-              <Text style={{
-                ...styles.listItemBar,
-                backgroundColor: StatWeakColors[stat.stat],
-                width: `${100 - stat.percentValue}%`,
-              }}></Text>
-            </View>
+                <Text style={{
+                  ...styles.listItemText,
+                }}>
+                  {stat.base_stat_value}%
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{
+                  ...styles.listItemBar,
+                  backgroundColor: StatColors[stat.stat],
+                  width: `${stat.base_stat_value}%`,
+                }}></Text>
+                <Text style={{
+                  ...styles.listItemBar,
+                  backgroundColor: StatWeakColors[stat.stat],
+                  width: `${100 - stat.base_stat_value}%`,
+                }}></Text>
+              </View>
             </View>
           </>
         }
