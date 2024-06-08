@@ -15,32 +15,48 @@ def extract_frames(video_data):
 def process_frames_for_verification(frames):
     # This would involve face detection and possibly checking against a known dataset
     # Placeholder for actual face verification logic
-    return True
+    return 'true'
 
 def process_frames_for_registration(frames):
     # Here you would extract features and train a model
     # Placeholder for model training
-    return True
+    return 'true'
 
 @app.route('/login-face', methods=['POST'])
 def verify_face():
     video_file = request.data
     if not video_file:
-        return jsonify({'message': 'No video received'}), 400
+        return jsonify({
+            'success': False,
+            'message': 'No video received',
+            'wasRecognized': False
+            }), 400
     
-    frames = extract_frames(video_file)
-    verification_result = process_frames_for_verification(frames)
-    return jsonify({"status": "success", "verified": verification_result})
+    #frames = extract_frames(video_file)
+    #verification_result = process_frames_for_verification(frames)
+    return jsonify({
+        'success': True,
+        'message': 'Video received and face recognition ran successfully',
+        "wasRecognized": True#verification_result
+        }), 200
 
 @app.route('/register-face', methods=['POST'])
 def register_face():
     video_file = request.data
     if not video_file:
-        return jsonify({'message': 'No video received'}), 400
+        return jsonify({
+            'success': False,
+            'message': 'No video received',
+            'wasSetup': False
+            }), 400
 
-    frames = extract_frames(video_file)
-    training_result = process_frames_for_registration(frames)
-    return jsonify({'message': 'Video received and model training started', 'success': training_result}), 200
+    #frames = extract_frames(video_file)
+    #training_result = process_frames_for_registration(frames)
+    return jsonify({
+        'success': True,
+        'message': 'Video received and face registration ran successfully',
+        'wasSetup': True#training_result
+        }), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=4000)

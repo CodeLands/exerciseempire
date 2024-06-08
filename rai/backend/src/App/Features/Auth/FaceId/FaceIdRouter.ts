@@ -20,6 +20,7 @@ export class FaceIdRouter {
 
         router.post('/face-login', this.authMiddleware.authenticateToken, upload.single('video'), this.faceIdController.faceIdLogin);
         router.post('/face-register', this.authMiddleware.authenticateToken, upload.single('video'), this.faceIdController.faceIdRegister);
-        router.post('/face-delete', this.authMiddleware.authenticateToken, this.faceIdController.faceIdDelete);
+        //router.post('/face-delete', this.authMiddleware.authenticateToken, this.faceIdController.faceIdDelete);
+        router.post('/face-is-enabled', this.authMiddleware.authenticateToken, this.faceIdController.faceIdIsEnabled);
     }
 }

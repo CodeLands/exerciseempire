@@ -53,7 +53,7 @@ export default function LoginScreen() {
 
     if (data.success) {
       const tempToken = data.data.token;
-      //storeToken(tempToken);
+      save('tempTokenSavedAt', Date.now().toString());
       save('tempToken', tempToken);
       console.log('Token saved:', tempToken);
       if (data.data.has2FA)

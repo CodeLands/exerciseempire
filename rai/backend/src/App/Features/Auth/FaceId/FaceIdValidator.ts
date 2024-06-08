@@ -7,10 +7,14 @@ export type FaceIdData = {
 };
 
 export type FaceIdValidateResult = {
+  success: boolean;
+  message: string;
   wasRecognized: boolean;
 };
 
 export type FaceIdSetupResult = {
+  success: boolean;
+  message: string;
   wasSetup: boolean;
 };
 
@@ -32,14 +36,20 @@ export class FaceIdValidator {
     }
   }
 
-  public FaceResultValidate = (wasRecognized: boolean): ValidationResult<FaceIdValidateResult> => {
+  public FaceResultValidate = (success: boolean, message: string, wasRecognized: boolean): ValidationResult<FaceIdValidateResult> => {
     const schema = z.object({
+      success: z.boolean({
+          required_error: "Face recognition success is required"
+      }),
+      message: z.string({
+          required_error: "Face recognition message is required"
+      }),
       wasRecognized: z.boolean({
           required_error: "Face recognition result is required"
       })
     });
 
-    const validationResult = schema.safeParse({wasRecognized});
+    const validationResult = schema.safeParse({success, message, wasRecognized});
 
     if (!validationResult.success) {
         return { success: false, errors: validationResult.error.errors };
@@ -48,14 +58,20 @@ export class FaceIdValidator {
     }
   }
 
-  public FaceResultSetup = (wasSetup: boolean): ValidationResult<FaceIdSetupResult> => {
+  public FaceResultSetup = (success: boolean, message: string, wasSetup: boolean): ValidationResult<FaceIdSetupResult> => {
     const schema = z.object({
+      success: z.boolean({
+          required_error: "Face recognition success is required"
+      }),
+      message: z.string({
+          required_error: "Face recognition message is required"
+      }),
       wasSetup: z.boolean({
           required_error: "Face recognition setup result is required"
       })
     });
 
-    const validationResult = schema.safeParse({wasSetup});
+    const validationResult = schema.safeParse({success, message, wasSetup});
 
     if (!validationResult.success) {
         return { success: false, errors: validationResult.error.errors };

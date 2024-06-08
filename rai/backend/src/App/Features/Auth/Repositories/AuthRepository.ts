@@ -33,8 +33,6 @@ export class AuthRepository {
         messages: ["User not found!"],
       };
 
-      console.log(result.data[0]);
-
     const user = result.data[0];
     const validationResult = UserAuthSchema.safeParse(user);
 

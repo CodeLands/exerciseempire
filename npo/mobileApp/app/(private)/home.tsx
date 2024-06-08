@@ -1,5 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import * as SecureStore from 'expo-secure-store';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
   return (
@@ -13,6 +15,17 @@ export default function HomeScreen() {
       <Text style={styles.listItem}>- Pick the one you like the most</Text>
       <Text style={styles.listItem}>- Start your activity</Text>
       <Text style={styles.listItem}>- While you are movin and groovin, we will track your progress</Text>
+
+      <Pressable style={styles.button} onPress={async () => {
+        console.log('Logout')
+        await SecureStore.deleteItemAsync('authToken');
+        await SecureStore.deleteItemAsync('authTokenSavedAt');
+        await SecureStore.deleteItemAsync('tempToken');
+        await SecureStore.deleteItemAsync('tempTokenSavedAt');
+        router.replace('/welcome');
+      }}>
+        <Text style={styles.listItem}>Logout</Text>
+      </Pressable>
 
     </View> 
   )
@@ -41,5 +54,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 5,
     textAlign: 'center',
-  }
+  },
+  button: {
+    padding: 10,
+    backgroundColor: 'red',
+    borderRadius: 5,
+    marginTop: 10,
+  },
 });

@@ -27,6 +27,8 @@ export class FaceIdController {
   private readonly jwtGateway!: JwtGateway;
 
   public faceIdLogin = async (req: FaceIdRequest, res: Response) => {
+    console.log('FaceIdLogin Request:', req.userId, req.authStep);
+
     if (!req.userId || !req.authStep)
       return res.json({ success: false, errors: ["User not logged in"] });
 
@@ -79,13 +81,20 @@ export class FaceIdController {
 
     try {
         let response = await axiosInstance.post(`/login-face?userId=${req.userId}`, validatedPayload.data.video);
+    
+        //console.log('Python response: ', response);
+        console.log('Python response data: ', response.data);
 
         let pythonPayload: FaceIdValidateResult | null = {
-            wasRecognized: response.data.recognized,
+            success: response.data.success,
+            wasRecognized: response.data.wasRecognized,
+            message: response.data.message,
         };
         response = null!
     
         const pythonValidatedPayload = this.faceIdValidator.FaceResultValidate(
+            pythonPayload.success,
+            pythonPayload.message,
             pythonPayload.wasRecognized
         );
         pythonPayload = null;
@@ -102,7 +111,7 @@ export class FaceIdController {
                 sub: req.userId,
                 step: AuthFactorType.secondFactor
               }, {
-                expiresIn: "8h",
+                expiresIn: "24h",
                 
               });
 
@@ -117,12 +126,14 @@ export class FaceIdController {
             res.status(401).send("Face not recognized. Access denied.");
         }
     } catch (error) {
-        console.error('Express Error: Face Login: ', error);
+        /* console.error('Express Error: Face Login: ', error); */
         res.status(500).send("Express Error: Face Login: " + error);
     }
   };
   
   public faceIdRegister = async (req: FaceIdRequest, res: Response) => {
+    console.log('FaceIdRegister Request:', req.userId, req.authStep);
+    
     if (!req.userId || !req.authStep)
       return res.json({ success: false, errors: ["User not logged in"] });
 
@@ -146,12 +157,26 @@ export class FaceIdController {
     try {
         let response = await axiosInstance.post(`/register-face?userId=${req.userId}`, validatedPayload.data.video);
 
+        // Check if response is valid
+        if (response.status !== 200) {
+          console.error('Invalid response from python server: ', response);
+            return res.json({
+                success: false,
+                errors: ["Invalid response from python server."]
+            });
+          }
+        
+
         let pythonPayload: FaceIdSetupResult | null = {
+          success: response.data.success,
+          message: response.data.message,
             wasSetup: response.data.wasSetup,
         };
         response = null!
     
         const pythonValidatedPayload = this.faceIdValidator.FaceResultSetup(
+            pythonPayload.success,
+            pythonPayload.message,
             pythonPayload.wasSetup
         );
         pythonPayload = null;
@@ -221,7 +246,7 @@ export class FaceIdController {
                 sub: req.userId,
                 step: AuthFactorType.secondFactor
               }, {
-                expiresIn: "8h",
+                expiresIn: "24h",
                 
               });
 
@@ -236,12 +261,12 @@ export class FaceIdController {
             res.status(401).send("Face ID couldnt be setup.");
         }
     } catch (error) {
-        console.error('Express Error: Face Register: ', error);
+        /* console.error('Express Error: Face Register: ', error); */
         res.status(500).send("Express Error: Face Register: " + error);
     }
   };
 
-  public faceIdDelete = async (req: RequestWithUser, res: Response) => {
+/*   public faceIdDelete = async (req: RequestWithUser, res: Response) => {
     if (!req.userId || !req.authStep)
       return res.json({ success: false, errors: ["User not logged in"] });  
 
@@ -297,8 +322,43 @@ export class FaceIdController {
               res.status(401).send("Face id couldnt be removed.");
           }
       } catch (error) {
-          console.error('Express Error: Face Remove.: ', error);
+          //console.error('Express Error: Face Remove.: ', error);
           res.status(500).send("Express Error: Face Remove: " + error);
       }
-  };
+  }; */
+
+  public faceIdIsEnabled = async (req: RequestWithUser, res: Response) => {
+    if (!req.userId || !req.authStep)
+      return res.json({ success: false, errors: ["User not logged in"] });  
+
+      const repoResultFindUserById = await this.authRepository.findById(
+        req.userId
+      );
+  
+      if (repoResultFindUserById.status === RepositoryResultStatus.dbError)
+        return res.json({
+          success: false,
+          errors: ["Database Error!"],
+        });
+  
+      if (repoResultFindUserById.status === RepositoryResultStatus.zodError)
+        return res.json({
+          success: false,
+          errors: repoResultFindUserById.errors,
+        });
+  
+      if (repoResultFindUserById.status === RepositoryResultStatus.failed)
+        return res.json({
+          success: false,
+          errors: ["DB: User not found!"],
+        });
+
+    res.json({
+        success: true,
+        message: (repoResultFindUserById.data.hasset2fa ? "FaceId is set up!" : "FaceId is not set up!"),
+        data: {
+          has2fa: repoResultFindUserById.data.hasset2fa,
+        },
+      });
+    }
 }
