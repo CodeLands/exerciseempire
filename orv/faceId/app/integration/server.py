@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 import cv2
 import numpy as np
 
+from genImg import process_image
+
 app = Flask(__name__)
 
 def extract_frames(video_data):
@@ -18,8 +20,8 @@ def process_frames_for_verification(frames):
     return 'true'
 
 def process_frames_for_registration(frames):
-    # Here you would extract features and train a model
-    # Placeholder for model training
+    for frame in frames:
+        process_image(frame, "../model/images")
     return 'true'
 
 @app.route('/login-face', methods=['POST'])
@@ -50,12 +52,12 @@ def register_face():
             'wasSetup': False
             }), 400
 
-    #frames = extract_frames(video_file)
-    #training_result = process_frames_for_registration(frames)
+    frames = extract_frames(video_file)
+    training_result = process_frames_for_registration(frames)
     return jsonify({
         'success': True,
         'message': 'Video received and face registration ran successfully',
-        'wasSetup': True#training_result
+        'wasSetup': True #training_result
         }), 200
 
 if __name__ == '__main__':
