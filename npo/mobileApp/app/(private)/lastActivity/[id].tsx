@@ -16,7 +16,7 @@ export default function LastActivityScreen() {
                 SensorDataService.startSensors((data: { type: any; data: any }) => {
                     console.log("Sensor data received: ", data);
                     setSensorData(prevData => [...prevData, data]);
-                    fetch('http://your-backend-url/sensor-data', {
+                    fetch('http://localhost:3000/sensor-data', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -120,8 +120,8 @@ export default function LastActivityScreen() {
                                 data={sensorData}
                                 renderItem={({ item }) => (
                                     <View>
-                                        <Text>Type: {item.type}</Text>
-                                        <Text>Data: {JSON.stringify(item.data)}</Text>
+                                        {/* <Text>Type: {item.type}</Text>
+                                        <Text>Data: {JSON.stringify(item.data)}</Text> */}
                                     </View>
                                 )}
                                 keyExtractor={(item, index) => index.toString()}
