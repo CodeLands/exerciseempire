@@ -175,17 +175,20 @@ export class SensorDataController {
   }
 
   public postSensorData = async (req: Request, res: Response) => {
+    console.log("Received sensor data request:", req.body);
+
     // Receive Sensor Data: Data is received via a POST request.
-    let payload: SensorDataPayload | null = null
+    let payload: SensorDataPayload | null = null;
     try {
       payload = {
-        executed_activity_id: JSON.parse(req.body.executed_activity_id),
-        sensor_id: JSON.parse(req.body.sensor_id), 
-        value: JSON.parse(req.body.value),
-        timestamp: JSON.parse(req.body.timestamp),
-    };
+        executed_activity_id: Number(req.body.executed_activity_id),
+        sensor_id: Number(req.body.sensor_id),
+        value: Number(req.body.value),
+        timestamp: Number(req.body.timestamp),
+      };
+      console.log("Parsed payload:", payload);
     } catch (e) {
-      console.log(e);
+      console.log("JSON parsing error:", e);
       return res.json({
         success: false,
         errors: ["Invalid JSON!"],
@@ -194,65 +197,98 @@ export class SensorDataController {
 
     // Validate Data Structure: Ensure the incoming sensor data matches the expected schema.
     const validatedPayload = this.sensorDataValidator.sensorDataValidate(
-        payload.executed_activity_id,
-        payload.sensor_id,
-        payload.value,
-        payload.timestamp,
+      payload.executed_activity_id,
+      payload.sensor_id,
+      payload.value,
+      payload.timestamp,
     );
     payload = null;
-    if (!validatedPayload.success)
+    if (!validatedPayload.success) {
+      console.log("Validation errors:", validatedPayload.errors);
       return res.json({
         success: false,
         errors: validatedPayload.errors,
       });
+    }
 
     // Check Activity Validity: Verify that the executed_activity_id corresponds to a currently active activity in the database.
     const repoResultGetExecutedActivityById = await this.executedActivityRepository.getById(validatedPayload.data.executed_activity_id);
+    console.log("Executed activity:", repoResultGetExecutedActivityById);
 
-    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.dbError)
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.dbError) {
+      console.log("Database error while fetching executed activity.");
       return res.json({
         success: false,
         errors: ["Database Error!"],
       });
+    }
 
-    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.zodError)
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.zodError) {
+      console.log("Zod validation error while fetching executed activity.");
       return res.json({
         success: false,
         errors: repoResultGetExecutedActivityById.errors,
       });
+    }
 
-    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.failed)
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.failed) {
+      console.log("Executed activity not found.");
       return res.json({
         success: false,
         errors: ["DB: ExecutedActivity referenced by SensorData not found!"],
       });
+    }
 
-    if (!repoResultGetExecutedActivityById.data.is_active)
+    if (!repoResultGetExecutedActivityById.data.is_active) {
+      // Set activity to active if it is not active
+      console.log("Executed activity is not active. Activating now...");
+      const toggleResult = await this.executedActivityRepository.toggleIsActive(validatedPayload.data.executed_activity_id, true);
+      console.log("Toggle activity result:", toggleResult);
+
+      if (toggleResult.status !== RepositoryResultStatus.success) {
+        return res.json({
+          success: false,
+          errors: ["DB: Failed to activate ExecutedActivity!"],
+        });
+      }
+
+      // Re-fetch the activity to ensure it is now active
+      const recheckResult = await this.executedActivityRepository.getById(validatedPayload.data.executed_activity_id);
+      if (recheckResult.status !== RepositoryResultStatus.success || !recheckResult.data.is_active) {
+        return res.json({
+          success: false,
+          errors: ["DB: ExecutedActivity is still not active after activation attempt!"],
+        });
+      }
+    }
+
+    // Get Base Stats: Retrieve the base stats for the activity.
+    const getExecutedActivityBaseStats = await this.sensorDataRepository.getExecutedActivityBaseStats(validatedPayload.data.executed_activity_id);
+    console.log("Base stats:", getExecutedActivityBaseStats);
+
+    if (getExecutedActivityBaseStats.status === RepositoryResultStatus.dbError) {
+      console.log("Database error while fetching base stats.");
       return res.json({
         success: false,
-        errors: ["DB: ExecutedActivity referenced by SensorData is not active!"],
+        errors: ["Database Error!"],
       });
+    }
 
-      // Get Base Stats: Retrieve the base stats for the activity.
-      const getExecutedActivityBaseStats = await this.sensorDataRepository.getExecutedActivityBaseStats(validatedPayload.data.executed_activity_id);
+    if (getExecutedActivityBaseStats.status === RepositoryResultStatus.zodError) {
+      console.log("Zod validation error while fetching base stats.");
+      return res.json({
+        success: false,
+        errors: getExecutedActivityBaseStats.errors,
+      });
+    }
 
-      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.dbError)
-        return res.json({
-          success: false,
-          errors: ["Database Error!"],
-        });
-
-      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.zodError)
-        return res.json({
-          success: false,
-          errors: getExecutedActivityBaseStats.errors,
-        });
-
-      if (getExecutedActivityBaseStats.status === RepositoryResultStatus.failed)
-        return res.json({
-          success: false,
-          errors: ["DB: ExecutedActivityBaseStats not found!"],
-        });
+    if (getExecutedActivityBaseStats.status === RepositoryResultStatus.failed) {
+      console.log("Base stats not found.");
+      return res.json({
+        success: false,
+        errors: ["DB: ExecutedActivityBaseStats not found!"],
+      });
+    }
 
     // Save Sensor Data: If the activity is valid and in progress, save the sensor data.
     const repoResultCreateSensorData = await this.sensorDataRepository.create(
@@ -261,44 +297,46 @@ export class SensorDataController {
       validatedPayload.data.value,
       validatedPayload.data.timestamp,
     );
+    console.log("Sensor data save result:", repoResultCreateSensorData);
 
-    if (repoResultCreateSensorData.status === RepositoryResultStatus.dbError)
+    if (repoResultCreateSensorData.status === RepositoryResultStatus.dbError) {
+      console.log("Database error while saving sensor data.");
       return res.json({
         success: false,
         errors: ["Database Error!"],
       });
+    }
 
-    if (repoResultCreateSensorData.status === RepositoryResultStatus.zodError)
+    if (repoResultCreateSensorData.status === RepositoryResultStatus.zodError) {
+      console.log("Zod validation error while saving sensor data.");
       return res.json({
         success: false,
         errors: repoResultCreateSensorData.errors,
       });
+    }
 
-    if (repoResultCreateSensorData.status === RepositoryResultStatus.failed)
+    if (repoResultCreateSensorData.status === RepositoryResultStatus.failed) {
+      console.log("Sensor data not created.");
       return res.json({
         success: false,
         errors: ["DB: SensorData could not be created!"],
       });
+    }
 
-
-      // Calculate Stats: Calculate the stats for the sensor data.
-
-    // Validate Sensor Data: Ensure the sensor data is within the expected range.
+    // Calculate Stats: Calculate the stats for the sensor data.
     const baseStats = getExecutedActivityBaseStats.data;
     const sensorData = validatedPayload.data.value;
-    
-    // stat on baseStats represents stat we are checking against
-    // value on baseStats represents the value we are checking against
-    
-    // loop through baseStats and multiply base_stat_value by sensorData value
 
+    // Loop through baseStats and multiply base_stat_value by sensorData value
     const calculatedStats = baseStats.map((current_stat) => {
       return {
         id: current_stat.id,
         stat: current_stat.stat,
         value: current_stat.base_stat_value * sensorData,
       };
-    })
+    });
+
+    console.log("Calculated stats:", calculatedStats);
 
     const insertRealTimeStats = async () => {
       for (const current_stat of calculatedStats) {
@@ -307,31 +345,35 @@ export class SensorDataController {
           current_stat.id,
           current_stat.value,
         );
-    
-        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.dbError)
-          return res.json({
-            success: false,
-            errors: ["Database Error!"],
-          });
-    
-        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.zodError)
-          return res.json({
-            success: false,
-            errors: repoResultIncrementRealTimeStats.errors,
-          });
-    
+        console.log("Increment real time stats result:", repoResultIncrementRealTimeStats);
+
+        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.dbError) {
+          console.log("Database error while incrementing real time stats.");
+          throw new Error("Database Error!");
+        }
+
+        if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.zodError) {
+          console.log("Zod validation error while incrementing real time stats.");
+          throw new Error("Zod validation error!");
+        }
+
         if (repoResultIncrementRealTimeStats.status === RepositoryResultStatus.failed) {
-          console.log(repoResultIncrementRealTimeStats);
-          return res.json({
-            success: false,
-            errors: ["DB: RealTimeStats could not be incremented!"],
-          });
+          console.log("Real time stats not incremented.");
+          throw new Error("RealTimeStats could not be incremented!");
         }
       }
     };
-    
-    await insertRealTimeStats();
-    
+
+    try {
+      await insertRealTimeStats();
+    } catch (error) {
+      return res.json({
+        success: false,
+        errors: [(error as Error).message],
+      });
+    }
+
+    console.log("Sensor Data Saved and Computed Successfully!");
 
     // Respond: Return an appropriate response based on the outcome of the above steps.
     res.json({
