@@ -107,6 +107,6 @@ export default function StartScreen() {
   }, [])
 
   return (
-  <Redirect href="/welcome" />
+  <Redirect href="/home" />
 )
 }

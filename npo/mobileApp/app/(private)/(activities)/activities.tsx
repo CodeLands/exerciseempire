@@ -1,474 +1,149 @@
-import { Link } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
-import { ActivityStat } from './activity/[id]';
+import { Link } from 'expo-router';
+import Constants from 'expo-constants';
 
 export enum ActivityStats {
   Strength = 'Strength',
   Endurance = 'Endurance',
   Flexibility = 'Flexibility',
   Agility = 'Agility',
-  // Balance: 'Balance',
-  // Coordination: 'Coordination',
 }
 
-export const StatColors = {
+export const StatColors: { [key in ActivityStats]: string } = {
   [ActivityStats.Strength]: 'deeppink',
   [ActivityStats.Endurance]: 'royalblue',
   [ActivityStats.Flexibility]: 'green',
   [ActivityStats.Agility]: 'yellow',
-  // [ActivityStat.Balance]: 'purple',
-  // [ActivityStat.Coordination]: 'orange',
 }
 
-export const StatWeakColors = {
+export const StatWeakColors: { [key in ActivityStats]: string } = {
   [ActivityStats.Strength]: 'pink',
   [ActivityStats.Endurance]: 'lightblue',
   [ActivityStats.Flexibility]: 'lightgreen',
   [ActivityStats.Agility]: 'palegoldenrod',
-  // [ActivityStat.Balance]: 'purple',
-  // [ActivityStat.Coordination]: 'orange',
 }
+
+const CategoryColors: { [key: number]: string } = {
+  1: 'lightgreen', // Outdoor
+  2: 'lightcoral', // Indoor
+  3: 'lightblue',  // Water Sports
+  // Add more colors if there are more categories
+};
+
+type BaseStat = {
+  stat: ActivityStats;
+  base_stat_value: number;
+};
 
 type Activity = {
-  link: string,
-  name: string,
-  bestStat: ActivityStats,
-  stats: ActivityStat[],
-}
+  id: number;
+  name: string;
+  bestStat: ActivityStats;
+  baseStats: BaseStat[];
+  category: string;
+  categoryId: number;
+};
 
-export const activities: Activity[] = [
-  {
-    link: 'activity/1',
-    name: 'Running',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-  {
-    link: 'activity/2',
-    name: 'Swimming',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/3',
-    name: 'Cycling',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 20,
-      },
-    ]
-  },
-  {
-    link: 'activity/4',
-    name: 'Hiking',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 20,
-      },
-    ]
-  },
-  {
-    link: 'activity/5',
-    name: 'Gym',
-    bestStat: ActivityStats.Strength,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/6',
-    name: 'Yoga',
-    bestStat: ActivityStats.Flexibility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 30,
-      },
-    ]
-  },
-  {
-    link: 'activity/7',
-    name: 'Dancing',
-    bestStat: ActivityStats.Agility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-  {
-    link: 'activity/18',
-    name: 'Gaming',
-    bestStat: ActivityStats.Agility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-  {
-    link: 'activity/9',
-    name: 'Rock climbing',
-    bestStat: ActivityStats.Strength,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/10',
-    name: 'Skiing',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/11',
-    name: 'Snowboarding',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/12',
-    name: 'Surfing',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/13',
-    name: 'Football',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/14',
-    name: 'Tennis',
-    bestStat: ActivityStats.Agility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-  {
-    link: 'activity/15',
-    name: 'Golf',
-    bestStat: ActivityStats.Flexibility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 30,
-      },
-    ]
-  },
-  {
-    link: 'activity/16',
-    name: 'Baseball',
-    bestStat: ActivityStats.Agility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-  {
-    link: 'activity/17',
-    name: 'Volleyball',
-    bestStat: ActivityStats.Endurance,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 40,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 10,
-      },
-    ]
-  },
-  {
-    link: 'activity/18',
-    name: 'Basketball',
-    bestStat: ActivityStats.Agility,
-    stats: [
-      {
-        stat: ActivityStats.Strength,
-        percentValue: 20,
-      },
-      {
-        stat: ActivityStats.Endurance,
-        percentValue: 30,
-      },
-      {
-        stat: ActivityStats.Flexibility,
-        percentValue: 10,
-      },
-      {
-        stat: ActivityStats.Agility,
-        percentValue: 40,
-      },
-    ]
-  },
-]
+type Category = {
+  categoryId: number;
+  categoryName: string;
+  activities: Activity[];
+};
+
+export let activities: Activity[] = [];
 
 export default function ActivitiesScreen() {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const api = process.env.EXPO_PUBLIC_API_URL;
+      if (!api) {
+        console.error('No API URL found');
+        return;
+      }
+
+      const route = api + "/activities";
+      console.log('Fetching from:', route);
+
+      try {
+        console.log('Starting fetch request...');
+        const response = await fetch(route, {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('Response received:', response);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const json = await response.json();
+        console.log('JSON parsed:', json);
+        if (json.success) {
+          const data = json.data;
+          const transformedCategories = data.map((categoryData: any) => ({
+            categoryId: categoryData.activities.length > 0 ? categoryData.activities[0].category_id : null,
+            categoryName: categoryData.category,
+            activities: categoryData.activities.map((activityData: any) => ({
+              id: activityData.id,
+              name: activityData.activity,
+              baseStats: activityData.stats.map((statData: any) => ({
+                stat: statData.stat as ActivityStats,
+                base_stat_value: statData.base_stat_value,
+              })),
+              category: categoryData.category,
+              categoryId: activityData.category_id,
+              bestStat: determineBestStat(activityData.stats),
+            })),
+          }));
+          console.log('Transformed categories:', transformedCategories);
+          setCategories(transformedCategories);
+
+          // Flatten activities and update the exported activities array
+          activities = transformedCategories.flatMap((category: Category) => category.activities);
+        }
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  function determineBestStat(stats: BaseStat[]): ActivityStats {
+    // Find the stat with the highest base_stat_value
+    let bestStat = stats[0];
+    for (let i = 1; i < stats.length; i++) {
+      if (stats[i].base_stat_value > bestStat.base_stat_value) {
+        bestStat = stats[i];
+      }
+    }
+    return bestStat.stat;
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Activities:</Text>
       <FlatList
         style={styles.listItems}
-        data={activities.sort((a, b) => a.bestStat.localeCompare(b.bestStat))}
-        renderItem={({item: activity}) => <Link href={activity.link} asChild>
-          <Pressable>
-            <Text style={{
-            ...styles.listItem,
-            backgroundColor: StatWeakColors[activity.bestStat]
-            }}>{activity.name}</Text>
-          </Pressable>
-        </Link>
-      }
+        data={categories}
+        keyExtractor={(item) => item.categoryId.toString()}
+        renderItem={({ item: category }) => (
+          <View>
+            <Text style={styles.categoryTitle}>{category.categoryName}</Text>
+            {category.activities.map((activity) => (
+              <Link href={`activity/${activity.id}`} asChild key={activity.id}>
+                <Pressable>
+                  <View style={[styles.listItem, { backgroundColor: CategoryColors[activity.categoryId] }]}>
+                    <Text style={styles.listItemText}>{activity.name}</Text>
+                  </View>
+                </Pressable>
+              </Link>
+            ))}
+          </View>
+        )}
       />
     </View>
   );
@@ -479,6 +154,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10,
   },
   title: {
     fontSize: 20,
@@ -487,29 +163,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   listItems: {
-    margin: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 5,
-    minWidth: 200,
-    width: '90%',
-    overflow: 'scroll',
-    maxHeight: '90%',
+    width: '100%',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 5,
+    textAlign: 'center',
   },
   listItem: {
     padding: 10,
     borderRadius: 5,
     color: 'black',
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 5,
     borderWidth: 1,
   },
   listItemText: {
     color: 'black',
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
   },
 });
