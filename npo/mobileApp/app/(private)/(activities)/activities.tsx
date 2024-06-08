@@ -24,10 +24,16 @@ export const StatWeakColors = {
   [ActivityStats.Agility]: 'palegoldenrod',
 }
 
+const CategoryColors: { [key: number]: string } = {
+  1: 'lightgreen', // Outdoor
+  2: 'lightcoral', // Indoor
+  3: 'lightblue',  // Water Sports
+  // Add more colors if there are more categories
+};
+
 type BaseStat = {
-  id: number;
-  name: string;
-  value: number;
+  stat: string;
+  base_stat_value: number;
 };
 
 type Activity = {
@@ -36,10 +42,17 @@ type Activity = {
   bestStat: ActivityStats;
   baseStats: BaseStat[];
   category: string;
+  categoryId: number;
+};
+
+type Category = {
+  categoryId: number;
+  categoryName: string;
+  activities: Activity[];
 };
 
 export default function ActivitiesScreen() {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -69,21 +82,23 @@ export default function ActivitiesScreen() {
         console.log('JSON parsed:', json);
         if (json.success) {
           const data = json.data;
-          const transformedActivities = data.flatMap((categoryData: any) => {
-            return categoryData.activities.map((activityData: any) => ({
+          const transformedCategories = data.map((categoryData: any) => ({
+            categoryId: categoryData.activities.length > 0 ? categoryData.activities[0].category_id : null,
+            categoryName: categoryData.category,
+            activities: categoryData.activities.map((activityData: any) => ({
               id: activityData.id,
               name: activityData.activity,
-              baseStats: activityData.stats.map((statData: any, index: number) => ({
-                id: index, // Use index as key for stats since stat_id is not available
-                name: statData.stat,
-                value: statData.base_stat_value,
+              baseStats: activityData.stats.map((statData: any) => ({
+                stat: statData.stat,
+                base_stat_value: statData.base_stat_value,
               })),
               category: categoryData.category,
+              categoryId: activityData.category_id,
               bestStat: determineBestStat(activityData.stats),
-            }));
-          });
-          console.log('Transformed activities:', transformedActivities);
-          setActivities(transformedActivities);
+            })),
+          }));
+          console.log('Transformed categories:', transformedCategories);
+          setCategories(transformedCategories);
         }
       } catch (error) {
         console.error('Error fetching activities:', error);
@@ -93,27 +108,36 @@ export default function ActivitiesScreen() {
     fetchData();
   }, []);
 
-  function determineBestStat(stats) {
-    // Logic to determine best stat based on your criteria
-    // For now, let's assume the first stat is the best
-    return stats[0].stat;
+  function determineBestStat(stats: BaseStat[]) {
+    // Find the stat with the highest base_stat_value
+    let bestStat = stats[0];
+    for (let i = 1; i < stats.length; i++) {
+      if (stats[i].base_stat_value > bestStat.base_stat_value) {
+        bestStat = stats[i];
+      }
+    }
+    return bestStat.stat;
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Activities:</Text>
       <FlatList
         style={styles.listItems}
-        data={activities.sort((a, b) => a.bestStat.localeCompare(b.bestStat))}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item: activity }) => (
-          <Link href={`activity/${activity.id}`} asChild>
-            <Pressable>
-              <View style={[styles.listItem, { backgroundColor: StatWeakColors[activity.bestStat] }]}>
-                <Text style={styles.listItemText}>{activity.name}</Text>
-              </View>
-            </Pressable>
-          </Link>
+        data={categories}
+        keyExtractor={(item) => item.categoryId.toString()}
+        renderItem={({ item: category }) => (
+          <View>
+            <Text style={styles.categoryTitle}>{category.categoryName}</Text>
+            {category.activities.map((activity) => (
+              <Link href={`activity/${activity.id}`} asChild key={activity.id}>
+                <Pressable>
+                  <View style={[styles.listItem, { backgroundColor: CategoryColors[activity.categoryId] }]}>
+                    <Text style={styles.listItemText}>{activity.name}</Text>
+                  </View>
+                </Pressable>
+              </Link>
+            ))}
+          </View>
         )}
       />
     </View>
@@ -135,6 +159,13 @@ const styles = StyleSheet.create({
   },
   listItems: {
     width: '100%',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 5,
+    textAlign: 'center',
   },
   listItem: {
     padding: 10,
