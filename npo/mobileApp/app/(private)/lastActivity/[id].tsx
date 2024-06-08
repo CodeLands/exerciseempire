@@ -4,10 +4,10 @@ import { Link, Stack, useLocalSearchParams } from 'expo-router'
 import { StatColors, StatWeakColors, activities } from '../(activities)/activities'
 
 export default function LastActivityScreen() {
-    let [ isStarted, setIsStarted ] = useState(false)
-    const { id } = useLocalSearchParams()   
+    let [isStarted, setIsStarted] = useState(false)
+    const { id } = useLocalSearchParams()
 
-    const selectedActivity = activities.find(activity => activity.link === `activity/${id}`)
+    const selectedActivity = activities.find(activity => activity.id === Number(id))
 
     return (
         <>
@@ -15,94 +15,95 @@ export default function LastActivityScreen() {
                 <View style={styles.container}>
                     <Stack.Screen options={{
                         headerTitle: `Last Activity: ${selectedActivity?.name}`
-                        }} />
+                    }} />
                     <Text style={styles.title}>Selected Activity: {selectedActivity?.name}</Text>
                     <Text style={styles.description}>{`Is Started?: ${isStarted}`}</Text>
                     {isStarted && (
-                    <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center',}}>
-                      <Text style={styles.description}>Started for: </Text>
-                      <Text style={{...styles.description, textAlign: 'center', borderWidth: 1, padding: 5, borderRadius: 5}}>x seconds</Text>
-                    </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', }}>
+                            <Text style={styles.description}>Started for: </Text>
+                            <Text style={{ ...styles.description, textAlign: 'center', borderWidth: 1, padding: 5, borderRadius: 5 }}>x seconds</Text>
+                        </View>
                     )}
                     <Text style={styles.description}>Stats gained during session:</Text>
 
                     <FlatList
-        style={styles.listItems}
-        data={selectedActivity?.stats}
-        renderItem={({ item: stat }) =>
-          <>
-          <View style={{
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            margin: 8,
-            
-            }}>
-            <View style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: 5,
-              }}>
-              <Text style={{
-                ...styles.listItemText,
-              }}>
-                {stat.stat}:
-              </Text>
-              <Text style={{
-                ...styles.listItemText,
-              }}>
-                xy levels + xy exp
-                </Text>
-            </View>
+                        style={styles.listItems}
+                        data={selectedActivity?.baseStats}
+                        keyExtractor={(item) => item.stat}
+                        renderItem={({ item: stat }) =>
+                            <>
+                                <View style={{
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    margin: 8,
+                                }}>
+                                    <View style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        margin: 5,
+                                    }}>
+                                        <Text style={{
+                                            ...styles.listItemText,
+                                        }}>
+                                            {stat.stat}:
+                                        </Text>
+                                        <Text style={{
+                                            ...styles.listItemText,
+                                        }}>
+                                            xy levels + xy exp
+                                        </Text>
+                                    </View>
 
+                                    <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, minHeight: 30 }}>
+                                        <Text style={{
+                                            ...styles.listItemBar,
+                                            backgroundColor: StatColors[stat.stat],
+                                            width: `${stat.base_stat_value}%`,
+                                        }}></Text>
+                                        <Text style={{
+                                            ...styles.listItemBar,
+                                            backgroundColor: StatWeakColors[stat.stat],
+                                            width: `${100 - stat.base_stat_value}%`,
+                                        }}></Text>
+                                    </View>
+                                </View>
+                            </>
+                        }
+                    />
+                    {isStarted && (
+                        <View style={styles.debugContainer}>
+                            <Text>
+                                Sensor Data DEBUG:
+                            </Text>
+                            <Text>
+                                Accelerometer:
+                            </Text>
+                            <Text>
+                                Gyroscope:
+                            </Text>
+                            <Text>
+                                ...:
+                            </Text>
+                        </View>
+                    )}
 
-            <View style={{ flexDirection: 'row', paddingLeft: 15, paddingRight: 15, minHeight: 30 }}>
-              <Text style={{
-                ...styles.listItemBar,
-                backgroundColor: StatColors[stat.stat],
-                width: `${stat.percentValue}%`,
-              }}></Text>
-              <Text style={{
-                ...styles.listItemBar,
-                backgroundColor: StatWeakColors[stat.stat],
-                width: `${100 - stat.percentValue}%`,
-              }}></Text>
-            </View>
-</View>
-            
-          </>
-        }
-      />
-      {isStarted && (
-      <View style={styles.debugContainer}>
-        <Text>
-            Sensor Data DEBUG:
-        </Text>
-        <Text>
-            Accelometer:
-        </Text>
-        <Text>
-            Gyroscope:
-        </Text>
-        <Text>
-            ...:
-        </Text>
-      </View>
-      )}
-            
-        <Pressable onPress={() => setIsStarted(!isStarted)}>
-          <Text style={
-            isStarted ? styles.stopActivityBtn :
-            styles.startActivityBtn
-            }>{isStarted ? 'Stop Activity' : 'Start Activity' }</Text>
-        </Pressable>
+                    <Pressable onPress={() => {
+                        console.log(`Selected Activity ID: ${id}`);
+                        setIsStarted(!isStarted);
+                    }}>
+                        <Text style={
+                            isStarted ? styles.stopActivityBtn :
+                                styles.startActivityBtn
+                        }>{isStarted ? 'Stop Activity' : 'Start Activity'}</Text>
+                    </Pressable>
                 </View>
             ) : (
                 <View style={styles.container}>
                     <Stack.Screen options={{
                         headerTitle: `No Activity Selected...`,
-                        headerRight: () => <Link  href="/activities" asChild>
+                        headerRight: () => <Link href="/activities" asChild>
                             <Pressable style={styles.notSelectActivityHeaderButton}>
                                 <Text >SELECT</Text>
                             </Pressable>
@@ -110,13 +111,13 @@ export default function LastActivityScreen() {
                         headerStyle: {
                             backgroundColor: 'orange'
                         },
-                        }} />
+                    }} />
                     <Text style={styles.title}>No activity selected yet...</Text>
                     <Link href="/activities" asChild>
-                            <Pressable>
-                                <Text style={styles.selectActivityButton}>Go To Activities</Text>
-                            </Pressable>
-                        </Link>
+                        <Pressable>
+                            <Text style={styles.selectActivityButton}>Go To Activities</Text>
+                        </Pressable>
+                    </Link>
                 </View>
             )}
         </>
@@ -164,13 +165,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 10,
     },
-    // timeRunning: {
-    //     borderColor: "black",
-    //     borderRadius: 5,
-    //     borderWidth: 1,
-    //     padding: 5
-    // },
-
     listItems: {
         margin: 5,
         padding: 0,
@@ -181,17 +175,16 @@ const styles = StyleSheet.create({
         width: '90%',
         overflow: 'scroll',
         height: 'auto',
-      },
-      listItemText: {
-        //padding: 10,
+    },
+    listItemText: {
         borderRadius: 5,
         color: 'black',
         fontSize: 18,
         fontWeight: 'bold',
         marginTop: 0,
         marginBottom: 0,
-      },
-      listItemBar: {
+    },
+    listItemBar: {
         padding: 0,
         borderRadius: 5,
         color: 'black',
@@ -200,9 +193,8 @@ const styles = StyleSheet.create({
         marginTop: 0,
         marginBottom: 0,
         borderWidth: 1,
-      },
-
-      startActivityBtn: {
+    },
+    startActivityBtn: {
         padding: 15,
         borderRadius: 5,
         color: 'black',
@@ -212,8 +204,8 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         backgroundColor: 'lightgreen',
         borderWidth: 1,
-      },
-      debugContainer: {
+    },
+    debugContainer: {
         padding: 10,
         borderRadius: 5,
         color: 'black',
@@ -223,8 +215,8 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         backgroundColor: 'orange',
         borderWidth: 1,
-      },
-      stopActivityBtn: {
+    },
+    stopActivityBtn: {
         padding: 15,
         borderRadius: 5,
         color: 'black',
@@ -233,5 +225,5 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 0,
         backgroundColor: 'red',
-      },
+    },
 })
