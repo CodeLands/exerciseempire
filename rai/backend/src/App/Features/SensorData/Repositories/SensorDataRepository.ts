@@ -33,41 +33,49 @@ export class SensorDataRepository {
     value: number,
     timestamp: number,
   ): Promise<RepositoryResult<z.infer<typeof SensorDataSchema>>> {
-        const result = await this.dbGateway.query(
-        `INSERT INTO ExecutedActivitySensorData (value, timestamp, sensor_id, executed_activity_id) VALUES (${value}, NOW(), ${sensor_id}, ${executed_activity_id}) RETURNING *`,
-        );
+    console.log(`Inserting sensor data: ${value}, ${timestamp}, ${sensor_id}, ${executed_activity_id}`);
+    const result = await this.dbGateway.query(
+      `INSERT INTO ExecutedActivitySensorData (value, timestamp, sensor_id, executed_activity_id) VALUES (${value}, NOW(), ${sensor_id}, ${executed_activity_id}) RETURNING *`,
+    );
 
-        if (!result.dbSuccess)
-            return {
-                status: RepositoryResultStatus.dbError,
-                errors: ["Database error!"],
-            };
-
-        if (result.data.length === 0)
-            return {
-                status: RepositoryResultStatus.failed,
-                messages: ["SensorData not created!"],
-            };
-
-        const newSensorData = result.data[0];
-        const validationResult = SensorDataSchema.safeParse(newSensorData);
-
-        if (!validationResult.success)
-            return {
-              status: RepositoryResultStatus.zodError,
-              errors: [
-                "Invalid data from database!",
-                ...validationResult.error.errors.map((e) => e.message),
-              ],
-            };
-
-        return {
-            status: RepositoryResultStatus.success,
-            data: validationResult.data,
-        }
+    if (!result.dbSuccess) {
+      console.error("Database error during sensor data insertion:", result);
+      return {
+        status: RepositoryResultStatus.dbError,
+        errors: ["Database error!"],
+      };
     }
 
+    if (result.data.length === 0) {
+      return {
+        status: RepositoryResultStatus.failed,
+        messages: ["SensorData not created!"],
+      };
+    }
+
+    const newSensorData = result.data[0];
+    const validationResult = SensorDataSchema.safeParse(newSensorData);
+
+    if (!validationResult.success) {
+      console.error("Invalid data from database:", validationResult.error);
+      return {
+        status: RepositoryResultStatus.zodError,
+        errors: [
+          "Invalid data from database!",
+          ...validationResult.error.errors.map((e) => e.message),
+        ],
+      };
+    }
+
+    console.log("Sensor data inserted successfully:", validationResult.data);
+    return {
+      status: RepositoryResultStatus.success,
+      data: validationResult.data,
+    };
+  }
+
   public async getExecutedActivityBaseStats(executed_activity_id: number): Promise<RepositoryResult<z.infer<typeof ActivityWithStatsSchema>[]>> {
+    console.log(`Fetching base stats for executed activity ID: ${executed_activity_id}`);
     const result = await this.dbGateway.query(
       `SELECT Stats.id, Stats.stat, ActivityBaseStats.base_stat_value
       FROM ExecutedActivities
@@ -77,22 +85,26 @@ export class SensorDataRepository {
       WHERE ExecutedActivities.id = ${executed_activity_id}`
     );
 
-    if (!result.dbSuccess)
+    if (!result.dbSuccess) {
+      console.error("Database error during fetching base stats:", result);
       return {
         status: RepositoryResultStatus.dbError,
         errors: ["Database error!"],
       };
+    }
 
-    if (result.data.length === 0)
+    if (result.data.length === 0) {
       return {
         status: RepositoryResultStatus.failed,
         messages: ["ActivityBaseStats not found!"],
       };
+    }
 
     const newActivityStats = result.data;
     const validationResult = z.array(ActivityWithStatsSchema).safeParse(newActivityStats);
 
-    if (!validationResult.success)
+    if (!validationResult.success) {
+      console.error("Invalid data from database:", validationResult.error);
       return {
         status: RepositoryResultStatus.zodError,
         errors: [
@@ -100,7 +112,9 @@ export class SensorDataRepository {
           ...validationResult.error.errors.map((e) => e.message),
         ],
       };
+    }
 
+    console.log("Base stats fetched successfully:", validationResult.data);
     return {
       status: RepositoryResultStatus.success,
       data: validationResult.data,
@@ -108,16 +122,19 @@ export class SensorDataRepository {
   }
 
   public async incrementRealTimeStats(executed_activity_id: number, stat_id: number, increment_value: number): Promise<RepositoryResult<z.infer<typeof RealTimeStatsSchema>>> {
+    console.log(`Incrementing real time stats for executed activity ID: ${executed_activity_id}, stat ID: ${stat_id} by ${increment_value}`);
     // select RealTimeStats to get current_value
     const currentStats = await this.dbGateway.query(
       `SELECT * FROM RealTimeStats WHERE executed_activity_id = ${executed_activity_id} AND stat_id = ${stat_id}`
     );
 
-    if (!currentStats.dbSuccess)
+    if (!currentStats.dbSuccess) {
+      console.error("Database error during fetching real time stats:", currentStats);
       return {
         status: RepositoryResultStatus.dbError,
         errors: ["Database error!"],
       };
+    }
 
     if (currentStats.data.length === 0) {
       return {
@@ -134,22 +151,26 @@ export class SensorDataRepository {
       `UPDATE RealTimeStats SET current_value = ${currentStatValue + increment_value}, last_updated = NOW() WHERE executed_activity_id = ${executed_activity_id} AND stat_id = ${stat_id} RETURNING *`
     );
 
-    if (!result.dbSuccess)
+    if (!result.dbSuccess) {
+      console.error("Database error during updating real time stats:", result);
       return {
         status: RepositoryResultStatus.dbError,
         errors: ["Database error!"],
       };
+    }
 
-    if (result.data.length === 0)
+    if (result.data.length === 0) {
       return {
         status: RepositoryResultStatus.failed,
         messages: ["ActivityStats not created!"],
       };
+    }
 
     const newActivityStats = result.data[0];
     const validationResult = RealTimeStatsSchema.safeParse(newActivityStats);
 
-    if (!validationResult.success)
+    if (!validationResult.success) {
+      console.error("Invalid data from database:", validationResult.error);
       return {
         status: RepositoryResultStatus.zodError,
         errors: [
@@ -157,12 +178,12 @@ export class SensorDataRepository {
           ...validationResult.error.errors.map((e) => e.message),
         ],
       };
+    }
 
-      // 
+    console.log("Real time stats incremented successfully:", validationResult.data);
     return {
       status: RepositoryResultStatus.success,
       data: validationResult.data,
     };
   }
-
 }

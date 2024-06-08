@@ -1,13 +1,86 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
-import { Link, Stack, useLocalSearchParams } from 'expo-router'
-import { StatColors, StatWeakColors, activities } from '../(activities)/activities'
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import { StatColors, StatWeakColors, activities } from '../(activities)/activities';
+import { SensorDataService } from '../../../sensors/sensorData'; // Import your sensor data service
+import Constants from 'expo-constants';
 
 export default function LastActivityScreen() {
-    let [isStarted, setIsStarted] = useState(false)
-    const { id } = useLocalSearchParams()
+    const [isStarted, setIsStarted] = useState(false);
+    const [sensorData, setSensorData] = useState<any[]>([]);
+    const { id } = useLocalSearchParams();
 
-    const selectedActivity = activities.find(activity => activity.id === Number(id))
+    const selectedActivity = activities.find(activity => activity.id === Number(id));
+
+    const getSensorId = (sensorType: any) => {
+        switch (sensorType) {
+            case 'accelerometer':
+                return 1;
+            case 'gyroscope':
+                return 2;
+            case 'location':
+                return 3; // GPS
+            case 'pedometer':
+                return 4;
+            default:
+                return -1; // Unknown sensor
+        }
+    };
+
+    useEffect(() => {
+        const api = process.env.EXPO_PUBLIC_API_URL; // Use the API URL from the environment variables
+        if (!api) {
+            console.error('No API URL found');
+            return;
+        }
+
+        if (isStarted) {
+            try {
+                SensorDataService.startSensors((data) => {
+                    console.log("Sensor data received: ", data);
+                    setSensorData(prevData => [...prevData, data]);
+
+                    const sensorId = getSensorId(data.type);
+                    if (sensorId === -1) {
+                        console.error("Unknown sensor type:", data.type);
+                        return;
+                    }
+
+                    const route = `${api}/sensor-data`;
+                    console.log('Sending to:', route);
+
+                    fetch(route, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            executed_activity_id: id, // Adjust as needed
+                            sensor_id: sensorId,
+                            value: data.data,
+                            timestamp: Date.now(),
+                        })
+                    }).catch(error => console.error("Error sending sensor data: ", error));
+                });
+            } catch (error) {
+                console.error("Error starting sensors: ", error);
+            }
+        } else {
+            try {
+                SensorDataService.stopSensors();
+            } catch (error) {
+                console.error("Error stopping sensors: ", error);
+            }
+        }
+
+        return () => {
+            try {
+                SensorDataService.stopSensors();
+            } catch (error) {
+                console.error("Error stopping sensors on unmount: ", error);
+            }
+        };
+    }, [isStarted]);
 
     return (
         <>
@@ -74,18 +147,17 @@ export default function LastActivityScreen() {
                     />
                     {isStarted && (
                         <View style={styles.debugContainer}>
-                            <Text>
-                                Sensor Data DEBUG:
-                            </Text>
-                            <Text>
-                                Accelerometer:
-                            </Text>
-                            <Text>
-                                Gyroscope:
-                            </Text>
-                            <Text>
-                                ...:
-                            </Text>
+                            <Text>Sensor Data DEBUG:</Text>
+                            <FlatList
+                                data={sensorData}
+                                renderItem={({ item }) => (
+                                    <View>
+                                        {/* <Text>Type: {item.type}</Text>
+                                        <Text>Data: {JSON.stringify(item.data)}</Text> */}
+                                    </View>
+                                )}
+                                keyExtractor={(item, index) => index.toString()}
+                            />
                         </View>
                     )}
 
@@ -105,7 +177,7 @@ export default function LastActivityScreen() {
                         headerTitle: `No Activity Selected...`,
                         headerRight: () => <Link href="/activities" asChild>
                             <Pressable style={styles.notSelectActivityHeaderButton}>
-                                <Text >SELECT</Text>
+                                <Text>SELECT</Text>
                             </Pressable>
                         </Link>,
                         headerStyle: {
@@ -121,7 +193,7 @@ export default function LastActivityScreen() {
                 </View>
             )}
         </>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -226,4 +298,4 @@ const styles = StyleSheet.create({
         marginBottom: 0,
         backgroundColor: 'red',
     },
-})
+});
