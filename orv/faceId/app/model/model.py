@@ -4,148 +4,127 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, Flatten, Dense, Activation, Dropout, BatchNormalization
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
-import matplotlib.pyplot as plt
-import time
 import os
 import json
 
-# Suppress TensorFlow logs and warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+def train_model(userId):
+    # Suppress TensorFlow logs and warnings
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# Set up TensorFlow to use GPU with memory growth
-gpus = tf.config.experimental.list_physical_devices('GPU')
-if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
-    except RuntimeError as e:
-        print(e)
+    # Set up TensorFlow to use GPU with memory growth
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+        except RuntimeError as e:
+            print(e)
 
-# Data preprocessing without augmentation
-train_datagen = ImageDataGenerator(rescale=1.0/255.0)
-validation_datagen = ImageDataGenerator(rescale=1.0/255.0)
+    # Data preprocessing without augmentation
+    train_datagen = ImageDataGenerator(rescale=1.0/255.0)
+    validation_datagen = ImageDataGenerator(rescale=1.0/255.0)
 
-batch_size = 16
+    batch_size = 16
 
-train_generator = train_datagen.flow_from_directory(
-    'dividedImages/train',
-    target_size=(224, 224),
-    batch_size=batch_size,
-    class_mode='categorical',
-    color_mode='rgb',
-)
-
-validation_generator = validation_datagen.flow_from_directory(
-    'dividedImages/validation',
-    target_size=(224, 224),
-    batch_size=batch_size,
-    class_mode='categorical',
-    color_mode='rgb',
-)
-
-# Convert generators to tf.data.Dataset and repeat indefinitely
-train_dataset = tf.data.Dataset.from_generator(
-    lambda: train_generator,
-    output_signature=(
-        tf.TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, train_generator.num_classes), dtype=tf.float32)
+    train_generator = train_datagen.flow_from_directory(
+        'dividedImages/train',
+        target_size=(224, 224),
+        batch_size=batch_size,
+        class_mode='categorical',
+        color_mode='rgb',
     )
-).repeat()
 
-validation_dataset = tf.data.Dataset.from_generator(
-    lambda: validation_generator,
-    output_signature=(
-        tf.TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32),
-        tf.TensorSpec(shape=(None, validation_generator.num_classes), dtype=tf.float32)
+    validation_generator = validation_datagen.flow_from_directory(
+        'dividedImages/validation',
+        target_size=(224, 224),
+        batch_size=batch_size,
+        class_mode='categorical',
+        color_mode='rgb',
     )
-).repeat()
 
-# Save class indices for future use
-with open('class_indices.json', 'w') as f:
-    json.dump(train_generator.class_indices, f)
+    # Convert generators to tf.data.Dataset and repeat indefinitely
+    train_dataset = tf.data.Dataset.from_generator(
+        lambda: train_generator,
+        output_signature=(
+            tf.TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32),
+            tf.TensorSpec(shape=(None, train_generator.num_classes), dtype=tf.float32)
+        )
+    ).repeat()
 
-# Define the model
-model = Sequential()
+    validation_dataset = tf.data.Dataset.from_generator(
+        lambda: validation_generator,
+        output_signature=(
+            tf.TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32),
+            tf.TensorSpec(shape=(None, validation_generator.num_classes), dtype=tf.float32)
+        )
+    ).repeat()
 
-# Convolutional part
-N = 32
-for _ in range(3):  # Simplify the model
-    model.add(Conv2D(N, (3, 3), padding='same', kernel_regularizer=l2(0.01), input_shape=(224, 224, 3) if _ == 0 else None))
-    model.add(BatchNormalization())  # Add BatchNormalization
-    model.add(Activation('relu'))
-    model.add(Conv2D(N, (3, 3), strides=2, padding='same', kernel_regularizer=l2(0.01)))
-    model.add(BatchNormalization())  # Add BatchNormalization
-    model.add(Activation('relu'))
-    model.add(Dropout(0.3))  # Increase dropout rate
-    N *= 2
+    # Save class indices for future use
+    with open('class_indices.json', 'w') as f:
+        json.dump(train_generator.class_indices, f)
 
-# Flatten and Dense part
-model.add(Flatten())
-model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.01)))  # Reduce the number of neurons
-model.add(Dropout(0.5))  # Increase dropout rate
-model.add(Dense(2, activation='softmax'))  # Update output layer to 2 neurons
+    # Define the model
+    model = Sequential()
 
-# Compile the model
-learning_rate = 0.0001  # Reduce learning rate for better generalization
+    # Convolutional part
+    N = 32
+    for _ in range(3):  # Simplify the model
+        model.add(Conv2D(N, (3, 3), padding='same', kernel_regularizer=l2(0.01), input_shape=(224, 224, 3) if _ == 0 else None))
+        model.add(BatchNormalization())  # Add BatchNormalization
+        model.add(Activation('relu'))
+        model.add(Conv2D(N, (3, 3), strides=2, padding='same', kernel_regularizer=l2(0.01)))
+        model.add(BatchNormalization())  # Add BatchNormalization
+        model.add(Activation('relu'))
+        model.add(Dropout(0.3))  # Increase dropout rate
+        N *= 2
 
-# Compile the model with Adam optimizer and custom learning rate
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
+    # Flatten and Dense part
+    model.add(Flatten())
+    model.add(Dense(128, activation='relu', kernel_regularizer=l2(0.01)))  # Reduce the number of neurons
+    model.add(Dropout(0.5))  # Increase dropout rate
+    model.add(Dense(2, activation='softmax'))  # Update output layer to 2 neurons
 
-# Print model summary
-model.summary()
+    # Compile the model
+    learning_rate = 0.0001  # Reduce learning rate for better generalization
 
-# Define EarlyStopping callback
-early_stopping = tf.keras.callbacks.EarlyStopping(
-    monitor='val_accuracy',
-    min_delta=0.025,  # Reduce min_delta for early stopping
-    patience=4,
-    verbose=1,
-    restore_best_weights=True
-)
+    # Compile the model with Adam optimizer and custom learning rate
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
-# Adjust steps per epoch
-steps_per_epoch = train_generator.samples // train_generator.batch_size
-validation_steps = validation_generator.samples // validation_generator.batch_size
+    # Print model summary
+    model.summary()
 
-start_time = time.time()
+    # Define EarlyStopping callback
+    early_stopping = tf.keras.callbacks.EarlyStopping(
+        monitor='val_accuracy',
+        min_delta=0.025,  # Reduce min_delta for early stopping
+        patience=4,
+        verbose=1,
+        restore_best_weights=True
+    )
 
-# Train the model
-history = model.fit(
-    train_dataset,
-    steps_per_epoch=steps_per_epoch,
-    validation_data=validation_dataset,
-    validation_steps=validation_steps,
-    epochs=15,
-    callbacks=[early_stopping]
-)
+    # Adjust steps per epoch
+    steps_per_epoch = train_generator.samples // train_generator.batch_size
+    validation_steps = validation_generator.samples // validation_generator.batch_size
 
-# Calculate training time
-end_time = time.time()
-training_time = end_time - start_time
-print(f"Training time: {training_time:.2f} seconds")
 
-model.save('face_validation_model.keras')
+    # Train the model
+    history = model.fit(
+        train_dataset,
+        steps_per_epoch=steps_per_epoch,
+        validation_data=validation_dataset,
+        validation_steps=validation_steps,
+        epochs=15,  # Allow for more epochs
+        callbacks=[early_stopping]
+    )
 
-# Plot training & validation accuracy values
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.plot(history.history['accuracy'])
-plt.plot(history.history['val_accuracy'])
-plt.title('Model accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Validation'], loc='upper left')
+    model.save(f'models/{userId}.keras')
 
-# Plot training & validation loss values
-plt.subplot(1, 2, 2)
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('Model loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(['Train', 'Validation'], loc='upper left')
-
-plt.show()
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) != 2:
+        print("Usage: python model.py <userId>")
+    else:
+        train_model(sys.argv[1])

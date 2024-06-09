@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify
 import cv2
 import numpy as np
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))) # Add the model directory to sys.path
+from model import train_model # Import the train_model function
 
 app = Flask(__name__)
 
