@@ -4,8 +4,14 @@ import numpy as np
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))) # Add the model directory to sys.path
-from model import train_model # Import the train_model function
+# Import the model files from ../model
+model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))
+if model_path not in sys.path:
+    sys.path.append(model_path)
+
+# Import the train_model function
+from train import train_model
+from verification import main as verification_main
 
 app = Flask(__name__)
 

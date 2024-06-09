@@ -125,6 +125,6 @@ def train_model(userId):
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 2:
-        print("Usage: python model.py <userId>")
+        print("Usage: python train.py <userId>")
     else:
         train_model(sys.argv[1])
