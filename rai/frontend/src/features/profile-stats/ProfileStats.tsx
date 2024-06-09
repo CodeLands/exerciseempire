@@ -111,13 +111,16 @@ function mapServerData(serverData: ServerData[]): Attribute[] {
     })
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
+
 export default function ProfileStats() {
     const [ userStats, setUserStats ] = useState<UserStats | null>(null)
     //const [ serverData, setServerData ] = useState<ServerData[]>([])
 
     useEffect(() => {
         async function fetchUserStats() {
-            const response = await axios.get('/api/aggregate-stats?user_id=1')
+            const response = await axios.get(apiBaseUrl + '/aggregate-stats?user_id=1')
             console.log("Response: ", response.data.data)
             //setServerData(response.data.data)
 

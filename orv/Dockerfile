@@ -9,7 +9,7 @@ COPY faceId/requirements.txt ./
 RUN pip install -r requirements.txt
 
 # Bundle app source
-COPY faceId /app
+COPY faceId ./
 
 EXPOSE 4000
-CMD [ "python", "integration/app/server.py" ]
+CMD [ "python", "app/integration/server.py" ]

@@ -36,6 +36,9 @@ interface ChartData {
   datasets: Dataset[];
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
+
 const UserStatsGraph: React.FC = () => {
   const { isDarkMode } = useDarkMode();
   const [selectedOption, setSelectedOption] = useState('all');
@@ -70,7 +73,7 @@ const UserStatsGraph: React.FC = () => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('/api/list-activity-stats', {
+        const response = await axios.get(apiBaseUrl + '/list-activity-stats', {
           params: { user_id: 1 }, // Replace with the actual user ID
         });
 

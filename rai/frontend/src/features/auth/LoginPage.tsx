@@ -18,6 +18,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setToken, setUser } = useAuth();
 
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -43,7 +45,7 @@ export default function LoginPage() {
 
     console.log('Logging in with:', email, password);
     try {
-      const response = await fetch('/api/login', {
+      const response = await fetch(apiBaseUrl + '/login', {
         method: 'POST',
         credentials: 'include',
         headers: {

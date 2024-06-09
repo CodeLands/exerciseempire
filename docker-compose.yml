@@ -6,7 +6,7 @@ services:
     build:
       context: ./orv
       dockerfile: Dockerfile
-    container_name: flask_api_service
+    container_name: flask_service
     ports:
       - "4000:4000"
 
@@ -33,7 +33,7 @@ services:
       - DATABASE_URL=postgres://myuser:mypassword@postgres_db:5432/mydatabase
       - PORT=3000
       - JWT_SECRET=secret
-      - FLASK_SERVER_URL=http://flask_api:5000
+      - FLASK_SERVER_URL=http://flask_service:4000
     ports:
       - "3000:3000"
     depends_on:

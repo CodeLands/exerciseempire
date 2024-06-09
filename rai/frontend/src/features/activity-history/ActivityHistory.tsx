@@ -22,6 +22,8 @@ interface Activity {
   attributes: Attribute[];
 }
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
 const ActivityHistory: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ const ActivityHistory: React.FC = () => {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get('/api/list-activity-stats', {
+        const response = await axios.get(apiBaseUrl + '/api/list-activity-stats', {
           params: { user_id: 1 } // Replace with the actual user ID
         });
 

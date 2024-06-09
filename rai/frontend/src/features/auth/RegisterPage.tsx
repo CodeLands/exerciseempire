@@ -13,6 +13,8 @@ const registerSchema = z.object({
   path: ["repeat_password"], // path of error
 });
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,7 +51,7 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch(apiBaseUrl + '/register', {
         method: 'POST',
         credentials: 'include',
         headers: {

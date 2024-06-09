@@ -35,6 +35,8 @@ const defaultCategories: Category[] = [];
   return classes.filter(Boolean).join(' ');
 } */
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string;
+
 export default function ActivityList() {
   const [categories, setCategories] = useState<Category[]>(defaultCategories);
   const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
@@ -42,7 +44,7 @@ export default function ActivityList() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.get('/api/activities'); // Adjust the URL to match your backend endpoint
+        const response = await axios.get(apiBaseUrl + '/api/activities'); // Adjust the URL to match your backend endpoint
         if (response.data.success) {
           const data = response.data.data;
           console.log('Fetched Data:', data); // Log the fetched data
