@@ -13,8 +13,6 @@ if model_path not in sys.path:
 from train import train_model
 from verification import main as verification_main
 
-from genImg import process_image
-
 app = Flask(__name__)
 
 def extract_frames(video_data):
