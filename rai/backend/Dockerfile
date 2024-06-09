@@ -22,14 +22,14 @@ FROM node:20.12.2
 WORKDIR /app/dist
 
 # Copy built artifacts from the builder stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy other necessary files such as environment configs if present
-# COPY --from=builder /app/config ./config
+COPY --from=builder /app/tsconfig.json ./
 
 # Expose the port the app runs on
 EXPOSE 3000
 
 # Command to run your app
-CMD ["node", "-r", "tsconfig-paths/register", "dist/App/Server.js"]
+CMD ["node", "-r", "tsconfig-paths/register", "App/Server.js"]
