@@ -47,17 +47,18 @@ def extract_frames(video_data_base64):
     else:
         print(f"Extracted {frame_count} frames from the video.")
 
-    return frames
+    return frames, raw_video_path
 
-def process_frames_for_verification(frames, userId):
+def process_frames_for_verification(frames, userId, video_path):
     print("Processing frame for verification...")
     if not frames or frames[0] is None or not frames[0].size:
         print("Error: The frame is empty or not valid.")
         return False
     verification_result = verification_main(userId, frames[0])
+    os.remove(video_path)  # Delete the video file after processing
     return verification_result
 
-def process_frames_for_registration(frames, userId):
+def process_frames_for_registration(frames, userId, video_path):
     st = 0
     for frame in frames:
         print(f"Processing frame for registration. Frame shape: {frame.shape}")
@@ -66,6 +67,7 @@ def process_frames_for_registration(frames, userId):
 
     print("Starting model training...")
     train_model(userId)
+    os.remove(video_path)  # Delete the video file after processing
     return 'true'
 
 @app.route('/login-face', methods=['POST'])
@@ -87,8 +89,8 @@ def verify_face():
                 'message': 'No user id received',
                 'wasRecognized': False
                 }), 400
-        frames = extract_frames(video_file_base64)
-        verification_result = process_frames_for_verification(frames, userId)
+        frames, video_path = extract_frames(video_file_base64)
+        verification_result = process_frames_for_verification(frames, userId, video_path)
         return jsonify({
             'success': True,
             'message': 'Video received and face recognition ran successfully',
@@ -121,8 +123,8 @@ def register_face():
                 'message': 'No user id received',
                 'wasSetup': False
                 }), 400
-        frames = extract_frames(video_file_base64)
-        training_result = process_frames_for_registration(frames, userId)
+        frames, video_path = extract_frames(video_file_base64)
+        training_result = process_frames_for_registration(frames, userId, video_path)
         return jsonify({
             'success': True,
             'message': 'Video received and face registration ran successfully',

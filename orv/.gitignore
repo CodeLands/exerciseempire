@@ -6,3 +6,4 @@ faceId/app/dividedImages
 faceId/app/images/me
 faceId/app/integration/__pycache__
 faceId/app/model/__pycache__
+faceId/app/model/models

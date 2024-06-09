@@ -117,7 +117,7 @@ def train_model(userId):
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='val_accuracy',
         min_delta=0.025,  # Reduce min_delta for early stopping
-        patience=3,
+        patience=2,
         verbose=1,
         restore_best_weights=True
     )
@@ -133,9 +133,14 @@ def train_model(userId):
         steps_per_epoch=steps_per_epoch,
         validation_data=validation_dataset,
         validation_steps=validation_steps,
-        epochs=15,  # Allow for more epochs
+        epochs=5,  # Allow for more epochs
         callbacks=[early_stopping]
     )
+
+    models_dir = '../model/models'
+    if not os.path.exists(models_dir):
+        print(f"Creating directory: {models_dir}")
+        os.makedirs(models_dir)
 
     print(f"Saving the model as models/{userId}.keras...")
     model.save(f'../model/models/{userId}.keras')

@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing import image
 import cv2
 
 def load_model(userId):
-    model_path = f'models/{userId}.keras'
+    model_path = f'../model/models/{userId}.keras'
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model for userId {userId} not found at {model_path}")
     return tf.keras.models.load_model(model_path)
