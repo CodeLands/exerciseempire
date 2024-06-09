@@ -78,11 +78,11 @@ type ServerData = {
     total_value: number
 }
 
-const userStatsConst2 = {
+/* const userStatsConst2 = {
     stat_id: 1,
     stat: "Endurance",
     total_value: 655
-}
+} */
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
@@ -113,13 +113,13 @@ function mapServerData(serverData: ServerData[]): Attribute[] {
 
 export default function ProfileStats() {
     const [ userStats, setUserStats ] = useState<UserStats | null>(null)
-    const [ serverData, setServerData ] = useState<ServerData[]>([])
+    //const [ serverData, setServerData ] = useState<ServerData[]>([])
 
     useEffect(() => {
         async function fetchUserStats() {
             const response = await axios.get('/api/aggregate-stats?user_id=1')
             console.log("Response: ", response.data.data)
-            setServerData(response.data.data)
+            //setServerData(response.data.data)
 
             console.log("Mapped: ", mapServerData(response.data.data))
 

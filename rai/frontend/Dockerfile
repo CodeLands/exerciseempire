@@ -1,12 +1,29 @@
-FROM node:20
+# Base image
+FROM node:20.12.2 as builder
 
+# Set the working directory in the Docker container
 WORKDIR /app
 
-COPY package.json ./
+# Copy package.json and package-lock.json (or yarn.lock)
+COPY ./package*.json ./
+
+# Install dependencies
 RUN npm install
 
-COPY . .
+# Copy the rest of your frontend code into the Docker container
+COPY ./ .
 
-EXPOSE 5173
+# Build the frontend
+RUN npm run build
 
-CMD ["npm", "run", "dev"]
+# Stage 2: Serve with Nginx
+FROM nginx:latest
+
+# Copy built assets from builder stage to Nginx server
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose port 80 to the outside once the container has launched
+EXPOSE 80
+
+# Start Nginx and keep it running in the foreground
+CMD ["nginx", "-g", "daemon off;"]

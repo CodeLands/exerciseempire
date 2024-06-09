@@ -4,11 +4,11 @@ import { AttributeColorMap, Attributes } from '../../types/AtributeTypes';
 import { AttributeColorsToTextAndBgMap } from '../profile-stats/ProfileStats';
 import axios from 'axios';
 
-enum Statuses {
+/* enum Statuses {
   Paid = 'text-green-700 bg-green-50 ring-green-600/20',
   Withdraw = 'text-gray-600 bg-gray-50 ring-gray-500/10',
   Overdue = 'text-red-700 bg-red-50 ring-red-600/10',
-}
+} */
 
 type BaseStat = {
   id: number;
@@ -31,9 +31,9 @@ type Category = {
 
 const defaultCategories: Category[] = [];
 
-function classNames(...classes: string[]) {
+/* function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
-}
+} */
 
 export default function ActivityList() {
   const [categories, setCategories] = useState<Category[]>(defaultCategories);

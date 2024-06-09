@@ -101,9 +101,9 @@ const footerNavigation = {
   ],
 }
 
-function classNames(...classes: (string | boolean | undefined)[]) {
+/* function classNames(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ')
-}
+} */
 
 export default function GuestLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)

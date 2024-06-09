@@ -1,5 +1,15 @@
 version: '3.8'
+
 services:
+
+  flask_api:
+    build:
+      context: ./orv/faceId
+      dockerfile: Dockerfile
+    container_name: flask_api_service
+    ports:
+      - "4000:4000"
+
   postgres:
     image: postgres:13
     container_name: postgres_db
@@ -28,48 +38,15 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+      - flask_api
 
   frontend:
-    build:
-      context: ./rai/frontend
-      dockerfile: Dockerfile
-    container_name: frontend_service
+    build: ./rai/frontend
+    container_name: nginx_frontend
     ports:
-      - "5173:5173"
+      - "80:80"
     depends_on:
       - backend
-
-#  flask_api:
-#    build:
-#      context: ./orv/faceId
-#      dockerfile: Dockerfile
-#    container_name: flask_api_service
-#    ports:
-#      - "5000:5000"
-#    depends_on:
-#      - backend
-#
-#  mobile_app:
-#    build:
-#      context: ./npo/mobileApp
-#      dockerfile: Dockerfile
-#    container_name: mobile_app_service
-#    env_file:
-#      - ./npo/mobileApp/.env
-#    ports:
-#      - "8081:8081"
-#    depends_on:
-#      - backend
-
-#  flask_api:
-#    build:
-#      context: ./orv/faceId
-#      dockerfile: Dockerfile
-#    container_name: flask_api_service
-#    ports:
-#      - "5000:5000"
-#    depends_on:
-#      - backend
 
 volumes:
   postgres_data:

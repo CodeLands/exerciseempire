@@ -5,6 +5,7 @@
   "main": "src/App/Server.ts",
   "scripts": {
     "start": "node -r dotenv/config src/App/Server.js",
+    "build": "tsc",
     "dev": "nodemon",
     "test": "jest --watchAll --verbose"
   },

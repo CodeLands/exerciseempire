@@ -1,4 +1,4 @@
-import { CloudArrowUpIcon, LockClosedIcon, ServerIcon, HeartIcon, ChartBarIcon, UsersIcon, FlagIcon } from '@heroicons/react/24/outline';
+import { CloudArrowUpIcon, LockClosedIcon, HeartIcon, ChartBarIcon, UsersIcon, FlagIcon } from '@heroicons/react/24/outline';
 
 const primaryFeatures = [
   {
