@@ -2,3 +2,7 @@ venv/
 .env
 .idea
 faceId/.idea
+faceId/app/dividedImages
+faceId/app/images/me
+faceId/app/integration/__pycache__
+faceId/app/model/__pycache__

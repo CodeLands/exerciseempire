@@ -6,14 +6,19 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 import os
 import json
+import shutil
 from divide import divide_images
 
 def train_model(userId):
+    print("Starting the training process...")
+    print("Dividing images into training and validation sets...")
+    divide_images() # Divide 80/20 training/validation
+    print("Image division completed.")
 
-    divide_images() #divide 80/20 training/validation
     # Suppress TensorFlow logs and warnings
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+    print("Setting up TensorFlow to use GPU with memory growth...")
     # Set up TensorFlow to use GPU with memory growth
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
@@ -21,32 +26,36 @@ def train_model(userId):
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
             logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+            print(f"{len(gpus)} Physical GPUs, {len(logical_gpus)} Logical GPUs")
         except RuntimeError as e:
             print(e)
 
+    print("Data preprocessing without augmentation...")
     # Data preprocessing without augmentation
     train_datagen = ImageDataGenerator(rescale=1.0/255.0)
     validation_datagen = ImageDataGenerator(rescale=1.0/255.0)
 
     batch_size = 16
 
+    print("Creating training data generator...")
     train_generator = train_datagen.flow_from_directory(
-        'dividedImages/train',
+        '../model/dividedImages/train',
         target_size=(224, 224),
         batch_size=batch_size,
         class_mode='categorical',
         color_mode='rgb',
     )
 
+    print("Creating validation data generator...")
     validation_generator = validation_datagen.flow_from_directory(
-        'dividedImages/validation',
+        '../model/dividedImages/validation',
         target_size=(224, 224),
         batch_size=batch_size,
         class_mode='categorical',
         color_mode='rgb',
     )
 
+    print("Converting generators to tf.data.Dataset and repeating indefinitely...")
     # Convert generators to tf.data.Dataset and repeat indefinitely
     train_dataset = tf.data.Dataset.from_generator(
         lambda: train_generator,
@@ -64,10 +73,12 @@ def train_model(userId):
         )
     ).repeat()
 
+    print("Saving class indices for future use...")
     # Save class indices for future use
     with open('class_indices.json', 'w') as f:
         json.dump(train_generator.class_indices, f)
 
+    print("Defining the model...")
     # Define the model
     model = Sequential()
 
@@ -89,6 +100,7 @@ def train_model(userId):
     model.add(Dropout(0.5))  # Increase dropout rate
     model.add(Dense(2, activation='softmax'))  # Update output layer to 2 neurons
 
+    print("Compiling the model...")
     # Compile the model
     learning_rate = 0.0001  # Reduce learning rate for better generalization
 
@@ -96,9 +108,11 @@ def train_model(userId):
     optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
 
+    print("Model summary:")
     # Print model summary
     model.summary()
 
+    print("Defining EarlyStopping callback...")
     # Define EarlyStopping callback
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='val_accuracy',
@@ -112,7 +126,7 @@ def train_model(userId):
     steps_per_epoch = train_generator.samples // train_generator.batch_size
     validation_steps = validation_generator.samples // validation_generator.batch_size
 
-
+    print("Starting model training...")
     # Train the model
     history = model.fit(
         train_dataset,
@@ -123,11 +137,21 @@ def train_model(userId):
         callbacks=[early_stopping]
     )
 
-    model.save(f'models/{userId}.keras')
+    print(f"Saving the model as models/{userId}.keras...")
+    model.save(f'../model/models/{userId}.keras')
+
+    print("Cleaning up dividedImages directory...")
+    shutil.rmtree('../model/dividedImages')
+
+    print("Cleaning up images/me directory...")
+    shutil.rmtree('../model/images/me')
+
+    print("Training process completed.")
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 2:
         print("Usage: python train.py <userId>")
     else:
+        print(f"Starting training process for userId: {sys.argv[1]}")
         train_model(sys.argv[1])

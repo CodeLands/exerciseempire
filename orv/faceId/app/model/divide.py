@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 
 def divide_images():
     # Define the directories
-    base_output_dir = "./dividedImages"
+    base_output_dir = "../model/dividedImages"
     train_dir_me = os.path.join(base_output_dir, "train", "me")
     train_dir_others = os.path.join(base_output_dir, "train", "others")
     val_dir_me = os.path.join(base_output_dir, "validation", "me")
@@ -20,8 +20,8 @@ def divide_images():
 
     # Input directories with images
     input_dirs = {
-        'me': './images/me',
-        'others': './images/others'
+        'me': '../model/images/me',
+        'others': '../model/images/others'
     }
 
     # Function to copy files to the respective directories
