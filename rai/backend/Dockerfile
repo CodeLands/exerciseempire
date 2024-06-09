@@ -19,7 +19,7 @@ RUN npm run build
 # Final image
 FROM node:20.12.2
 
-WORKDIR /app
+WORKDIR /app/dist
 
 # Copy built artifacts from the builder stage
 COPY --from=builder /app/dist ./dist
@@ -32,4 +32,4 @@ COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3000
 
 # Command to run your app
-CMD ["node", "-r", "dotenv/config", "dist/App/Server.js"]
+CMD ["node", "-r", "tsconfig-paths/register", "dist/App/Server.js"]
