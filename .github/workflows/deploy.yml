@@ -17,7 +17,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            cd /exerciseempire
+            ls
+            cd ~/exerciseempire
             git pull
             docker-compose down
             docker-compose up --build -d
