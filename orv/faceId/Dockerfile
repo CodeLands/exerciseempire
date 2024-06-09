@@ -1,4 +1,5 @@
-FROM python:3.8-slim
+# Uporabite sliko Python 3.10
+FROM python:3.10-slim
 
 WORKDIR /app
 

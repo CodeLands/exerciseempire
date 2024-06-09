@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import sys
 import os
-
+from genImg import process_image
 # Import the model files from ../model
 model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))
 if model_path not in sys.path:
@@ -12,6 +12,8 @@ if model_path not in sys.path:
 # Import the train_model function
 from train import train_model
 from verification import main as verification_main
+
+from genImg import process_image
 
 app = Flask(__name__)
 
@@ -27,8 +29,10 @@ def process_frames_for_verification(frames, userId):
     verification_result = verification_main(userId, frames[0])
     return 'true'
 
-def process_frames_for_registration(frames, userId):
-    train_model(userId)
+def process_frames_for_registration(frames):
+    for frame in frames:
+        process_image(frame, "../model/images")
+
     return 'true'
 
 @app.route('/login-face', methods=['POST'])
@@ -76,7 +80,7 @@ def register_face():
     return jsonify({
         'success': True,
         'message': 'Video received and face registration ran successfully',
-        'wasSetup': True#training_result
+        'wasSetup': True #training_result
         }), 200
 
 if __name__ == '__main__':
