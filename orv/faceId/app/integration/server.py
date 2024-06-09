@@ -23,9 +23,8 @@ def extract_frames(video_data):
     # This is a placeholder for the actual video processing logic
     return [video]  # Dummy list of frames
 
-def process_frames_for_verification(frames):
-    # This would involve face detection and possibly checking against a known dataset
-    # Placeholder for actual face verification logic
+def process_frames_for_verification(frames, userId):
+    verification_result = verification_main(userId, frames[0])
     return 'true'
 
 def process_frames_for_registration(frames, userId):
