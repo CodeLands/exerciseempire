@@ -28,9 +28,8 @@ def process_frames_for_verification(frames):
     # Placeholder for actual face verification logic
     return 'true'
 
-def process_frames_for_registration(frames):
-    # Here you would extract features and train a model
-    # Placeholder for model training
+def process_frames_for_registration(frames, userId):
+    train_model(userId)
     return 'true'
 
 @app.route('/login-face', methods=['POST'])
@@ -42,9 +41,15 @@ def verify_face():
             'message': 'No video received',
             'wasRecognized': False
             }), 400
-    
-    #frames = extract_frames(video_file)
-    #verification_result = process_frames_for_verification(frames)
+    userId = request.args.get('userId')
+    if not userId:
+        return jsonify({
+            'success': False,
+            'message': 'No user id received',
+            'wasRecognized': False
+            }), 400
+    frames = extract_frames(video_file)
+    verification_result = process_frames_for_verification(frames, userId)
     return jsonify({
         'success': True,
         'message': 'Video received and face recognition ran successfully',
@@ -60,9 +65,15 @@ def register_face():
             'message': 'No video received',
             'wasSetup': False
             }), 400
-
-    #frames = extract_frames(video_file)
-    #training_result = process_frames_for_registration(frames)
+    userId = request.args.get('userId')
+    if not userId:
+        return jsonify({
+            'success': False,
+            'message': 'No user id received',
+            'wasSetup': False
+            }), 400
+    frames = extract_frames(video_file)
+    training_result = process_frames_for_registration(frames, userId)
     return jsonify({
         'success': True,
         'message': 'Video received and face registration ran successfully',

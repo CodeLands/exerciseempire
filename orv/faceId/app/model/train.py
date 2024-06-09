@@ -6,8 +6,11 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 import os
 import json
+from divide import divide_images
 
 def train_model(userId):
+
+    divide_images() #divide 80/20 training/validation
     # Suppress TensorFlow logs and warnings
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -100,7 +103,7 @@ def train_model(userId):
     early_stopping = tf.keras.callbacks.EarlyStopping(
         monitor='val_accuracy',
         min_delta=0.025,  # Reduce min_delta for early stopping
-        patience=4,
+        patience=3,
         verbose=1,
         restore_best_weights=True
     )
