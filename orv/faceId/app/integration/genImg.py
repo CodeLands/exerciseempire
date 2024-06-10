@@ -4,7 +4,7 @@ import random
 import os
 
 def process_image(frame, output_dir="../model/images/me", st=0):
-    num_augmented_copies = 28  # Number of augmented copies per frame
+    num_augmented_copies = 30  # Number of augmented copies per frame
     resize_width = 224  # Set desired width to 224
     resize_height = 224  # Set desired height to 224
 

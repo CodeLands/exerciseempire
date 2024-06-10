@@ -36,7 +36,7 @@ def main(userId, img_array):
     # Print the result
     print(f'Predicted class: {predicted_class} with confidence {confidence:.2f}')
 
-    if predicted_class == 'me' and confidence > 0.6:
+    if predicted_class == 'me' and confidence > 0.5:
         return True
     else:
         return False
