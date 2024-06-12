@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ActivityHistory.module.css';
 
 enum Attributes {
@@ -32,8 +33,14 @@ const AttributeColors: Record<Attributes, string> = {
 }
 
 const ActivityItem: React.FC<Props> = ({ activity }) => {
+  const navigate = useNavigate();
+
+  const handleItemClick = () => {
+    navigate(`/activity-detail/${activity.id}`);
+  };
+
   return (
-    <div className="p-4 bg-white dark:bg-gray-700 rounded shadow-md">
+    <div className="p-4 bg-white dark:bg-gray-700 rounded shadow-md cursor-pointer" onClick={handleItemClick}>
       <div className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-100">{activity.description}</div>
       <div className="text-sm text-gray-500 dark:text-gray-400">{activity.date}</div>
       <div className="mt-4 space-y-4">

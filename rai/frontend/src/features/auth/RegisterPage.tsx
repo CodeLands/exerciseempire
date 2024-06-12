@@ -60,6 +60,8 @@ export default function RegisterPage() {
         body: JSON.stringify({ email, password, repeatPassword }),
       });
 
+      console.log('Response:', response); // Log the full response for debugging
+
       const responseJson = await response.json();
 
       if (responseJson.success) {

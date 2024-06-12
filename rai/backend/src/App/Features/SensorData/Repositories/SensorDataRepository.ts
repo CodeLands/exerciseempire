@@ -22,6 +22,16 @@ const RealTimeStatsSchema = z.object({
   last_updated: z.union([z.string(), z.date()]).refine(value => !isNaN(Date.parse(value as string)), { message: "Invalid last updated format" }),
 });
 
+const LocationDataSchema = z.object({
+  id: z.number().int().positive(),
+  timestamp: z.union([z.string(), z.date()]).refine(value => !isNaN(Date.parse(value as string)), { message: "Invalid timestamp format" }),
+  altitude: z.number().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  speed: z.number().optional(),
+  executed_activity_id: z.number().int().positive(),
+});
+
 @injectable()
 export class SensorDataRepository {
   @inject(TYPES.DbGateway)
@@ -181,6 +191,55 @@ export class SensorDataRepository {
     }
 
     console.log("Real time stats incremented successfully:", validationResult.data);
+    return {
+      status: RepositoryResultStatus.success,
+      data: validationResult.data,
+    };
+  }
+
+  public async createLocationData(
+    executed_activity_id: number,
+    timestamp: string,
+    altitude: number | null,
+    latitude: number | null,
+    longitude: number | null,
+    speed: number | null
+  ): Promise<RepositoryResult<z.infer<typeof LocationDataSchema>>> {
+    console.log(`Inserting location data: ${timestamp}, ${altitude}, ${latitude}, ${longitude}, ${speed}, ${executed_activity_id}`);
+    const result = await this.dbGateway.query(
+      `INSERT INTO ExecutedActivityLocationData (timestamp, altitude, latitude, longitude, speed, executed_activity_id) VALUES (NOW(), ${altitude}, ${latitude}, ${longitude}, ${speed}, ${executed_activity_id}) RETURNING *`
+    );
+
+    if (!result.dbSuccess) {
+      console.error("Database error during location data insertion:", result);
+      return {
+        status: RepositoryResultStatus.dbError,
+        errors: ["Database error!"],
+      };
+    }
+
+    if (result.data.length === 0) {
+      return {
+        status: RepositoryResultStatus.failed,
+        messages: ["LocationData not created!"],
+      };
+    }
+
+    const newLocationData = result.data[0];
+    const validationResult = LocationDataSchema.safeParse(newLocationData);
+
+    if (!validationResult.success) {
+      console.error("Invalid data from database:", validationResult.error);
+      return {
+        status: RepositoryResultStatus.zodError,
+        errors: [
+          "Invalid data from database!",
+          ...validationResult.error.errors.map((e) => e.message),
+        ],
+      };
+    }
+
+    console.log("Location data inserted successfully:", validationResult.data);
     return {
       status: RepositoryResultStatus.success,
       data: validationResult.data,

@@ -12,5 +12,6 @@ export class SensorDataRouter {
         router.post('/create-executed-activity', this.sensorDataController.createExecutedActivity);
         router.post('/toggle-activity', this.sensorDataController.toggleActivity);
         router.post('/sensor-data', this.sensorDataController.postSensorData);
+        router.post('/location-data', this.sensorDataController.postLocationData);
     }
 }
