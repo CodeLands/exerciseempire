@@ -93,7 +93,7 @@ function calcExp(value: number) {
 }
 
 function calcLvl(value: number) {
-    return Math.floor(value / 10)
+    return Math.floor(value / 100)
 }
 
 function calcTotalLvl(lvls: number[]) {

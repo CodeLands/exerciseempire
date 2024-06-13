@@ -83,6 +83,7 @@ export class AuthController {
         token: tempAuthToken,
         user: {
           email: repoResultCheckIfUserExists.data.email,
+          id: repoResultCheckIfUserExists.data.id,
         },
       },
     });
@@ -172,6 +173,7 @@ export class AuthController {
         token: tempAuthToken,
         user: {
           email: repoResultCreatedUser.data.email,
+          id: repoResultCreatedUser.data.id
         },
       },
     });
