@@ -280,4 +280,63 @@ export class ActivitiesRepository {
           data: validationResult.data,
         };
       }
+      public async getActivityDetails(activityId: number): Promise<RepositoryResult<any>> {
+        const result = await this.dbGateway.query(
+          `SELECT
+        ea.id AS executed_activity_id,
+        ea.activity_id,
+        ea.user_id,
+        ea.start_time,
+        ea.duration,
+        ea.is_active,
+        a.activity,
+        ac.category,
+        ead.value AS sensor_value,
+        ead.timestamp AS sensor_timestamp,
+        ead.sensor_id,
+        eal.altitude,
+        eal.latitude,
+        eal.longitude,
+        eal.speed,
+        eal.timestamp AS location_timestamp,
+        s.stat,
+        rs.current_value
+      FROM
+        ExecutedActivities ea
+      INNER JOIN
+        Activities a ON ea.activity_id = a.id
+      INNER JOIN
+        ActivityCategories ac ON a.category_id = ac.id
+      LEFT JOIN
+        ExecutedActivitySensorData ead ON ea.id = ead.executed_activity_id
+      LEFT JOIN
+        ExecutedActivityLocationData eal ON ea.id = eal.executed_activity_id
+      LEFT JOIN
+        RealTimeStats rs ON ea.id = rs.executed_activity_id
+      LEFT JOIN
+        Stats s ON rs.stat_id = s.id
+      WHERE
+        ea.id = $1`,
+          [activityId]
+        );
+    
+        if (!result.dbSuccess) {
+          return {
+            status: RepositoryResultStatus.dbError,
+            errors: ["Database error!"],
+          };
+        }
+    
+        if (result.data.length === 0) {
+          return {
+            status: RepositoryResultStatus.failed,
+            messages: ["No activity details found"],
+          };
+        }
+    
+        return {
+          status: RepositoryResultStatus.success,
+          data: result.data,
+        };
+      }
 }

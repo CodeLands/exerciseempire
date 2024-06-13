@@ -1,4 +1,3 @@
-// ActivityDetail.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -27,27 +26,34 @@ const ActivityDetail: React.FC = () => {
   useEffect(() => {
     const fetchActivityDetail = async () => {
       try {
-        const response = await axios.get(`${apiBaseUrl}/api/activity-detail`, {
+        console.log(`Fetching activity details for ID: ${id}`); // Debug log
+        const response = await axios.get(`${apiBaseUrl}/activity-details`, {
           params: { activity_id: id }
         });
 
+        console.log('API response:', response.data); // Debug log
+
         if (response.data && response.data.success) {
           const data = response.data.data;
+          const activityData = data[0];
+          const attributes = data.map((attr: any) => ({
+            name: attr.stat,
+            percent: attr.current_value,
+          }));
 
           setActivityDetail({
-            id: data.id,
-            description: data.description || `Activity ${data.activity_id}`,
-            date: new Date(data.start_time).toLocaleDateString(),
-            attributes: data.attributes.map((attr: any) => ({
-              name: attr.stat,
-              percent: attr.current_value,
-            })),
-            summaryDetails: data.summary_details,
+            id: activityData.executed_activity_id,
+            description: activityData.activity || `Activity ${activityData.activity_id}`,
+            date: new Date(activityData.start_time).toLocaleDateString(),
+            attributes,
+            summaryDetails: activityData.summary_details || 'No summary available',
           });
         } else {
+          console.error('Failed response structure:', response.data); // Debug log
           setError('Failed to fetch activity details');
         }
       } catch (error) {
+        console.error('Error fetching activity details:', error); // Debug log
         setError('Error fetching activity details');
       }
     };

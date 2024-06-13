@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import styles from './ActivityHistory.module.css';
 import axios from 'axios';
-import { useAuth } from '../auth/AuthContext';
+//import { useAuth } from '../auth/AuthContext';
 
 enum Attributes {
   Strength = 'Strength',
@@ -29,7 +29,7 @@ const ActivityHistory: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const {user} = useAuth()
+  //const {user} = useAuth()
 
   useEffect(() => {
     const fetchActivities = async () => {

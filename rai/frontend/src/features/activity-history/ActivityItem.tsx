@@ -36,7 +36,7 @@ const ActivityItem: React.FC<Props> = ({ activity }) => {
   const navigate = useNavigate();
 
   const handleItemClick = () => {
-    navigate(`/activity-detail/${activity.id}`);
+    navigate(`/activity-details/${activity.id}`);
   };
 
   return (

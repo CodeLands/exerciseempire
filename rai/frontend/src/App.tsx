@@ -29,7 +29,7 @@ function App() {
                 <Route path="home" element={<HomePage />} />
                 <Route path="activities" element={<ActivityList />} />
                 <Route path="activity-history" element={<ActivityHistory />} />
-                <Route path="activity-detail/:id" element={<ActivityDetail />} />
+                <Route path="activity-details/:id" element={<ActivityDetail />} />
                 <Route path="statistics" element={<UserStatsGraph />} />
                 <Route path="settings" element={<Settings />} />
               </Route>
