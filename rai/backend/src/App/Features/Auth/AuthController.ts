@@ -173,11 +173,7 @@ export class AuthController {
         token: tempAuthToken,
         user: {
           email: repoResultCreatedUser.data.email,
-<<<<<<< HEAD
           id: repoResultCreatedUser.data.id,
-=======
-          id: repoResultCreatedUser.data.id
->>>>>>> 3f3564866ced4fd151f7b0aedd3c884cf2dcf531
         },
       },
     });
