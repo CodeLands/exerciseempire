@@ -14,6 +14,7 @@ import UserStatsGraph from "./features/statistics/UserStatsGraph";
 import Settings from "./features/settings/Settings";
 import { DarkModeProvider } from "./features/settings/DarkModeContext";
 import ActivityList from './features/activities/ActivityList';
+import ActivityDetail from './features/activity-history/ActivityDetail';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="home" element={<HomePage />} />
                 <Route path="activities" element={<ActivityList />} />
                 <Route path="activity-history" element={<ActivityHistory />} />
+                <Route path="activity-detail/:id" element={<ActivityDetail />} />
                 <Route path="statistics" element={<UserStatsGraph />} />
                 <Route path="settings" element={<Settings />} />
               </Route>

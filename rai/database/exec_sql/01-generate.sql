@@ -56,6 +56,16 @@ CREATE TABLE IF NOT EXISTS ExecutedActivitySensorData (
     executed_activity_id INT REFERENCES ExecutedActivities(id)
 );
 
+CREATE TABLE IF NOT EXISTS ExecutedActivityLocationData (
+    id SERIAL PRIMARY KEY,
+    timestamp TIMESTAMP NOT NULL,
+    altitude INT,
+    latitude FLOAT,
+    longitude FLOAT,
+    speed FLOAT,
+    executed_activity_id INT REFERENCES ExecutedActivities(id)
+);
+
 CREATE TABLE IF NOT EXISTS UserCurrentStats (
     user_id INT REFERENCES UsersAuth(id),
     stat_id INT REFERENCES Stats(id),
