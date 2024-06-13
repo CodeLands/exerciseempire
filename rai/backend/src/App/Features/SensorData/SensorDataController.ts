@@ -13,6 +13,15 @@ export type SensorDataPayload = {
   timestamp: number;
 };
 
+export type LocationDataPayload = {
+  executed_activity_id: number;
+  timestamp: string;
+  altitude: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  speed: number | null;
+};
+
 export type CreateActivityPayload = {
   activity_id: number;
   user_id: number;
@@ -380,6 +389,143 @@ export class SensorDataController {
       success: true,
       message: "Sensor Data Saved and Computed Successfully!",
       data: repoResultCreateSensorData.data,
+    });
+  }
+
+  public postLocationData = async (req: Request, res: Response) => {
+    console.log("Received location data request:", req.body);
+
+    // Receive Location Data: Data is received via a POST request.
+    let payload: LocationDataPayload | null = null;
+    try {
+      payload = {
+        executed_activity_id: Number(req.body.executed_activity_id),
+        timestamp: String(req.body.timestamp),
+        altitude: req.body.altitude ? Number(req.body.altitude) : null,
+        latitude: req.body.latitude ? Number(req.body.latitude) : null,
+        longitude: req.body.longitude ? Number(req.body.longitude) : null,
+        speed: req.body.speed ? Number(req.body.speed) : null,
+      };
+      console.log("Parsed payload:", payload);
+    } catch (e) {
+      console.log("JSON parsing error:", e);
+      return res.json({
+        success: false,
+        errors: ["Invalid JSON!"],
+      });
+    }
+
+    // Validate Data Structure: Ensure the incoming location data matches the expected schema.
+    const validatedPayload = this.sensorDataValidator.locationDataValidate(
+      payload.executed_activity_id,
+      payload.timestamp,
+      payload.altitude,
+      payload.latitude,
+      payload.longitude,
+      payload.speed,
+    );
+    payload = null;
+    if (!validatedPayload.success) {
+      console.log("Validation errors:", validatedPayload.errors);
+      return res.json({
+        success: false,
+        errors: validatedPayload.errors,
+      });
+    }
+
+    // Check Activity Validity: Verify that the executed_activity_id corresponds to a currently active activity in the database.
+    const repoResultGetExecutedActivityById = await this.executedActivityRepository.getById(validatedPayload.data.executed_activity_id);
+    console.log("Executed activity:", repoResultGetExecutedActivityById);
+
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.dbError) {
+      console.log("Database error while fetching executed activity.");
+      return res.json({
+        success: false,
+        errors: ["Database Error!"],
+      });
+    }
+
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.zodError) {
+      console.log("Zod validation error while fetching executed activity.");
+      return res.json({
+        success: false,
+        errors: repoResultGetExecutedActivityById.errors,
+      });
+    }
+
+    if (repoResultGetExecutedActivityById.status === RepositoryResultStatus.failed) {
+      console.log("Executed activity not found.");
+      return res.json({
+        success: false,
+        errors: ["DB: ExecutedActivity referenced by LocationData not found!"],
+      });
+    }
+
+    if (!repoResultGetExecutedActivityById.data.is_active) {
+      // Set activity to active if it is not active
+      console.log("Executed activity is not active. Activating now...");
+      const toggleResult = await this.executedActivityRepository.toggleIsActive(validatedPayload.data.executed_activity_id, true);
+      console.log("Toggle activity result:", toggleResult);
+
+      if (toggleResult.status !== RepositoryResultStatus.success) {
+        return res.json({
+          success: false,
+          errors: ["DB: Failed to activate ExecutedActivity!"],
+        });
+      }
+
+      // Re-fetch the activity to ensure it is now active
+      const recheckResult = await this.executedActivityRepository.getById(validatedPayload.data.executed_activity_id);
+      if (recheckResult.status !== RepositoryResultStatus.success || !recheckResult.data.is_active) {
+        return res.json({
+          success: false,
+          errors: ["DB: ExecutedActivity is still not active after activation attempt!"],
+        });
+      }
+    }
+
+    // Save Location Data: If the activity is valid and in progress, save the location data.
+    const repoResultCreateLocationData = await this.sensorDataRepository.createLocationData(
+      validatedPayload.data.executed_activity_id,
+      validatedPayload.data.timestamp,
+      validatedPayload.data.altitude,
+      validatedPayload.data.latitude,
+      validatedPayload.data.longitude,
+      validatedPayload.data.speed,
+    );
+    console.log("Location data save result:", repoResultCreateLocationData);
+
+    if (repoResultCreateLocationData.status === RepositoryResultStatus.dbError) {
+      console.log("Database error while saving location data.");
+      return res.json({
+        success: false,
+        errors: ["Database Error!"],
+      });
+    }
+
+    if (repoResultCreateLocationData.status === RepositoryResultStatus.zodError) {
+      console.log("Zod validation error while saving location data.");
+      return res.json({
+        success: false,
+        errors: repoResultCreateLocationData.errors,
+      });
+    }
+
+    if (repoResultCreateLocationData.status === RepositoryResultStatus.failed) {
+      console.log("Location data not created.");
+      return res.json({
+        success: false,
+        errors: ["DB: LocationData could not be created!"],
+      });
+    }
+
+    console.log("Location Data Saved Successfully!");
+
+    // Respond: Return an appropriate response based on the outcome of the above steps.
+    res.json({
+      success: true,
+      message: "Location Data Saved Successfully!",
+      data: repoResultCreateLocationData.data,
     });
   }
 }

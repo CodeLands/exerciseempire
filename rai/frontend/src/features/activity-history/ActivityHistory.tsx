@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import styles from './ActivityHistory.module.css';
 import axios from 'axios';
+import { useAuth } from '../auth/AuthContext';
 
 enum Attributes {
   Strength = 'Strength',
@@ -28,11 +29,13 @@ const ActivityHistory: React.FC = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const {user} = useAuth()
+
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await axios.get(apiBaseUrl + '/api/list-activity-stats', {
-          params: { user_id: 1 } // Replace with the actual user ID
+        const response = await axios.get(apiBaseUrl + '/list-activity-stats', {
+          params: { user_id: user.id } // Replace with the actual user ID
         });
 
         console.log('Response:', response); // Log the full response for debugging

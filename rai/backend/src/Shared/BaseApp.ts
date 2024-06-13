@@ -12,7 +12,13 @@ export const createApp = (container: Container): express.Application => {
   const cors = require('cors');
   const router = express.Router();
 
-  app.use(cors({ origin: 'http://localhost:5173' }));
+  const corsOptions = {
+    origin: 'http://localhost:5173', // Your client URL
+    credentials: true, // This is important to allow credentials
+    optionsSuccessStatus: 200 // For legacy browser support
+};
+
+app.use(cors(corsOptions));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true })); // Support for URL-encoded bodies
 

@@ -33,34 +33,70 @@ export default function LastActivityScreen() {
             console.error('No API URL found');
             return;
         }
-
+    
         if (isStarted) {
             try {
                 SensorDataService.startSensors((data) => {
                     console.log("Sensor data received: ", data);
                     setSensorData(prevData => [...prevData, data]);
-
+    
                     const sensorId = getSensorId(data.type);
                     if (sensorId === -1) {
                         console.error("Unknown sensor type:", data.type);
                         return;
                     }
-
-                    const route = `${api}/sensor-data`;
+    
+                    // Determine the appropriate route based on the sensor type
+                    const route = data.type === 'location' ? `${api}/location-data` : `${api}/sensor-data`;
                     console.log('Sending to:', route);
-
-                    fetch(route, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
+    
+                    if (data.type === 'location') {
+                        const { altitude, latitude, longitude, speed } = data.data.coords;
+    
+                        const locationPayload = {
+                            executed_activity_id: id,
+                            timestamp: new Date().toISOString(),
+                            altitude: altitude,
+                            latitude: latitude,
+                            longitude: longitude,
+                            speed: speed,
+                        };
+                        console.log('Location data payload:', locationPayload);
+    
+                        fetch(route, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(locationPayload)
+                        })
+                        .then(response => response.json())
+                        .then(responseData => {
+                            console.log('Response from server:', responseData);
+                        })
+                        .catch(error => console.error("Error sending location data: ", error));
+                    } else {
+                        const sensorPayload = {
                             executed_activity_id: id, // Adjust as needed
                             sensor_id: sensorId,
                             value: data.data,
                             timestamp: Date.now(),
+                        };
+                        console.log('Sensor data payload:', sensorPayload);
+    
+                        fetch(route, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(sensorPayload)
                         })
-                    }).catch(error => console.error("Error sending sensor data: ", error));
+                        .then(response => response.json())
+                        .then(responseData => {
+                            console.log('Response from server:', responseData);
+                        })
+                        .catch(error => console.error("Error sending sensor data: ", error));
+                    }
                 });
             } catch (error) {
                 console.error("Error starting sensors: ", error);
@@ -72,7 +108,7 @@ export default function LastActivityScreen() {
                 console.error("Error stopping sensors: ", error);
             }
         }
-
+    
         return () => {
             try {
                 SensorDataService.stopSensors();
