@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { inject, injectable } from "inversify";
+import { id, inject, injectable } from "inversify";
 import { TYPES } from "/Shared/Types";
 import { AuthValidator, LoginData, RegisterData } from "./AuthValidator";
 import { AuthRepository } from "./Repositories/AuthRepository";
@@ -83,6 +83,7 @@ export class AuthController {
         token: tempAuthToken,
         user: {
           email: repoResultCheckIfUserExists.data.email,
+          id: repoResultCheckIfUserExists.data.id,
         },
       },
     });
@@ -172,6 +173,7 @@ export class AuthController {
         token: tempAuthToken,
         user: {
           email: repoResultCreatedUser.data.email,
+          id: repoResultCreatedUser.data.id,
         },
       },
     });

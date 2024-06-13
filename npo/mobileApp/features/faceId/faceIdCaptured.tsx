@@ -68,8 +68,8 @@ export default function FaceIdCapturedScreen(props: FaceIdCapturedProps) {
         console.log('Response: ', response);
 
         if (!response.ok) {
-        console.error('Network response:', response);
-        throw new Error('Network response was not ok');
+            console.error('Network response:', response);
+            throw new Error('Network response was not ok');
         }
 
         const data = await response.json();
@@ -91,23 +91,37 @@ export default function FaceIdCapturedScreen(props: FaceIdCapturedProps) {
                 //router.replace('/faceIdLogin')
             }
         }, 1000)
-    } else {
-        setStatus(Status.Failed)
+        } else {
+            setStatus(Status.Failed)
 
         if (authMode === AuthMode.Login) {
             console.error('FaceIdLogin Failed:', data.errors)
-            /* setTimeout(() => {
+            setTimeout(() => {
                 router.replace('/faceIdLogin')
-            }, 2000) */
+            }, 1000)
         } else {
             console.error('FaceIdRegister Failed:', data.errors)
-            /* setTimeout(() => {
+            setTimeout(() => {
                 router.replace('/faceIdRegister')
-            }, 2000) */
+            }, 1000)
         }
     }
     } catch (error) {
         console.error('Error sending video data', error);
+
+        setStatus(Status.Failed)
+
+        if (authMode === AuthMode.Login) {
+            console.error('FaceIdLogin Failed:', error)
+            setTimeout(() => {
+                router.replace('/faceIdLogin')
+            }, 1000)
+        } else {
+            console.error('FaceIdRegister Failed:', error)
+            setTimeout(() => {
+                router.replace('/faceIdRegister')
+            }, 1000)
+        }
     }
     };
 
