@@ -35,7 +35,7 @@ const ActivityHistory: React.FC = () => {
     const fetchActivities = async () => {
       try {
         const response = await axios.get(apiBaseUrl + '/list-activity-stats', {
-          params: { user_id: user.id } // Replace with the actual user ID
+          params: { user_id: /* user.id */ 1 } // Replace with the actual user ID
         });
 
         console.log('Response:', response); // Log the full response for debugging
