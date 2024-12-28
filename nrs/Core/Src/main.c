@@ -69,9 +69,9 @@
 #define HEADER 0xAAAB
 #define BUFFER_SIZE 64
 
-//#define ENABLE_MAGNETOMETER 1
-//#define ENABLE_ACCELEROMETER 1
-//#define ENABLE_GYROSCOPE 1
+#define ENABLE_MAGNETOMETER 1
+#define ENABLE_ACCELEROMETER 1
+#define ENABLE_GYROSCOPE 1
 
 #define MODE_NONE 0
 #define MODE_BINARY_UART 1
@@ -172,8 +172,11 @@ void Init_All_Sensors(void) {
 
     #if ENABLE_GYROSCOPE
     // Initialize gyroscope
-    Pisi_Register(0x6B, 0x20, 0x0F); // CTRL_REG1: Enable XYZ, 200 Hz
-    Pisi_Register(0x6B, 0x23, 0x30); // CTRL_REG4: ±500 dps
+    spi1_pisiRegister(0x20, 0x80);  // Soft reset
+    HAL_Delay(100);
+    spi1_pisiRegister(0x20, 0x7F);  // CTRL1: Enable XYZ, 200Hz
+    spi1_pisiRegister(0x22, 0x08);  // CTRL3: Enable data ready on INT2
+    spi1_pisiRegister(0x23, 0x10);  // CTRL4: ±500dps range
     HAL_Delay(10);
     #endif
 }
@@ -193,7 +196,7 @@ void Verify_Sensors(void) {
     #endif
 
     #if ENABLE_ACCELEROMETER
-    i2c1_beriRegistre(0x19, 0x0F, &who_am_i, 1); // Read WHO_AM_I register
+    Beri_Registre(0x19, 0x0F, &who_am_i, 1); // Read WHO_AM_I register
     if (who_am_i != 0x33) {
         CDC_Transmit_FS((uint8_t *)"Accelerometer communication failed\n", 36);
     } else {
@@ -293,9 +296,9 @@ void Handle_Magnetometer(void) {
             CDC_Transmit_FS(binary_buffer, 10);
         }
     } else if (transmission_mode == MODE_ASCII_UART || transmission_mode == MODE_ASCII_CDC) {
-        float x = convertToGauss(raw_data[0]);
-        float y = convertToGauss(raw_data[1]);
-        float z = convertToGauss(raw_data[2]);
+        float x = Convert_To_Gauss(raw_data[0]);
+        float y = Convert_To_Gauss(raw_data[1]);
+        float z = Convert_To_Gauss(raw_data[2]);
         Transmit_Data_ASCII("MAG", x, y, z);
     }
     packet_number++;
@@ -330,13 +333,12 @@ void Handle_Accelerometer(void) {
 #endif
 
 #if ENABLE_GYROSCOPE
-/* Gyroscope handler */
 void Handle_Gyroscope(void) {
     data_ready_gyr = 0;
 
     int16_t raw_data[3];
-    Beri_Registre(0x6B, 0x28 | 0x80, (uint8_t*)raw_data, 6);
-    Clear_Interrupts(); // Clear interrupt flags
+    spi1_beriRegistre(0x28 | 0x80, (uint8_t*)raw_data, 6);
+    Clear_Interrupts();
 
     if (transmission_mode == MODE_BINARY_UART || transmission_mode == MODE_BINARY_CDC) {
         uint8_t binary_buffer[10];
@@ -772,6 +774,53 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     #endif
 }
 
+void pavza(){
+  uint32_t counter = 0;
+  for(counter=0; counter<600; counter++){
+    asm("nop");
+  }
+}
+
+uint8_t spi1_beriRegister(uint8_t reg)
+{
+  uint16_t buf_out, buf_in;
+  reg |= 0x80;  // Set read bit
+  buf_out = reg;
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);  // CS low
+  pavza();
+  HAL_SPI_TransmitReceive(&hspi1, &((uint8_t*)&buf_out)[0], &((uint8_t*)&buf_in)[0], 1, 2);
+  pavza();
+  HAL_SPI_TransmitReceive(&hspi1, &((uint8_t*)&buf_out)[1], &((uint8_t*)&buf_in)[1], 1, 2);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);  // CS high
+  pavza();
+  return buf_in >> 8;
+}
+
+void spi1_pisiRegister(uint8_t reg, uint8_t vrednost)
+{
+  uint16_t buf_out;
+  buf_out = reg | (vrednost<<8);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+  pavza();
+  HAL_SPI_Transmit(&hspi1, &((uint8_t*)&buf_out)[0], 1, 2);
+  pavza();
+  HAL_SPI_Transmit(&hspi1, &((uint8_t*)&buf_out)[1], 1, 2);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+  pavza();
+}
+
+void spi1_beriRegistre(uint8_t reg, uint8_t* buffer, uint8_t velikost)
+{
+  reg |= 0xC0;
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_RESET);
+  pavza();
+  HAL_SPI_Transmit(&hspi1, &reg, 1, 10);
+  pavza();
+  HAL_SPI_Receive(&hspi1, buffer, velikost, velikost);
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_3, GPIO_PIN_SET);
+  pavza();
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -810,9 +859,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   //HAL_Delay(2000);
-  //Init_All_Sensors();
-  //Verify_Sensors(); // Verify all sensor communication
-  //Clear_Interrupts(); // Clear interrupt flags
+  Init_All_Sensors();
+  Verify_Sensors(); // Verify all sensor communication
+  Clear_Interrupts(); // Clear interrupt flags
 
   Log_Response_Status_Change();
   HAL_UART_Receive_IT(&huart2, (uint8_t *)&rx_buffer[rx_index], 1);
