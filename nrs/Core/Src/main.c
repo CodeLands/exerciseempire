@@ -110,6 +110,11 @@ volatile uint8_t shadow_buffer[RX_BUFFER_SIZE];
 volatile uint16_t rx_index = 0;
 volatile uint8_t rx_data_ready = 0;
 
+volatile uint32_t button_press_start = 0;
+volatile uint8_t button_pressed = 0;
+volatile uint8_t button_action_pending = 0;
+volatile uint8_t button_action_type = 0; // 0 for short press, 1 for long press
+
 volatile uint8_t setup_stage = AT_TEST;
 volatile uint8_t response_status = IDLE;
 volatile uint8_t has_response_changed = 0;
@@ -737,19 +742,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (GPIO_Pin == GPIO_PIN_0) { // Button press
-        transmission_mode = (transmission_mode + 1) % 5;
+        if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_SET) {
+            // Button pressed
+            button_pressed = 1;
+            button_press_start = HAL_GetTick();
+        } else {
+            // Button released
+            button_pressed = 0;
+            uint32_t press_duration = HAL_GetTick() - button_press_start;
 
-#ifdef DEBUG
-        HAL_GPIO_TogglePin(GPIOE, LED_PIN_SEND_MODE);
-        //HAL_Delay(10);
-#endif
-        //Send_Command("AT\r\n");
-        Change_Response_Status(SEND_REQUEST);
-        //HAL_Delay(10);
+            if (press_duration < 500) { // Short press
+                button_action_type = 0;
+            } else { // Long press
+                button_action_type = 1;
+            }
+            button_action_pending = 1;
+        }
     }
 
     #if ENABLE_MAGNETOMETER
-    if (GPIO_Pin == GPIO_PIN_2) { // DRDY for magnetometer
+    if (GPIO_Pin == GPIO_PIN_2) {
         data_ready_mag = 1;
 #ifdef DEBUG
         HAL_GPIO_TogglePin(GPIOE, LED_PIN_MAGNET);
@@ -869,48 +881,55 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-	  //HAL_Delay(10);
-
-	  Log_Client_Status_Change();
+  while (1) {
+      Log_Client_Status_Change();
 
       if (Has_Response_Finished() == 1) {
-    	  Handle_Response();
-	      //continue;
-	  }
+          Handle_Response();
+      }
 
-	  if(Is_Timedout(5000) == 1 && response_status == WAITING)
-		  Change_Response_Status(TIMEOUT);
+      if(Is_Timedout(5000) == 1 && response_status == WAITING) {
+          Change_Response_Status(TIMEOUT);
+      }
 
-	  if (response_status == SEND_REQUEST) {
-		  Configure_ESP_As_Access_Point();
-	  	  //continue;
-	  }
+      if (response_status == SEND_REQUEST) {
+          Configure_ESP_As_Access_Point();
+      }
 
+      // Handle button actions
+      if (button_action_pending) {
+          if (button_action_type == 0) {
+              // Short press - send AT command
+              Change_Response_Status(SEND_REQUEST);
+          } else {
+              // Long press - change transmission mode
+              transmission_mode = (transmission_mode + 1) % 5;
+      #ifdef DEBUG
+              HAL_GPIO_TogglePin(GPIOE, LED_PIN_SEND_MODE);
+      #endif
+          }
+          button_action_pending = 0;
+      }
 
       if (transmission_mode == MODE_NONE) {
           continue;
       }
 
-      #if ENABLE_MAGNETOMETER
-      if (data_ready_mag) {
-          Handle_Magnetometer();
-      }
-      #endif
-      #if ENABLE_ACCELEROMETER
-      if (data_ready_acc) {
-          Handle_Accelerometer();
-      }
-      #endif
-      #if ENABLE_GYROSCOPE
-      if (data_ready_gyr) {
-          Handle_Gyroscope();
-      }
-      #endif
+		#if ENABLE_MAGNETOMETER
+		if (data_ready_mag) {
+			Handle_Magnetometer();
+		}
+		#endif
+		#if ENABLE_ACCELEROMETER
+		if (data_ready_acc) {
+			Handle_Accelerometer();
+		}
+		#endif
+		#if ENABLE_GYROSCOPE
+		if (data_ready_gyr) {
+			Handle_Gyroscope();
+		}
+		#endif
   }
   /* USER CODE END 3 */
 }
@@ -1132,7 +1151,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
