@@ -66,7 +66,9 @@
 #define AT_SEND_HTML 5
 #define AT_SEND_CONNECT_REQUEST 6
 
-#define HEADER 0xAAAB
+#define HEADER_MAG 0xAAAB
+#define HEADER_ACC 0xBBBB
+#define HEADER_GYR 0xCCCC
 #define BUFFER_SIZE 64
 
 #define ENABLE_MAGNETOMETER 1
@@ -133,7 +135,7 @@ static void MX_SPI1_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 void Init_All_Sensors(void);
-void Pack_Data(uint8_t *binary_buffer, int16_t x, int16_t y, int16_t z);
+void Pack_Data(uint8_t *binary_buffer, uint16_t header, int16_t x, int16_t y, int16_t z);
 void Transmit_Data_ASCII(const char *sensor_label, float x, float y, float z);
 uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
 uint8_t Pisi_Register(uint8_t device, uint8_t reg, uint8_t value);
@@ -258,9 +260,9 @@ float Convert_To_Gauss(int16_t raw_value) {
 }
 
 /* Data packing function */
-void Pack_Data(uint8_t *binary_buffer, int16_t x, int16_t y, int16_t z) {
-    binary_buffer[0] = HEADER & 0xFF;
-    binary_buffer[1] = (HEADER >> 8) & 0xFF;
+void Pack_Data(uint8_t *binary_buffer, uint16_t header, int16_t x, int16_t y, int16_t z) {
+    binary_buffer[0] = header & 0xFF;
+    binary_buffer[1] = (header >> 8) & 0xFF;
     binary_buffer[2] = packet_number & 0xFF;
     binary_buffer[3] = (packet_number >> 8) & 0xFF;
     binary_buffer[4] = x & 0xFF;
@@ -294,7 +296,7 @@ void Handle_Magnetometer(void) {
 
     if (transmission_mode == MODE_BINARY_UART || transmission_mode == MODE_BINARY_CDC) {
         uint8_t binary_buffer[10];
-        Pack_Data(binary_buffer, raw_data[0], raw_data[1], raw_data[2]);
+        Pack_Data(binary_buffer, HEADER_MAG, raw_data[0], raw_data[1], raw_data[2]);
         if (transmission_mode == MODE_BINARY_UART) {
             HAL_UART_Transmit(&huart2, binary_buffer, 10, HAL_MAX_DELAY);
         } else {
@@ -321,7 +323,7 @@ void Handle_Accelerometer(void) {
 
     if (transmission_mode == MODE_BINARY_UART || transmission_mode == MODE_BINARY_CDC) {
         uint8_t binary_buffer[10];
-        Pack_Data(binary_buffer, raw_data[0], raw_data[1], raw_data[2]);
+        Pack_Data(binary_buffer, HEADER_ACC, raw_data[0], raw_data[1], raw_data[2]);
         if (transmission_mode == MODE_BINARY_UART) {
             HAL_UART_Transmit(&huart2, binary_buffer, 10, HAL_MAX_DELAY);
         } else {
@@ -347,7 +349,7 @@ void Handle_Gyroscope(void) {
 
     if (transmission_mode == MODE_BINARY_UART || transmission_mode == MODE_BINARY_CDC) {
         uint8_t binary_buffer[10];
-        Pack_Data(binary_buffer, raw_data[0], raw_data[1], raw_data[2]);
+        Pack_Data(binary_buffer, HEADER_GYR, raw_data[0], raw_data[1], raw_data[2]);
         if (transmission_mode == MODE_BINARY_UART) {
             HAL_UART_Transmit(&huart2, binary_buffer, 10, HAL_MAX_DELAY);
         } else {
