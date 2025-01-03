@@ -171,10 +171,12 @@ void Init_All_Sensors(void) {
     #endif
 
     #if ENABLE_ACCELEROMETER
-    // Initialize accelerometer
-    Pisi_Register(0x19, 0x20, 0x4F);  // CTRL_REG1: Enable XYZ, 50 Hz
-    Pisi_Register(0x19, 0x23, 0x80);  // CTRL_REG4: ±4g scale
-    HAL_Delay(10);
+	Pisi_Register(0x19, 0x20, 0x47); // CTRL_REG1_A: ODR=50Hz, enable XYZ
+	Pisi_Register(0x19, 0x23, 0x18); // CTRL_REG4_A: Full-scale ±4g, High resolution
+	Pisi_Register(0x19, 0x22, 0x10); // CTRL_REG3_A: Enable INT1 for data ready
+	Pisi_Register(0x19, 0x30, 0x00); // INT1_CFG_A: OR combination of events
+
+	HAL_Delay(10);
     #endif
 
     #if ENABLE_GYROSCOPE
@@ -247,7 +249,7 @@ uint8_t Pisi_Register(uint8_t device, uint8_t reg, uint8_t value) {
 }
 
 void Beri_Registre(uint8_t device, uint8_t reg, uint8_t* data, uint8_t length) {
-    if ((length > 1) && (device == 0x1E)) {
+    if (length > 1) {
         reg |= 0x80; // Auto-increment for magnetometer
     }
     device <<= 1;
