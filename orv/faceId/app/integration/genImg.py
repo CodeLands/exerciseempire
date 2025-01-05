@@ -3,13 +3,14 @@ import numpy as np
 import random
 import os
 
-def process_image(frame, output_dir="../model/images/me", st=0):
+def process_image(frame, output_folder=None, st=0):
     num_augmented_copies = 30  # Number of augmented copies per frame
     resize_width = 224  # Set desired width to 224
     resize_height = 224  # Set desired height to 224
 
-    # Create output directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
+    if output_folder is not None:
+        # Create output directory if it doesn't exist
+        os.makedirs(output_folder, exist_ok=True)
 
     # Define augmentation functions
     def apply_gaussian_blur(image):
@@ -46,6 +47,7 @@ def process_image(frame, output_dir="../model/images/me", st=0):
     resized_image = cv2.resize(frame, (resize_width, resize_height))
 
     # Augment the image
+    augmented_images = []
     for i in range(num_augmented_copies):
         image_copy = resized_image.copy()
 
@@ -55,12 +57,13 @@ def process_image(frame, output_dir="../model/images/me", st=0):
         image_copy = apply_brightness(image_copy)
         image_copy = apply_random_zoom(image_copy)
 
-        # Format the filename based on the value of i
-        filename = f"{output_dir}/"
-        filename += f"{st:05d}_" if st < 10000 else f"{st:05d}_"
-        filename += f"{i:05d}.jpg" if i < 10000 else f"{i:05d}.jpg"
+        augmented_images.append(image_copy)
 
-        cv2.imwrite(filename, image_copy)
-        #print(f"Saved: {filename}")
+        # Save to disk if output_folder is specified
+        if output_folder is not None:
+            filename = f"{output_folder}/{st:05d}_{i:05d}.jpg"
+            cv2.imwrite(filename, image_copy)
 
     print(f"Processing completed for frame {st}")
+
+    return augmented_images
